@@ -1,8 +1,12 @@
-// Define texture paths
+import { assetPath } from './assetBase.js';
+
 export const images = {
-    woodTexture: 'src/assets/images/wood_texture.png',
-    notebookPaper: 'src/assets/images/notebook_texture.png'
+    get woodTexture() {
+        return assetPath('src/assets/images/wood_texture.png');
+    },
+    get notebookPaper() {
+        return assetPath('src/assets/images/notebook_texture.png');
+    }
 };
 
-// Debug log to verify the paths
-console.log('Texture paths:', images); 
+console.log('Texture paths ready');

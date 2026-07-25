@@ -4,6 +4,7 @@ import { Calendar } from './ui/Calendar.js';
 import { RadioImage } from './ui/RadioImage.js';
 import { SoundManager } from './audio/SoundManager.js';
 import { ResourceDisplay } from './ui/ResourceDisplay.js';
+import { assetPath } from '../assetBase.js';
 
 export class GameEngine {
     constructor() {
@@ -48,17 +49,17 @@ export class GameEngine {
         // Initialize sound manager
         this.soundManager = new SoundManager();
         
-        // Load sound files
-        this.soundManager.loadSound('static', 'src/assets/sounds/static.wav');
-        this.soundManager.loadSound('staticBlip', 'src/assets/sounds/static_blip.wav');
-        this.soundManager.loadSound('radioBeep', 'src/assets/sounds/radio_beep.wav');
-        this.soundManager.loadSound('rainforest', 'src/assets/sounds/459925__rtb45__costa-rica-rainforest.wav');
-        this.soundManager.loadSound('piano', 'src/assets/sounds/Whispers in the Canopy_piano.mp3');
-        this.soundManager.loadSound('militaryVoice', 'src/assets/sounds/ElevenLabs_Military_1.mp3');
-        this.soundManager.loadSound('explorerVoice', 'src/assets/sounds/ElevenLabs_Explorer_1.mp3');
-        this.soundManager.loadSound('shamanVoice', 'src/assets/sounds/ElevenLabs_Shaman_1.mp3');
-        this.soundManager.loadSound('seerVoice', 'src/assets/sounds/ElevenLabs_Seer_1.mp3');
-        this.soundManager.loadSound('oldSong', 'src/assets/sounds/old_song.wav');
+        // Load sound files (Pages-safe absolute paths when hosted under /echoes-of-the-basin/)
+        this.soundManager.loadSound('static', assetPath('src/assets/sounds/static.wav'));
+        this.soundManager.loadSound('staticBlip', assetPath('src/assets/sounds/static_blip.wav'));
+        this.soundManager.loadSound('radioBeep', assetPath('src/assets/sounds/radio_beep.wav'));
+        this.soundManager.loadSound('rainforest', assetPath('src/assets/sounds/459925__rtb45__costa-rica-rainforest.wav'));
+        this.soundManager.loadSound('piano', assetPath('src/assets/sounds/Whispers in the Canopy_piano.mp3'));
+        this.soundManager.loadSound('militaryVoice', assetPath('src/assets/sounds/ElevenLabs_Military_1.mp3'));
+        this.soundManager.loadSound('explorerVoice', assetPath('src/assets/sounds/ElevenLabs_Explorer_1.mp3'));
+        this.soundManager.loadSound('shamanVoice', assetPath('src/assets/sounds/ElevenLabs_Shaman_1.mp3'));
+        this.soundManager.loadSound('seerVoice', assetPath('src/assets/sounds/ElevenLabs_Seer_1.mp3'));
+        this.soundManager.loadSound('oldSong', assetPath('src/assets/sounds/old_song.wav'));
 
         // Generate transmission pools after state is initialized
         this.state.transmissionPools = this.generateTransmissionPools();
@@ -451,14 +452,48 @@ export class GameEngine {
     }
 
     saveGame() {
-        localStorage.setItem('amazonRadioMystery', JSON.stringify(this.state));
+        const payload = {
+            ...this.state,
+            foundFrequencies: [...(this.state.foundFrequencies || [])],
+            // Maps are not JSON-safe; rebuild on load
+            dailyTransmissionPool: undefined,
+            transmissionPools: undefined
+        };
+        localStorage.setItem('amazonRadioMystery', JSON.stringify(payload));
     }
 
     loadSavedGame() {
-        const savedGame = localStorage.getItem('amazonRadioMystery');
-        if (savedGame) {
-            this.state = JSON.parse(savedGame);
+        const raw = localStorage.getItem('amazonRadioMystery');
+        if (!raw) {
+            return;
+        }
+
+        try {
+            const saved = JSON.parse(raw);
+            const found = saved.foundFrequencies;
+            const foundSet = new Set(
+                Array.isArray(found)
+                    ? found
+                    : found && typeof found === 'object'
+                        ? Object.keys(found)
+                        : []
+            );
+
+            this.state = {
+                ...this.state,
+                ...saved,
+                foundFrequencies: foundSet,
+                dailyTransmissionPool: new Map(),
+                resources: { ...this.state.resources, ...(saved.resources || {}) },
+                factions: { ...this.state.factions, ...(saved.factions || {}) },
+                availableFrequencies: saved.availableFrequencies || this.state.availableFrequencies,
+                defaultTransmissions: saved.defaultTransmissions || this.state.defaultTransmissions
+            };
+            this.state.transmissionPools = this.generateTransmissionPools();
             this.updateFrequencyDisplay();
+        } catch (error) {
+            console.warn('Corrupt save cleared:', error);
+            localStorage.removeItem('amazonRadioMystery');
         }
     }
 

@@ -31,6 +31,7 @@ export class SceneManager {
         
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(1); // Force pixelated look
+        this.renderer.domElement.classList.add('game-canvas');
         document.body.appendChild(this.renderer.domElement);
 
         // Set up camera position

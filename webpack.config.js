@@ -1,15 +1,18 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-module.exports = (env, argv) => ({
+module.exports = (env, argv) => {
+  const production = (argv.mode || 'development') === 'production';
+  return {
   mode: argv.mode || 'development',
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js',
+    // Content hash busts stale cached JS after Pages deploys
+    filename: production ? 'bundle.[contenthash:8].js' : 'bundle.js',
     clean: true,
-    // Relative paths so GitHub project Pages (/echoes-of-the-basin/) resolve assets
-    publicPath: './'
+    // Absolute on Pages so missing trailing slash cannot resolve JS to site root
+    publicPath: production ? '/echoes-of-the-basin/' : 'auto'
   },
   module: {
     rules: [
@@ -60,4 +63,5 @@ module.exports = (env, argv) => ({
   resolve: {
     extensions: ['.js', '.jsx', '.css']
   }
-});
+};
+};
