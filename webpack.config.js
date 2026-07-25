@@ -1,13 +1,15 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-module.exports = {
-  mode: 'development',
+module.exports = (env, argv) => ({
+  mode: argv.mode || 'development',
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
-    clean: true
+    clean: true,
+    // Relative paths so GitHub project Pages (/echoes-of-the-basin/) resolve assets
+    publicPath: './'
   },
   module: {
     rules: [
@@ -37,7 +39,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './index.html'
+      template: './src/template.html'
     })
   ],
   devServer: {
@@ -58,4 +60,4 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.jsx', '.css']
   }
-}; 
+});
