@@ -51,7 +51,7 @@ class Game {
         this.init();
         
         // Add initial day message after UI is initialized
-        this.gameEngine.addToLog('January 12, 1945 - Amazon Radio Outpost', 'system');
+        this.gameEngine.addToLog('January 12, 1945 — Echoes of the Basin', 'system');
     }
 
     init() {

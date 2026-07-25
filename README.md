@@ -1,10 +1,10 @@
-# Military Radio Game
+# Echoes of the Basin
 
-A web-based game where players interact with a military radio interface to receive and respond to transmissions from various factions.
+A web-based game where players interact with a military radio interface to receive and respond to transmissions from various factions in the Amazon basin.
 
 ## Play the Game
 
-Visit [https://thomasmeston.github.io/theradio](https://thomasmeston.github.io/theradio) to play the game directly in your browser.
+Visit [https://thomasmeston.github.io/echoes-of-the-basin](https://thomasmeston.github.io/echoes-of-the-basin) to play the game directly in your browser.
 
 ## Features
 
@@ -18,46 +18,35 @@ Visit [https://thomasmeston.github.io/theradio](https://thomasmeston.github.io/t
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/YOUR_USERNAME/REPOSITORY_NAME.git
-cd REPOSITORY_NAME
+git clone https://github.com/thomasmeston/echoes-of-the-basin.git
+cd echoes-of-the-basin
 ```
 
-2. Start a local server (you can use any of these methods):
+2. Install and run:
 ```bash
-# Using Python 3
-python -m http.server 8000
-
-# Using Node.js
-npx http-server
-
-# Using PHP
-php -S localhost:8000
+npm install
+npm run dev          # webpack-dev-server on port 3000
+# or
+npm run build && npm start   # Express serving dist/
 ```
 
-3. Open your browser and navigate to `http://localhost:8000`
+3. Open your browser and navigate to `http://localhost:3000` (dev) or the port printed by `npm start`.
 
 ## Directory Structure
 
 ```
 ├── index.html
 ├── README.md
+├── package.json
+├── server.js
+├── webpack.config.js
 ├── src/
 │   ├── assets/
-│   │   ├── sounds/
-│   │   │   ├── ElevenLabs_Explorer_1.mp3
-│   │   │   ├── ElevenLabs_Military_1.mp3
-│   │   │   ├── ElevenLabs_Shaman_1.mp3
-│   │   │   └── ElevenLabs_Seer_1.mp3
-│   │   ├── radio.png
-│   │   ├── notebook_paper.png
-│   │   └── favicon.png
 │   ├── game/
-│   │   ├── GameEngine.js
-│   │   ├── SoundManager.js
-│   │   └── ui/
-│   │       └── RadioImage.js
 │   ├── styles.css
+│   ├── index.js
 │   └── main.js
+└── assets/
 ```
 
 ## Contributing
@@ -70,4 +59,4 @@ php -S localhost:8000
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
