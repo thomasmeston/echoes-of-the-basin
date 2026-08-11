@@ -1,0 +1,20 @@
+{
+  "day": 14,
+  "requiredBeats": ["G8"],
+  "transmissions": [
+    {
+      "id": "G8",
+      "frequency": 93.2,
+      "thread": "G",
+      "sender": "Assembled log — your notes",
+      "message": "Marcos: warn river / chase Condor / flee paperwork / or simply gone. The basin keeps more than one truth.",
+      "faction": "desk",
+      "requires": ["thread:G:>=6"],
+      "choices": [
+        { "id": "bury", "text": "Copy river truth forward", "on_success": ["set_flag:G8_river", "thread:G:8", "trust:river:5", "resource:batteries:-4", "log:Log aligned with the bend."] },
+        { "id": "relay", "text": "Copy official truth forward", "on_success": ["set_flag:G8_official", "thread:G:8", "trust:military:5", "resource:batteries:-6", "log:Log aligned with HQ."] },
+        { "id": "static", "text": "Leave gaps intentionally", "on_success": ["set_flag:G8_gaps", "thread:G:8", "trust:guerrilla:3", "resource:batteries:-3", "log:Incomplete log — like Marcos left it."] }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "opening_log": "First real choice tonight. River trader at Bend do Sapo. Coded voice on an unregistered band. River is not guerrilla — remember that.",
+  "on_flag": {
+    "R1_buried": { "thought": "bend_protected", "journal": "bend_strangers" },
+    "R1_relayed": { "thought": "bend_exposed", "journal": "bend_strangers" },
+    "A1_buried": { "journal": "coded_window" }
+  },
+  "thoughts": {
+    "bend_protected": "You kept a bend off the military net. Someone may remember.",
+    "bend_exposed": "HQ has the grid. The trader band went silent."
+  },
+  "journal_entries": {
+    "bend_strangers": {
+      "title": "Bend do Sapo",
+      "body": "Strangers near the bend. River trader says not military. Survey maps, wrong questions."
+    },
+    "coded_window": {
+      "title": "Coded window",
+      "body": "After midnight. Not the posted list. Someone knows I'm the new voice."
+    }
+  },
+  "day_close": "Night three. You served someone tonight — maybe more than one."
+}

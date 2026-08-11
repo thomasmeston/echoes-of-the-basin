@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+  <defs>
+    <linearGradient id="desk" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5a4030"/>
+      <stop offset="40%" stop-color="#3e2a1c"/>
+      <stop offset="100%" stop-color="#2a1a12"/>
+    </linearGradient>
+    <pattern id="grain" width="80" height="12" patternUnits="userSpaceOnUse">
+      <path d="M0 6 Q20 2 40 6 T80 6" fill="none" stroke="#2a1a12" stroke-width="0.8" opacity="0.35"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="900" fill="#1a1410"/>
+  <!-- desk top -->
+  <path d="M80 280 L1520 280 L1480 720 L120 720 Z" fill="url(#desk)" stroke="#1a120c" stroke-width="4"/>
+  <path d="M80 280 L1520 280 L1480 720 L120 720 Z" fill="url(#grain)"/>
+  <!-- front edge -->
+  <path d="M120 720 L1480 720 L1460 820 L140 820 Z" fill="#241610" stroke="#120c08" stroke-width="3"/>
+  <!-- drawers suggestion -->
+  <rect x="180" y="740" width="220" height="55" rx="4" fill="#2e1e14" stroke="#1a120c" stroke-width="2"/>
+  <rect x="440" y="740" width="220" height="55" rx="4" fill="#2e1e14" stroke="#1a120c" stroke-width="2"/>
+  <circle cx="390" cy="767" r="5" fill="#8a7a50"/>
+  <circle cx="650" cy="767" r="5" fill="#8a7a50"/>
+</svg>

@@ -21,4 +21,14 @@ build/
 
 # OS files
 .DS_Store
-Thumbs.db 
+Thumbs.db
+
+# Local tooling / caches
+.playwright-mcp/
+test-results/
+playwright-report/
+scripts/__pycache__/
+**/__pycache__/
+*.pyc
+*.bak
+src/styles.css.bak 

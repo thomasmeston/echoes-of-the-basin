@@ -1,0 +1,34 @@
+{
+  "day": 13,
+  "requiredBeats": ["A6", "R6"],
+  "transmissions": [
+    {
+      "id": "A6",
+      "frequency": 90.3,
+      "thread": "A",
+      "sender": "Both nets — quiet",
+      "message": "Net Control and Quiet net both minimal tonight. Keep nights dull.",
+      "faction": "military",
+      "requires": ["thread:A:>=5"],
+      "choices": [
+        { "id": "bury", "text": "Enjoy quiet — log only", "on_success": ["set_flag:A6_buried", "thread:A:7", "resource:batteries:-3", "log:A rare dull night."] },
+        { "id": "relay", "text": "Confirm to HQ", "on_success": ["set_flag:A6_relayed", "thread:A:7", "trust:military:4", "resource:batteries:-4", "log:HQ says maintain."] },
+        { "id": "static", "text": "Static", "on_success": ["set_flag:A6_static", "thread:A:7", "resource:batteries:-2", "log:Static."] }
+      ]
+    },
+    {
+      "id": "R6",
+      "frequency": 94.8,
+      "thread": "R",
+      "sender": "Elder — lore gift",
+      "message": "Because you didn't shout our bend to the outpost: a story about the chair you're sitting in.",
+      "faction": "river",
+      "requires": ["thread:R:>=4"],
+      "choices": [
+        { "id": "bury", "text": "Receive story privately", "on_success": ["set_flag:R6_buried", "clue:chair_lore", "thread:R:6", "trust:river:5", "resource:batteries:-3", "log:Story written in back of log."] },
+        { "id": "relay", "text": "Relay summary to HQ", "on_success": ["set_flag:R6_relayed", "thread:R:6", "trust:military:2", "trust:river:-4", "resource:batteries:-6", "log:HQ marks folklore not actionable."] },
+        { "id": "static", "text": "Static", "on_success": ["set_flag:R6_static", "thread:R:6", "resource:batteries:-2", "log:Elder voice fades."] }
+      ]
+    }
+  ]
+}

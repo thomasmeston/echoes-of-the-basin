@@ -1,0 +1,7 @@
+{
+  "military": { "label": "Military", "voice": "military" },
+  "river": { "label": "River", "voice": "river" },
+  "expedition": { "label": "Expedition", "voice": "expedition" },
+  "guerrilla": { "label": "Quiet Net", "voice": "guerrilla" },
+  "desk": { "label": "Desk Log", "voice": "desk" }
+}

@@ -1,0 +1,53 @@
+{
+  "title": "Field notes — basin flora",
+  "plants": [
+    {
+      "id": "cinchona",
+      "commonName": "Cinchona (Quina)",
+      "latinName": "Cinchona officinalis",
+      "sketch": "cinchona",
+      "description": "Evergreen Andean foothill tree with reddish bark and paired glossy leaves. Bark is bitter and fibrous when peeled in strips.",
+      "uses": "Bark yields quinine — the classic fever remedy of the basin outposts. Field medics steep thin shavings in hot water for malaria fever."
+    },
+    {
+      "id": "guarana",
+      "commonName": "Guaraná",
+      "latinName": "Paullinia cupana",
+      "sketch": "guarana",
+      "description": "Woody climbing vine of the understory. Bright red fruit capsules split to show a black seed with a white aril — like a watching eye.",
+      "uses": "Seeds roasted and ground into a stimulating paste or drink. Used for long night watches and to blunt river fever fatigue."
+    },
+    {
+      "id": "hevea",
+      "commonName": "Rubber tree",
+      "latinName": "Hevea brasiliensis",
+      "sketch": "hevea",
+      "description": "Tall canopy tree with trifoliate leaves and milky latex that beads white when the bark is cut.",
+      "uses": "Latex collected for waterproofing kit, boot repairs, and sealing radio crates against humidity. Smoke-cured sheets keep longer in the wet."
+    },
+    {
+      "id": "acai",
+      "commonName": "Açaí palm",
+      "latinName": "Euterpe oleracea",
+      "sketch": "acai",
+      "description": "Slender multi-stem palm of floodplain forest. Dark purple berry clusters hang below feathery fronds.",
+      "uses": "Fruit pulp is a dense riverside staple — energy food for paddlers. Leaves and stems also used for temporary thatch and baskets."
+    },
+    {
+      "id": "copaiba",
+      "commonName": "Copaíba",
+      "latinName": "Copaifera langsdorffii",
+      "sketch": "copaiba",
+      "description": "Large hardwood with compound leaves. A clear golden oleoresin can be tapped from the trunk.",
+      "uses": "Resin used as a wound balm and lamp oil extender. Local boatmen rub it on cuts that refuse to dry in the wet season."
+    },
+    {
+      "id": "ipecac",
+      "commonName": "Ipecacuanha",
+      "latinName": "Carapichea ipecacuanha",
+      "sketch": "ipecac",
+      "description": "Low shade herb of moist forest floor. Knobby roots and small paired leaves hug the leaf litter.",
+      "uses": "Root preparations historically used to clear the gut of toxins and as an expectorant. Dose carefully — strong medicine."
+    }
+  ]
+}

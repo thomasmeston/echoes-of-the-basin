@@ -1,0 +1,144 @@
+{
+  "day": 1,
+  "meta": { "supplyEvent": "daily_supply_check" },
+  "requiredBeats": ["G1", "A_soft"],
+  "transmissions": [
+    {
+      "id": "G1",
+      "frequency": 93.2,
+      "thread": "G",
+      "sender": "Outpost Log — prior shift",
+      "message": "Handwritten margin, not typed: \"Marcos — if you're reading this, don't trust the posted frequency list. Gap between 2200 and 0400. Someone else was listening.\" The rest of the page is torn out.",
+      "faction": "desk",
+      "requires": [],
+      "choices": [
+        {
+          "id": "relay",
+          "text": "Relay excerpt to HQ",
+          "on_success": [
+            "set_flag:G1_relayed",
+            "clue:log_gap",
+            "thread:G:1",
+            "trust:military:5",
+            "resource:batteries:-8",
+            "log:You relayed the margin note. HQ acknowledges — and asks why it wasn't logged sooner."
+          ]
+        },
+        {
+          "id": "bury",
+          "text": "Log only — do not relay",
+          "on_success": [
+            "set_flag:G1_buried",
+            "clue:log_gap",
+            "thread:G:1",
+            "trust:river:2",
+            "resource:batteries:-4",
+            "log:You copied it into the book. The channel stays quiet."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Didn't copy — lost in static",
+          "on_success": [
+            "set_flag:G1_static",
+            "thread:G:1",
+            "trust:military:-2",
+            "resource:batteries:-2",
+            "log:Static. If anyone asked, you didn't hear it."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A_soft",
+      "frequency": 90.3,
+      "thread": "A",
+      "sender": "Tango-Seven Net Control",
+      "message": "Relief operator, this is Net Control. Maintain a clean channel tonight. Routine traffic only. Do not relay unverified civilian bands. Acknowledge.",
+      "faction": "military",
+      "requires": [],
+      "choices": [
+        {
+          "id": "relay",
+          "text": "Acknowledge and comply",
+          "on_success": [
+            "set_flag:A_soft_relayed",
+            "thread:A:1",
+            "trust:military:8",
+            "resource:batteries:-5",
+            "log:Acknowledged. Net Control signs off with \"good shift.\""
+          ]
+        },
+        {
+          "id": "bury",
+          "text": "Acknowledge — log privately",
+          "on_success": [
+            "set_flag:A_soft_buried",
+            "thread:A:1",
+            "trust:military:3",
+            "trust:river:2",
+            "resource:batteries:-4",
+            "log:You logged the order without repeating it on the open net."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "No acknowledgment",
+          "on_success": [
+            "set_flag:A_soft_static",
+            "thread:A:1",
+            "trust:military:-5",
+            "resource:batteries:-2",
+            "log:Silence. The meter keeps climbing anyway."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "HQ_open",
+      "frequency": 98.1,
+      "thread": "meta",
+      "sender": "HQ — Manaus relay",
+      "message": "Outpost Tucunaré, confirm relief operator on station. Prior operator reassigned upriver per routine rotation. Business as usual. Over.",
+      "faction": "military",
+      "requires": [],
+      "choices": [
+        {
+          "id": "relay",
+          "text": "Confirm on station",
+          "on_success": [
+            "set_flag:HQ_open_relayed",
+            "trust:military:3",
+            "resource:batteries:-3",
+            "log:You confirm. HQ sounds satisfied."
+          ]
+        },
+        {
+          "id": "bury",
+          "text": "Confirm — note discrepancy privately",
+          "on_success": [
+            "set_flag:HQ_open_buried",
+            "clue:reassignment_story",
+            "trust:river:1",
+            "resource:batteries:-3",
+            "log:You confirm, but write \"routine?\" in the margin."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Delay response",
+          "on_success": [
+            "set_flag:HQ_open_static",
+            "trust:military:-3",
+            "resource:batteries:-1",
+            "log:You let the carrier hum. HQ repeats once, then stops."
+          ]
+        }
+      ]
+    }
+  ],
+  "ambient": [
+    { "frequency": 88.5, "type": "static_only" },
+    { "frequency": 104.6, "type": "static_only" }
+  ]
+}

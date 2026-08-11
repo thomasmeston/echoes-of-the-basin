@@ -1,0 +1,34 @@
+{
+  "day": 12,
+  "requiredBeats": ["G7", "E6"],
+  "transmissions": [
+    {
+      "id": "G7",
+      "frequency": 93.2,
+      "thread": "G",
+      "sender": "HQ — personnel",
+      "message": "Operator Viera, M. — status deferred. Do not discuss on open net. Continue relief rotation.",
+      "faction": "military",
+      "requires": ["thread:G:>=5"],
+      "choices": [
+        { "id": "bury", "text": "Log deferred privately", "on_success": ["set_flag:G7_buried", "clue:marcos_deferred", "thread:G:7", "resource:batteries:-4", "log:Deferred. Not reassigned. Not found."] },
+        { "id": "relay", "text": "Acknowledge HQ", "on_success": ["set_flag:G7_relayed", "thread:G:7", "trust:military:5", "resource:batteries:-5", "log:Subject closed."] },
+        { "id": "static", "text": "No response", "on_success": ["set_flag:G7_static", "thread:G:7", "trust:military:-3", "resource:batteries:-2", "log:Silence."] }
+      ]
+    },
+    {
+      "id": "E6",
+      "frequency": 96.4,
+      "thread": "E",
+      "sender": "Condor — fork",
+      "message": "Found the trail... or scattered... river people have them now... can't say which on this band...",
+      "faction": "expedition",
+      "requires": ["thread:E:>=4"],
+      "choices": [
+        { "id": "bury", "text": "Log fork privately", "on_success": ["set_flag:E6_buried", "thread:E:6", "trust:river:3", "trust:expedition:3", "resource:batteries:-4", "log:Three versions. One frequency."] },
+        { "id": "relay", "text": "Relay to HQ", "on_success": ["set_flag:E6_relayed", "thread:E:6", "trust:military:5", "trust:expedition:2", "resource:batteries:-7", "log:HQ wants ground confirmation."] },
+        { "id": "static", "text": "Static", "on_success": ["set_flag:E6_static", "thread:E:6", "resource:batteries:-2", "log:Static."] }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "day": 11,
+  "requiredBeats": ["A5", "R5"],
+  "transmissions": [
+    {
+      "id": "A5",
+      "frequency": 90.3,
+      "thread": "A",
+      "sender": "Conflicting orders — 97.2",
+      "message": "Net Control wants traffic on 97.2 relayed. Quiet net on 97.2 says do not relay. You cannot serve both.",
+      "faction": "military",
+      "requires": ["thread:A:>=3"],
+      "choices": [
+        { "id": "relay", "text": "Serve Net Control", "on_success": ["set_flag:A5_military", "thread:A:6", "trust:military:8", "trust:guerrilla:-8", "resource:batteries:-8", "log:You choose the official net."] },
+        { "id": "bury", "text": "Serve neither — log both", "on_success": ["set_flag:A5_neutral", "thread:A:6", "trust:guerrilla:2", "trust:military:2", "resource:batteries:-5", "log:Both orders copied. Neither transmitted."] },
+        { "id": "static", "text": "Serve Quiet net", "on_success": ["set_flag:A5_quiet", "thread:A:6", "trust:guerrilla:7", "trust:military:-6", "resource:batteries:-6", "log:Window held open. HQ notices missing traffic."] }
+      ]
+    },
+    {
+      "id": "R5",
+      "frequency": 94.8,
+      "thread": "R",
+      "sender": "River kin",
+      "message": "Message for Condor kin if you still hear them. Or for us if you don't.",
+      "faction": "river",
+      "requires": ["thread:E:>=2", "thread:R:>=3"],
+      "choices": [
+        { "id": "relay", "text": "Relay toward expedition", "on_success": ["set_flag:R5_expedition", "thread:R:5", "trust:expedition:5", "resource:batteries:-7", "log:River bridged to Condor band."] },
+        { "id": "bury", "text": "Keep on river band only", "on_success": ["set_flag:R5_river", "thread:R:5", "trust:river:6", "resource:batteries:-4", "log:Kin traffic kept off HQ."] },
+        { "id": "static", "text": "Static", "on_success": ["set_flag:R5_static", "thread:R:5", "resource:batteries:-2", "log:Kin voice doesn't return."] }
+      ]
+    }
+  ]
+}

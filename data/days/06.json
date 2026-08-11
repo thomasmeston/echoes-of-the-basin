@@ -1,0 +1,34 @@
+{
+  "day": 6,
+  "requiredBeats": ["G4", "E3"],
+  "transmissions": [
+    {
+      "id": "G4",
+      "frequency": 91.7,
+      "thread": "G",
+      "sender": "Personal note — Marcos handwriting",
+      "message": "If it's you in the chair — not HQ's pick — trust your town memory more than their paperwork.",
+      "faction": "desk",
+      "requires": ["thread:G:>=2"],
+      "choices": [
+        { "id": "bury", "text": "Keep note private", "on_success": ["set_flag:G4_buried", "thread:G:4", "trust:river:4", "resource:batteries:-3", "log:You fold the note into your pocket."] },
+        { "id": "relay", "text": "Report to HQ", "on_success": ["set_flag:G4_relayed", "thread:G:4", "trust:military:3", "resource:batteries:-6", "log:HQ says continue logging."] },
+        { "id": "static", "text": "Destroy note", "on_success": ["set_flag:G4_static", "thread:G:4", "resource:batteries:-1", "log:You burn the edge in the lamp."] }
+      ]
+    },
+    {
+      "id": "E3",
+      "frequency": 96.4,
+      "thread": "E",
+      "sender": "Condor medic — fragment",
+      "message": "Fever in camp... water bad... request quiet evac window...",
+      "faction": "expedition",
+      "requires": ["thread:E:>=1"],
+      "choices": [
+        { "id": "relay", "text": "Relay medic request", "on_success": ["set_flag:E3_relayed", "thread:E:3", "trust:expedition:6", "trust:military:2", "resource:batteries:-8", "log:Relay sent. No evac confirmed."] },
+        { "id": "bury", "text": "Log only", "on_success": ["set_flag:E3_buried", "thread:E:3", "trust:expedition:4", "resource:batteries:-4", "log:You write fever and nothing more."] },
+        { "id": "static", "text": "Static", "on_success": ["set_flag:E3_static", "thread:E:3", "resource:batteries:-2", "log:Medic voice breaks up."] }
+      ]
+    }
+  ]
+}

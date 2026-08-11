@@ -1,0 +1,20 @@
+{
+  "day": 15,
+  "requiredBeats": ["FINALE"],
+  "transmissions": [
+    {
+      "id": "FINALE",
+      "frequency": 98.1,
+      "thread": "meta",
+      "sender": "Last watch — Outpost Tucunaré",
+      "message": "Final shift. HQ closes the relief rotation at dawn. One last relay, or silence, before you leave the chair.",
+      "faction": "desk",
+      "requires": [],
+      "choices": [
+        { "id": "bury", "text": "Close log — private duty", "on_success": ["set_flag:FINALE_buried", "set_flag:campaign_complete", "resource:batteries:-3", "log:Log closed without fanfare."] },
+        { "id": "relay", "text": "Send summary to HQ", "on_success": ["set_flag:FINALE_relayed", "set_flag:campaign_complete", "trust:military:5", "resource:batteries:-6", "log:Summary sent. HQ thanks you."] },
+        { "id": "static", "text": "Leave chair silent", "on_success": ["set_flag:FINALE_static", "set_flag:campaign_complete", "resource:batteries:-2", "log:Static. Basin keeps its secrets."] }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,210 @@
+{
+  "grid": {
+    "cols": 6,
+    "rows": 4,
+    "insets": {
+      "top": 0.09,
+      "right": 0.055,
+      "bottom": 0.17,
+      "left": 0.07
+    },
+    "originNote": "Aligned to printed 6° cells on map-unfolded.png; tune insets if crop drifts"
+  },
+  "travelCostBatteries": 4,
+  "regions": [
+    {
+      "id": "manaus_approach",
+      "col": 3,
+      "row": 1,
+      "label": "60°W · 0–6°S",
+      "title": "Manaus approach",
+      "riverPath": [
+        [6, 48],
+        [28, 52],
+        [48, 46],
+        [68, 50],
+        [90, 54]
+      ],
+      "landmarks": [
+        {
+          "id": "manaus_wharf",
+          "name": "Manaus wharf",
+          "icon": "wharf",
+          "x": 48,
+          "y": 46,
+          "pathIndex": 2,
+          "costBatteries": 4,
+          "once": true,
+          "onDiscover": [
+            "resource:batteries:-4",
+            "clue:manaus_wharf",
+            "set_flag:map_manaus_wharf",
+            "log:Boat reports: wharf chatter about an unlisted night window near the Negro mouth."
+          ]
+        },
+        {
+          "id": "negro_mouth",
+          "name": "Rio Negro mouth",
+          "icon": "bend",
+          "x": 68,
+          "y": 50,
+          "pathIndex": 3,
+          "costBatteries": 4,
+          "once": true,
+          "onDiscover": [
+            "resource:batteries:-4",
+            "clue:map_negro_mouth",
+            "set_flag:map_negro_mouth",
+            "log:Boat reports: blackwater meets silt — pilots mark a quiet anchorage off the posted charts."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bend_do_sapo",
+      "col": 2,
+      "row": 1,
+      "label": "66°W · 0–6°S",
+      "title": "Bend do Sapo",
+      "riverPath": [
+        [10, 55],
+        [32, 48],
+        [52, 42],
+        [74, 46],
+        [92, 40]
+      ],
+      "landmarks": [
+        {
+          "id": "bend_camp",
+          "name": "Stranger camp",
+          "icon": "outpost",
+          "x": 52,
+          "y": 42,
+          "pathIndex": 2,
+          "costBatteries": 5,
+          "once": true,
+          "onDiscover": [
+            "resource:batteries:-5",
+            "clue:map_bend_camp",
+            "set_flag:map_bend_camp",
+            "log:Boat reports: tents above the bend, survey stakes, questions about old paths."
+          ]
+        },
+        {
+          "id": "bend_landing",
+          "name": "Trader landing",
+          "icon": "village",
+          "x": 74,
+          "y": 46,
+          "pathIndex": 3,
+          "costBatteries": 4,
+          "once": true,
+          "onDiscover": [
+            "resource:batteries:-4",
+            "clue:map_bend_landing",
+            "set_flag:map_bend_landing",
+            "trust:river:2",
+            "log:Boat reports: trader code chalked on a post — Bend do Sapo still watches the water."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rio_negro_fork",
+      "col": 3,
+      "row": 0,
+      "label": "60°W · 0–6°N",
+      "title": "Rio Negro fork",
+      "riverPath": [
+        [18, 70],
+        [40, 58],
+        [55, 40],
+        [72, 28],
+        [88, 18]
+      ],
+      "landmarks": [
+        {
+          "id": "negro_rapids",
+          "name": "Blackwater rapids",
+          "icon": "rapids",
+          "x": 55,
+          "y": 40,
+          "pathIndex": 2,
+          "costBatteries": 4,
+          "once": true,
+          "onDiscover": [
+            "resource:batteries:-4",
+            "clue:map_negro_rapids",
+            "set_flag:map_negro_rapids",
+            "log:Boat reports: rapids force a portage — someone left a cache marker half-hidden in the brush."
+          ]
+        },
+        {
+          "id": "negro_village",
+          "name": "Upstream village",
+          "icon": "village",
+          "x": 72,
+          "y": 28,
+          "pathIndex": 3,
+          "costBatteries": 4,
+          "once": true,
+          "onDiscover": [
+            "resource:batteries:-4",
+            "clue:map_negro_village",
+            "set_flag:map_negro_village",
+            "trust:river:3",
+            "log:Boat reports: elders will talk if you keep their name off the military net."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "eastern_channel",
+      "col": 4,
+      "row": 1,
+      "label": "54°W · 0–6°S",
+      "title": "Eastern channel",
+      "riverPath": [
+        [8, 44],
+        [30, 48],
+        [55, 52],
+        [78, 50],
+        [94, 46]
+      ],
+      "landmarks": [
+        {
+          "id": "east_wharf",
+          "name": "Relay wharf",
+          "icon": "wharf",
+          "x": 55,
+          "y": 52,
+          "pathIndex": 2,
+          "costBatteries": 4,
+          "once": true,
+          "onDiscover": [
+            "resource:batteries:-4",
+            "clue:map_east_wharf",
+            "set_flag:map_east_wharf",
+            "log:Boat reports: a quiet relay post — schedules scratched for boats that never log with HQ."
+          ]
+        },
+        {
+          "id": "east_bend",
+          "name": "Channel bend",
+          "icon": "bend",
+          "x": 78,
+          "y": 50,
+          "pathIndex": 3,
+          "costBatteries": 3,
+          "once": true,
+          "onDiscover": [
+            "resource:batteries:-3",
+            "clue:map_east_bend",
+            "set_flag:map_east_bend",
+            "log:Boat reports: channel bend matches a grid mark Condor once hung on — if the rumor is true."
+          ]
+        }
+      ]
+    }
+  ]
+}

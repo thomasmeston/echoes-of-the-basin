@@ -1,0 +1,102 @@
+{
+  "day": 2,
+  "requiredBeats": ["G2", "E1"],
+  "transmissions": [
+    {
+      "id": "G2",
+      "frequency": 91.7,
+      "thread": "G",
+      "sender": "Town relay — Porangatu",
+      "message": "Heard Marcos called upriver last week. Folks asking when he's coming back. You know anything? Over.",
+      "faction": "desk",
+      "requires": ["clue:log_gap"],
+      "choices": [
+        {
+          "id": "relay",
+          "text": "Relay town traffic to HQ",
+          "on_success": [
+            "set_flag:G2_relayed",
+            "clue:town_rumor",
+            "thread:G:2",
+            "trust:military:4",
+            "resource:batteries:-6",
+            "log:HQ copies. No comment on Marcos."
+          ]
+        },
+        {
+          "id": "bury",
+          "text": "Log only — don't spread rumor",
+          "on_success": [
+            "set_flag:G2_buried",
+            "clue:town_rumor",
+            "thread:G:2",
+            "trust:river:4",
+            "resource:batteries:-4",
+            "log:You keep Porangatu off the military net."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Didn't copy",
+          "on_success": [
+            "set_flag:G2_static",
+            "thread:G:2",
+            "trust:river:-2",
+            "resource:batteries:-2",
+            "log:Static. Porangatu tries again, weaker."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E1",
+      "frequency": 96.4,
+      "thread": "E",
+      "sender": "Survey Team Condor",
+      "message": "Condor base, missed scheduled check-in at 1800. Last position grid seven-four-niner. Request relay if anyone copies. Over.",
+      "faction": "expedition",
+      "requires": [],
+      "choices": [
+        {
+          "id": "relay",
+          "text": "Relay to HQ and Condor base",
+          "on_success": [
+            "set_flag:E1_relayed",
+            "clue:condor_missed",
+            "thread:E:1",
+            "trust:expedition:6",
+            "trust:military:3",
+            "resource:batteries:-8",
+            "log:Relay sent. HQ marks it \"noted.\""
+          ]
+        },
+        {
+          "id": "bury",
+          "text": "Log — wait for confirmation",
+          "on_success": [
+            "set_flag:E1_buried",
+            "clue:condor_missed",
+            "thread:E:1",
+            "trust:expedition:3",
+            "resource:batteries:-4",
+            "log:You write it down. No one answers Condor on your watch."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Lost in static",
+          "on_success": [
+            "set_flag:E1_static",
+            "thread:E:1",
+            "trust:expedition:-4",
+            "resource:batteries:-2",
+            "log:You let the call die. The frequency goes quiet."
+          ]
+        }
+      ]
+    }
+  ],
+  "ambient": [
+    { "frequency": 89.1, "type": "static_only" }
+  ]
+}

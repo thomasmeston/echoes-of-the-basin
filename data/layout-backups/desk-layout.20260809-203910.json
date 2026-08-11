@@ -1,0 +1,161 @@
+{
+  "version": 2,
+  "frameZoom": 1,
+  "bgZoom": 1.11,
+  "objects": {
+    "radio-cluster": {
+      "x": 50,
+      "y": 23,
+      "w": 640,
+      "h": 400,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1,
+      "zIndex": 5
+    },
+    "bg-room": {
+      "x": 0,
+      "y": 0,
+      "w": 2492,
+      "h": 1115,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1,
+      "zIndex": 1
+    },
+    "radio-body": {
+      "x": -3.34,
+      "y": 3,
+      "w": 640,
+      "h": 400,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1,
+      "zIndex": 1
+    },
+    "desk-surface": {
+      "x": 0,
+      "y": -39.5,
+      "w": 2492,
+      "h": 513,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1.5,
+      "zIndex": 2
+    },
+    "mic-lollipop": {
+      "x": 67,
+      "y": 26,
+      "w": 58,
+      "h": 160,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 3.2,
+      "zIndex": 6
+    },
+    "lamp": {
+      "x": 25,
+      "y": 27,
+      "w": 96,
+      "h": 150,
+      "rotateX": 0,
+      "rotateY": 180,
+      "rotateZ": 0,
+      "scale": 2.9,
+      "zIndex": 4
+    },
+    "papers": {
+      "x": 41.85,
+      "y": 5.5,
+      "w": 121,
+      "h": 87,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1,
+      "zIndex": 3
+    },
+    "static-haze": {
+      "x": 39.73,
+      "y": 33.04,
+      "w": 512,
+      "h": 256,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1,
+      "zIndex": 2
+    },
+    "radio-dial": {
+      "x": 46.85,
+      "y": 3.77,
+      "w": 132,
+      "h": 132,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1,
+      "zIndex": 4
+    },
+    "meter-needle-l": {
+      "x": 23.03,
+      "y": 69.61,
+      "w": 9,
+      "h": 56,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1.2,
+      "zIndex": 3
+    },
+    "meter-needle-r": {
+      "x": 68.94,
+      "y": 70.11,
+      "w": 9,
+      "h": 56,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1.2,
+      "zIndex": 3
+    },
+    "plant": {
+      "x": 83.87,
+      "y": 29.99,
+      "w": 78,
+      "h": 110,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1,
+      "zIndex": -5
+    },
+    "radio-overlay": {
+      "x": 50,
+      "y": 78,
+      "w": 190,
+      "h": 72,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1,
+      "zIndex": 8
+    },
+    "freq-display": {
+      "x": 65,
+      "y": 47,
+      "w": 190,
+      "h": 28,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1,
+      "zIndex": 5
+    }
+  }
+}

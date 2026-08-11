@@ -1,30 +1,19 @@
 {
   "name": "echoes-of-the-basin",
-  "version": "1.0.0",
-  "description": "Echoes of the Basin — a 1940s Amazon basin radio mystery",
-  "main": "server.js",
+  "version": "2.0.0",
+  "description": "Echoes of the Basin — late-1960s Amazon basin radio mystery",
+  "type": "module",
   "scripts": {
-    "start": "node server.js",
-    "dev": "webpack serve --mode development --port 3000",
-    "build": "webpack --mode production",
-    "server": "nodemon server.js"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "package:itch": "npm run build && node scripts/package-itch.mjs",
+    "test:e2e": "playwright test"
   },
-  "dependencies": {
-    "express": "^4.18.2",
-    "gsap": "^3.12.5",
-    "howler": "^2.2.4",
-    "three": "^0.162.0"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "@babel/core": "^7.24.0",
-    "@babel/preset-env": "^7.24.0",
-    "babel-loader": "^9.1.3",
-    "css-loader": "^6.10.0",
-    "html-webpack-plugin": "^5.6.0",
-    "nodemon": "^3.0.1",
-    "style-loader": "^3.3.4",
-    "webpack": "^5.90.3",
-    "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^5.0.2"
+    "@playwright/test": "^1.49.0",
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0"
   }
 }

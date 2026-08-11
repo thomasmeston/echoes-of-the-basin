@@ -1,0 +1,18 @@
+{
+  "opening_log": "Batteries down a notch. Porangatu is asking about Marcos by name. Condor missed a check-in.",
+  "on_flag": {
+    "G2_buried": { "journal": "town_rumor" },
+    "E1_relayed": { "journal": "condor_missed" }
+  },
+  "journal_entries": {
+    "town_rumor": {
+      "title": "Town rumor",
+      "body": "Porangatu says Marcos was called upriver. HQ already said reassignment. Same week, different stories."
+    },
+    "condor_missed": {
+      "title": "Condor missed check-in",
+      "body": "Survey Team Condor missed 1800 check-in. Grid seven-four-niner. HQ marked noted."
+    }
+  },
+  "day_close": "Night two. Two threads: a friend missing, a party lost."
+}

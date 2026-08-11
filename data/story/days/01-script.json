@@ -1,0 +1,24 @@
+{
+  "opening_log": "The chair is still warm. Marcos Viera's mug — chipped handle, town fair prize. His log has gaps where there shouldn't be. HQ expects business as usual.",
+  "on_flag": {
+    "G1_relayed": { "thought": "hq_will_notice", "journal": "first_gap" },
+    "G1_buried": { "thought": "keep_the_book", "journal": "first_gap" },
+    "A_soft_relayed": { "thought": "clean_channel", "journal": "net_control" }
+  },
+  "thoughts": {
+    "hq_will_notice": "HQ notices reliability. That's not always a compliment.",
+    "keep_the_book": "Some truths live in the log before they live on the net.",
+    "clean_channel": "Clean channel. Their words, not yours."
+  },
+  "journal_entries": {
+    "first_gap": {
+      "title": "Log gap",
+      "body": "Marcos left a margin note about a frequency not on the posted list. HQ says routine rotation. The dates don't comfort me."
+    },
+    "net_control": {
+      "title": "Net Control",
+      "body": "First order: keep the channel clean. Unverified civilian bands are not my problem — until they are."
+    }
+  },
+  "day_close": "Night one. The basin hums. Marcos's handwriting is clearer than HQ's."
+}

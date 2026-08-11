@@ -1,0 +1,34 @@
+{
+  "endings": [
+    {
+      "id": "ghost_river",
+      "requires": ["thread:G:>=5", "thread:R:>=4"],
+      "title": "Quiet duty",
+      "body": "Marcos left to warn river kin. You inherit a chair, a mug, and a log that will never be complete. HQ calls it routine. The bend remembers."
+    },
+    {
+      "id": "ghost_expedition",
+      "requires": ["thread:G:>=5", "thread:E:>=4"],
+      "title": "Last fragment",
+      "body": "Marcos vanished chasing Condor's trail. You hold the last clean fragment of that party — and a frequency list with gaps on purpose."
+    },
+    {
+      "id": "ghost_army",
+      "requires": ["thread:G:>=5", "dominant:military"],
+      "title": "Clean channel",
+      "body": "The channel is clean. The town grows colder when you visit. You did the job. Marcos is deferred — not found, not forgiven."
+    },
+    {
+      "id": "ghost_quiet",
+      "requires": ["thread:G:>=5", "dominant:guerrilla"],
+      "title": "Soft link",
+      "body": "You're a link in a longer chain. More rumor than victory. Marcos may be alive in the net you helped keep quiet."
+    },
+    {
+      "id": "survived",
+      "requires": [],
+      "title": "Borrowed chair",
+      "body": "You survived the fortnight. The basin keeps its secrets. The chair still feels borrowed — but it's yours tonight."
+    }
+  ]
+}

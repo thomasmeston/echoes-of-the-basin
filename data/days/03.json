@@ -1,0 +1,104 @@
+{
+  "day": 3,
+  "requiredBeats": ["R1", "A1"],
+  "transmissions": [
+    {
+      "id": "R1",
+      "frequency": 94.8,
+      "thread": "R",
+      "sender": "River trader — Bend do Sapo",
+      "message": "Strangers camped above the bend. Not military — not ours. Asking wrong questions about old paths. If you relay this, use the trader code only. Over.",
+      "faction": "river",
+      "requires": [],
+      "choices": [
+        {
+          "id": "relay",
+          "text": "Relay to HQ with trader code",
+          "on_success": [
+            "set_flag:R1_relayed",
+            "clue:bend_strangers",
+            "thread:R:1",
+            "trust:military:5",
+            "trust:river:-6",
+            "resource:batteries:-8",
+            "log:HQ acknowledges. The trader band goes silent."
+          ]
+        },
+        {
+          "id": "bury",
+          "text": "Log privately — do not relay location",
+          "on_success": [
+            "set_flag:R1_buried",
+            "clue:bend_strangers",
+            "thread:R:1",
+            "trust:river:8",
+            "resource:batteries:-4",
+            "log:You keep Bend do Sapo off the military net."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Didn't copy — lost in static",
+          "on_success": [
+            "set_flag:R1_static",
+            "thread:R:1",
+            "trust:river:-3",
+            "resource:batteries:-2",
+            "log:Static. Maybe they heard you not copying."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A1",
+      "frequency": 100.9,
+      "thread": "A",
+      "sender": "Unregistered — coded",
+      "message": "...window after midnight... not the posted list... if you're the new voice, be careful who you serve...",
+      "faction": "guerrilla",
+      "requires": ["thread:A:>=1"],
+      "choices": [
+        {
+          "id": "relay",
+          "text": "Relay fragment to Net Control",
+          "on_success": [
+            "set_flag:A1_relayed",
+            "clue:coded_window",
+            "thread:A:2",
+            "trust:military:6",
+            "trust:guerrilla:-8",
+            "resource:batteries:-8",
+            "log:Net Control: \"Good catch.\" The coded voice does not return."
+          ]
+        },
+        {
+          "id": "bury",
+          "text": "Log only",
+          "on_success": [
+            "set_flag:A1_buried",
+            "clue:coded_window",
+            "thread:A:2",
+            "trust:guerrilla:4",
+            "resource:batteries:-4",
+            "log:You write it in the margin. No one else sees."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Pretend you didn't copy",
+          "on_success": [
+            "set_flag:A1_static",
+            "thread:A:2",
+            "trust:guerrilla:2",
+            "trust:military:-2",
+            "resource:batteries:-2",
+            "log:Static. The voice tries once more, then fades."
+          ]
+        }
+      ]
+    }
+  ],
+  "ambient": [
+    { "frequency": 102.3, "type": "static_only" }
+  ]
+}
