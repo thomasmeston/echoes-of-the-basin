@@ -19,6 +19,7 @@ import { SchedLogOverlay } from '../ui/SchedLogOverlay';
 import { TitleMenu } from '../ui/TitleMenu';
 import { IntroOverlay } from '../ui/IntroOverlay';
 import { DeskStage } from '../scene/DeskStage';
+import { daylightFromWatchMinutes } from '../scene/WindowView';
 import type { TransmissionDef } from '../types/campaign';
 import {
   GAME_MINUTES_PER_REAL_SECOND,
@@ -312,6 +313,7 @@ export class Game {
     this.gameplayActive = false;
     this.stopWatchClock();
     this.audio.setRadioStatic(false);
+    this.audio.setOpera(false);
     this.setGameplayVisible(false);
     this.titleMenu.show(this.saveLoad.listSlots());
   }
@@ -343,6 +345,7 @@ export class Game {
     this.radioUI.setMeter(this.state.meter);
     this.radioUI.setPower(this.state.radioOn);
     this.audio.setRadioStatic(this.gameplayActive && this.state.radioOn);
+    this.syncRadioProgram();
   }
 
   private enterGameplay(opts: { showOpening: boolean; autosave: boolean }): void {
@@ -376,20 +379,26 @@ export class Game {
     }
   }
 
+  private syncRadioProgram(): void {
+    const onAir =
+      this.gameplayActive &&
+      this.state.radioOn &&
+      this.campaign.getRadioBed(this.state.currentFrequency) === 'opera';
+    this.audio.setOpera(onAir);
+  }
+
   private checkFrequency(): void {
     const frequency = this.state.currentFrequency;
     const transmission = this.campaign.getTransmissionAtFrequency(frequency);
+    this.syncRadioProgram();
 
     if (!transmission) {
-      if (this.campaign.isAmbientOnly(frequency)) {
-        this.audio.play('static', 0.35);
-      }
       this.activeTransmission = null;
       this.radioUI.hideChoices();
       return;
     }
 
-    this.audio.play('staticBlip');
+    this.audio.play('staticBlip', 0.55);
     this.activeTransmission = transmission;
     this.radioUI.showChoices(transmission);
   }
@@ -421,6 +430,7 @@ export class Game {
   private syncWallClock(): void {
     const { hour, minute } = this.state.getWatchClock();
     this.watchClockUI.setTime(hour, minute);
+    this.deskStage.windowView.setDaylight(daylightFromWatchMinutes(this.state.watchMinutes));
   }
 
   private startWatchClock(): void {

@@ -12,6 +12,14 @@ import {
   type DeskObjectId,
   type DeskObjectTransform,
 } from '../types/deskLayout';
+import {
+  WindowView,
+  WINDOW_APERTURE_STORAGE_KEY,
+  WINDOW_PLATE_BBOX,
+  coverZoomScreenFromImage,
+  loadWindowAperture,
+  type WindowApertureBBox,
+} from './WindowView';
 
 export type DeskLayerId =
   | 'bg-room'
@@ -63,6 +71,8 @@ export class DeskStage {
   readonly radioCluster: HTMLDivElement;
   /** Desk furniture + props; scales as a unit. Background stays outside. */
   readonly deskRig: HTMLDivElement;
+  readonly windowView: WindowView;
+  private windowAperture: WindowApertureBBox = loadWindowAperture();
   private layers = new Map<DeskLayerId, HTMLElement>();
   /** HUD / off-stage elements registered for Dev Mode layout. */
   private externalObjects = new Map<DeskObjectId, HTMLElement>();
@@ -101,7 +111,8 @@ export class DeskStage {
     this.radioCluster.className = 'desk-radio-cluster';
 
     // Background fills the viewport and crops; everything else lives in the rig.
-    this.buildLayer('bg-room', this.root, 'desk-layer desk-layer--bg');
+    const bg = this.buildLayer('bg-room', this.root, 'desk-layer desk-layer--bg');
+    this.windowView = new WindowView(bg);
     this.root.appendChild(this.deskRig);
 
     this.buildLayer('desk-surface', this.deskRig, 'desk-layer desk-layer--desk');
@@ -124,7 +135,6 @@ export class DeskStage {
       this.radioCluster,
       'desk-layer desk-layer--dial'
     );
-    this.buildDialLabel('tune-label', 'Tune', 'desk-dial-label');
     const band = this.buildRadioKnob('band-dial', 'Band', BAND_COUNT, (i) => String(i + 1));
     this.bandFaceEl = band.face;
     const meter = this.buildRadioKnob(
@@ -138,7 +148,8 @@ export class DeskStage {
       'power-dial',
       'Power',
       2,
-      (i) => (i === 0 ? 'ON' : 'OFF')
+      (i) => (i === 0 ? 'ON' : 'OFF'),
+      { caption: false }
     );
     this.powerFaceEl = power.face;
     this.powerLightEl = document.createElement('div');
@@ -160,11 +171,18 @@ export class DeskStage {
     );
     this.buildLayer('mic-lollipop', this.deskRig, 'desk-layer desk-layer--mic');
 
-    this.onResize = () => this.fitRigToViewport();
+    this.onResize = () => {
+      this.fitRigToViewport();
+      if (!this.windowView.isMeasuring()) {
+        this.layoutWindowAperture();
+      }
+    };
     window.addEventListener('resize', this.onResize);
     this.fitRigToViewport();
 
     parent.appendChild(this.root);
+    this.layoutWindowAperture();
+    requestAnimationFrame(() => this.layoutWindowAperture());
   }
 
   setFrequencyCount(count: number): void {
@@ -334,6 +352,29 @@ export class DeskStage {
         zIndex: Number.parseInt(cs.zIndex, 10) || 102,
       };
     }
+    if (id === 'window-view') {
+      const bg = this.layers.get('bg-room');
+      const frame = (bg ?? this.root).getBoundingClientRect();
+      const box = el.getBoundingClientRect();
+      const leftPct = ((box.left - frame.left) / frame.width) * 100;
+      const bottomPct = ((frame.bottom - box.bottom) / frame.height) * 100;
+      const readDeg = (prop: string) => {
+        const raw = el.style.getPropertyValue(prop).replace('deg', '');
+        const n = Number(raw);
+        return Number.isFinite(n) ? n : 0;
+      };
+      return {
+        x: Number(leftPct.toFixed(2)),
+        y: Number(bottomPct.toFixed(2)),
+        w: Math.round(box.width),
+        h: Math.round(box.height),
+        rotateX: readDeg('--dev-rotate-x'),
+        rotateY: readDeg('--dev-rotate-y'),
+        rotateZ: readDeg('--dev-rotate-z'),
+        scale: Number(el.style.getPropertyValue('--dev-scale')) || 1,
+        zIndex: Number.parseInt(cs.zIndex, 10) || 2,
+      };
+    }
     const ref =
       id === 'bg-room'
         ? this.root
@@ -407,6 +448,26 @@ export class DeskStage {
       el.style.width = t.w > 0 ? `${t.w}px` : '';
       el.style.height = t.h > 0 ? `${t.h}px` : '';
       el.style.margin = '0';
+      el.style.transform = rotScale;
+      el.style.transformOrigin = 'bottom left';
+      return;
+    }
+
+    if (id === 'window-view') {
+      if (!document.body.classList.contains('dev-mode-active')) {
+        return;
+      }
+      this.windowView.setMeasureMode(true);
+      el.style.inset = 'auto';
+      el.style.left = `${t.x}%`;
+      el.style.right = 'auto';
+      el.style.bottom = `${t.y}%`;
+      el.style.top = 'auto';
+      el.style.width = `${t.w}px`;
+      el.style.height = `${t.h}px`;
+      el.style.margin = '0';
+      el.style.overflow = 'hidden';
+      el.style.zIndex = String(Math.max(t.zIndex, 2));
       el.style.transform = rotScale;
       el.style.transformOrigin = 'bottom left';
       return;
@@ -498,6 +559,9 @@ export class DeskStage {
     }
     bg.style.setProperty('--desk-bg-zoom', String(z));
     bg.classList.toggle('desk-bg-zoomed', Math.abs(z - 1) > 0.001);
+    if (!this.windowView.isMeasuring()) {
+      this.layoutWindowAperture();
+    }
   }
 
   getBgZoom(): number {
@@ -522,6 +586,84 @@ export class DeskStage {
     this.deskRig.style.height = `${DESK_RIG_HEIGHT}px`;
     this.setFrameZoom(1);
     this.setBgZoom(1);
+    this.exitWindowViewMeasure();
+  }
+
+  /** Seed a window-view box from the current aperture (saved or baked). */
+  seedWindowViewTransform(): DeskObjectTransform {
+    const bg = this.layers.get('bg-room') ?? this.root;
+    const frame = bg.getBoundingClientRect();
+    const zoom = this.getBgZoom();
+    const box = this.windowAperture;
+    const tl = coverZoomScreenFromImage(box.x, box.y, frame, zoom);
+    const br = coverZoomScreenFromImage(box.x + box.w, box.y + box.h, frame, zoom);
+    const left = Math.min(tl.x, br.x);
+    const top = Math.min(tl.y, br.y);
+    const right = Math.max(tl.x, br.x);
+    const bottom = Math.max(tl.y, br.y);
+    return {
+      x: Number((((left - frame.left) / frame.width) * 100).toFixed(2)),
+      y: Number((((frame.bottom - bottom) / frame.height) * 100).toFixed(2)),
+      w: Math.max(8, Math.round(right - left)),
+      h: Math.max(8, Math.round(bottom - top)),
+      rotateX: 0,
+      rotateY: 0,
+      rotateZ: 0,
+      scale: 1,
+      zIndex: 2,
+    };
+  }
+
+  setWindowAperture(box: WindowApertureBBox, persist = true): void {
+    this.windowAperture = {
+      x: Math.round(box.x),
+      y: Math.round(box.y),
+      w: Math.round(box.w),
+      h: Math.round(box.h),
+    };
+    if (persist) {
+      localStorage.setItem(WINDOW_APERTURE_STORAGE_KEY, JSON.stringify(this.windowAperture));
+    }
+  }
+
+  resetWindowAperture(): void {
+    this.windowAperture = { ...WINDOW_PLATE_BBOX };
+    localStorage.removeItem(WINDOW_APERTURE_STORAGE_KEY);
+  }
+
+  /** Map the saved image-px aperture through cover + bg-zoom into the bg layer. */
+  layoutWindowAperture(): void {
+    const bg = this.layers.get('bg-room') ?? this.root;
+    const frame = bg.getBoundingClientRect();
+    if (frame.width < 8 || frame.height < 8) {
+      return;
+    }
+    const zoom = this.getBgZoom();
+    const box = this.windowAperture;
+    const tl = coverZoomScreenFromImage(box.x, box.y, frame, zoom);
+    const br = coverZoomScreenFromImage(box.x + box.w, box.y + box.h, frame, zoom);
+    const el = this.windowView.el;
+    el.classList.add('desk-layout-override');
+    el.style.inset = 'auto';
+    el.style.left = `${Math.min(tl.x, br.x) - frame.left}px`;
+    el.style.top = `${Math.min(tl.y, br.y) - frame.top}px`;
+    el.style.right = 'auto';
+    el.style.bottom = 'auto';
+    el.style.width = `${Math.max(4, Math.abs(br.x - tl.x))}px`;
+    el.style.height = `${Math.max(4, Math.abs(br.y - tl.y))}px`;
+    el.style.margin = '0';
+    el.style.overflow = 'hidden';
+    el.style.transform = 'none';
+    el.style.zIndex = '2';
+  }
+
+  exitWindowViewMeasure(): void {
+    this.windowView.setMeasureMode(false);
+    this.layoutWindowAperture();
+  }
+
+  measureWindowAperture(): ReturnType<WindowView['imageBBoxFromElement']> {
+    return this.windowView.imageBBoxFromElement(this.getBgZoom());
   }
 
   getRigScale(): number {
@@ -570,20 +712,12 @@ export class DeskStage {
     return ring;
   }
 
-  private buildDialLabel(id: string, text: string, className: string): HTMLElement {
-    const el = document.createElement('div');
-    el.className = className;
-    el.dataset.devObject = id;
-    el.textContent = text;
-    this.radioCluster.appendChild(el);
-    return el;
-  }
-
   private buildRadioKnob(
     id: 'band-dial' | 'meter-dial' | 'power-dial',
     label: string,
     steps: number,
-    markText: (index: number) => string
+    markText: (index: number) => string,
+    opts: { caption?: boolean } = {}
   ): { root: HTMLElement; face: HTMLElement } {
     const root = document.createElement('div');
     root.className = `radio-knob radio-knob--${id}`;
@@ -615,11 +749,13 @@ export class DeskStage {
     pointer.className = 'radio-knob-pointer';
     face.appendChild(pointer);
 
-    const caption = document.createElement('div');
-    caption.className = 'radio-knob-label';
-    caption.textContent = label;
-
-    root.append(scale, face, caption);
+    root.append(scale, face);
+    if (opts.caption !== false) {
+      const caption = document.createElement('div');
+      caption.className = 'radio-knob-label';
+      caption.textContent = label;
+      root.appendChild(caption);
+    }
     this.radioCluster.appendChild(root);
     return { root, face };
   }

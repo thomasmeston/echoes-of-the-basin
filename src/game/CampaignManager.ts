@@ -1,6 +1,6 @@
-import { getDayDef } from '../data/loader';
+import { getDayDef, CAMPAIGN } from '../data/loader';
 import type { GameState } from './GameState';
-import type { FactionId, ThreadId, TransmissionDef } from '../types/campaign';
+import type { FactionId, RadioStationDef, ThreadId, TransmissionDef } from '../types/campaign';
 import { DAILY_RESOURCE_DRAIN } from '../utils/constants';
 
 export type ConsequenceResult = {
@@ -43,6 +43,14 @@ export class CampaignManager {
     return (
       this.dayDef.ambient?.some((a) => a.frequency === frequency) ?? false
     );
+  }
+
+  getRadioBed(frequency: number): RadioStationDef['bed'] | null {
+    if (this.getTransmissionAtFrequency(frequency)) {
+      return null;
+    }
+    const station = CAMPAIGN.stations?.find((s) => s.frequency === frequency);
+    return station?.bed ?? null;
   }
 
   isDayComplete(): boolean {

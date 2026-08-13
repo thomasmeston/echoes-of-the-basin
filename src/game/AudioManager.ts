@@ -7,6 +7,16 @@ const AUDIO_MUTED_KEY = 'echoes_sfx_muted';
 
 /** Soft bed under every tuned frequency while the radio is powered. */
 const RADIO_STATIC_GAIN = 0.16;
+/** Opera program sitting in the speaker with the static bed. */
+const OPERA_GAIN = 0.34;
+/** Static is quieter while a program is riding on top. */
+const OPERA_STATIC_SCALE = 0.58;
+
+const OPERA_TRACKS = [
+  'opera-vesti-la-giubba.mp3',
+  'opera-la-donna-e-mobile.mp3',
+  'opera-e-lucevan-le-stelle.mp3',
+] as const;
 
 /**
  * SFX one-shots + looping jungle ambience (no music bed).
@@ -19,8 +29,12 @@ export class AudioManager {
   private radioStaticWanted = false;
   /** Bumps when static should stop so late play() promises cannot restart it. */
   private radioStaticGen = 0;
-  /** One-shot ambient static clones (same asset as the bed). */
-  private staticShots: HTMLAudioElement[] = [];
+  private operaTracks: HTMLAudioElement[] = [];
+  private operaIndex = 0;
+  private operaWanted = false;
+  /** Reused voices so rapid tune cannot stack static. */
+  private retriggerVoices = new Map<string, HTMLAudioElement>();
+  private retriggerLastPlay = new Map<string, number>();
   /** Reused for intro keystrokes (avoids spawning hundreds of Audio nodes). */
   private typewriterVoice: HTMLAudioElement | null = null;
   private typewriterLastPlay = 0;
@@ -54,6 +68,14 @@ export class AudioManager {
     this.radioStatic = new Audio(publicUrl('audio/static.wav'));
     this.radioStatic.preload = 'auto';
     this.radioStatic.loop = true;
+
+    this.operaTracks = OPERA_TRACKS.map((file) => {
+      const el = new Audio(publicUrl(`audio/${file}`));
+      el.preload = 'auto';
+      el.loop = false;
+      el.addEventListener('ended', () => this.advanceOperaTrack());
+      return el;
+    });
   }
 
   /** Call from a user gesture so browsers allow subsequent playback. */
@@ -77,6 +99,7 @@ export class AudioManager {
     }
     this.startAmbience();
     this.applyRadioStatic();
+    this.applyOpera();
   }
 
   load(name: string, file: string): void {
@@ -89,6 +112,10 @@ export class AudioManager {
     if (this.muted || this.sfxVolume <= 0) {
       return;
     }
+    if (name === 'static' || name === 'staticBlip') {
+      this.playRetriggered(name, volume, name === 'staticBlip' ? 90 : 120);
+      return;
+    }
     const base = this.sounds.get(name);
     if (!base) {
       return;
@@ -96,17 +123,35 @@ export class AudioManager {
     const audio = new Audio(base.currentSrc || base.src);
     audio.volume = Math.min(1, Math.max(0, volume * this.sfxVolume));
     audio.loop = loop;
-    if (name === 'static') {
-      this.staticShots.push(audio);
-      audio.addEventListener(
-        'ended',
-        () => {
-          this.staticShots = this.staticShots.filter((a) => a !== audio);
-        },
-        { once: true }
-      );
-    }
     void audio.play().catch(() => undefined);
+  }
+
+  /** Restart one shared node instead of overlapping clones. */
+  private playRetriggered(name: string, volume: number, minGapMs: number): void {
+    const now = performance.now();
+    const last = this.retriggerLastPlay.get(name) ?? 0;
+    if (now - last < minGapMs) {
+      return;
+    }
+    this.retriggerLastPlay.set(name, now);
+
+    const base = this.sounds.get(name);
+    if (!base) {
+      return;
+    }
+    let voice = this.retriggerVoices.get(name);
+    if (!voice) {
+      voice = new Audio(base.currentSrc || base.src);
+      voice.preload = 'auto';
+      this.retriggerVoices.set(name, voice);
+    }
+    voice.volume = Math.min(1, Math.max(0, volume * this.sfxVolume));
+    try {
+      voice.currentTime = 0;
+    } catch {
+      /* ignore seek races while loading */
+    }
+    void voice.play().catch(() => undefined);
   }
 
   /**
@@ -170,6 +215,7 @@ export class AudioManager {
     this.sfxVolume = Math.min(1, Math.max(0, value));
     localStorage.setItem(SFX_VOLUME_KEY, String(this.sfxVolume));
     this.applyRadioStatic();
+    this.applyOpera();
   }
 
   /** Soft looping static while the desk radio is powered on. */
@@ -177,20 +223,27 @@ export class AudioManager {
     this.radioStaticWanted = on;
     if (!on) {
       this.stopStaticShots();
+      this.setOpera(false);
     }
     this.applyRadioStatic();
   }
 
+  /** Vintage opera program over the static bed (one ghost frequency). */
+  setOpera(on: boolean): void {
+    this.operaWanted = on;
+    this.applyOpera();
+    this.applyRadioStatic();
+  }
+
   private stopStaticShots(): void {
-    for (const audio of this.staticShots) {
-      audio.pause();
+    for (const voice of this.retriggerVoices.values()) {
+      voice.pause();
       try {
-        audio.currentTime = 0;
+        voice.currentTime = 0;
       } catch {
         /* ignore */
       }
     }
-    this.staticShots = [];
   }
 
   private applyRadioStatic(): void {
@@ -200,7 +253,13 @@ export class AudioManager {
     const vol =
       this.muted || !this.radioStaticWanted || this.sfxVolume <= 0
         ? 0
-        : Math.min(1, Math.max(0, RADIO_STATIC_GAIN * this.sfxVolume));
+        : Math.min(
+            1,
+            Math.max(
+              0,
+              RADIO_STATIC_GAIN * this.sfxVolume * (this.operaWanted ? OPERA_STATIC_SCALE : 1)
+            )
+          );
     this.radioStatic.volume = vol;
     if (vol <= 0) {
       this.radioStaticGen += 1;
@@ -219,6 +278,41 @@ export class AudioManager {
           this.radioStatic?.pause();
         }
       }).catch(() => undefined);
+    }
+  }
+
+  private applyOpera(): void {
+    const vol =
+      this.muted || !this.operaWanted || this.sfxVolume <= 0
+        ? 0
+        : Math.min(1, Math.max(0, OPERA_GAIN * this.sfxVolume));
+    this.operaTracks.forEach((track, i) => {
+      if (i !== this.operaIndex) {
+        track.pause();
+        track.volume = 0;
+      }
+    });
+    const current = this.operaTracks[this.operaIndex];
+    if (!current) {
+      return;
+    }
+    current.volume = vol;
+    if (vol <= 0) {
+      current.pause();
+      return;
+    }
+    if (this.unlocked && current.paused) {
+      void current.play().catch(() => undefined);
+    }
+  }
+
+  private advanceOperaTrack(): void {
+    if (this.operaTracks.length === 0) {
+      return;
+    }
+    this.operaIndex = (this.operaIndex + 1) % this.operaTracks.length;
+    if (this.operaWanted) {
+      this.applyOpera();
     }
   }
 
@@ -244,6 +338,7 @@ export class AudioManager {
     }
     this.applyAmbienceVolume();
     this.applyRadioStatic();
+    this.applyOpera();
   }
 
   toggleMuted(): boolean {

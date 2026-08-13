@@ -14,8 +14,8 @@ export type RadioUiObjectId =
 /** Viewport HUD widgets — selectable in Dev Mode (fixed left/bottom %). */
 export type HudObjectId = 'hud-clock' | 'hud-calendar' | 'field-notes';
 
-/** Editable desk targets — layers, radio cluster, radio UI, and HUD widgets. */
-export type DeskObjectId = DeskLayerId | 'radio-cluster' | RadioUiObjectId | HudObjectId;
+/** Editable desk targets — layers, radio cluster, radio UI, HUD, and window aperture. */
+export type DeskObjectId = DeskLayerId | 'radio-cluster' | RadioUiObjectId | HudObjectId | 'window-view';
 
 export interface DeskObjectTransform {
   /** left % (radio-cluster / overlay: horizontal center %) */
@@ -88,6 +88,7 @@ export const EDITABLE_DESK_OBJECTS: DeskObjectId[] = [
   'map-folded',
   'desk-surface',
   'bg-room',
+  'window-view',
   ...HUD_OBJECTS,
 ];
 

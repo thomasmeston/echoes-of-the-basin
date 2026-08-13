@@ -98,6 +98,8 @@ export class DevPanel {
     this.el.classList.remove('hidden');
     document.body.classList.add('dev-mode-active');
     this.desk.setDevPickMode(true);
+    this.layout['window-view'] = this.desk.seedWindowViewTransform();
+    this.desk.applyObjectTransform('window-view', this.layout['window-view']);
     this.select(this.selected);
     window.addEventListener('keydown', this.onKeyDown);
     // Capture on document so HUD (clock / calendar / notes) is pickable too.
@@ -110,6 +112,11 @@ export class DevPanel {
     document.body.classList.remove('dev-mode-active');
     this.desk.setDevPickMode(false);
     this.desk.clearDevSelection();
+    const live = this.desk.measureWindowAperture();
+    if (live) {
+      this.desk.setWindowAperture(live, false);
+    }
+    this.desk.exitWindowViewMeasure();
     window.removeEventListener('keydown', this.onKeyDown);
     document.removeEventListener('click', this.onStageClick, true);
   }
@@ -125,7 +132,7 @@ export class DevPanel {
         <button type="button" class="dev-mode-tab" data-tab="export">Export</button>
       </div>
       <div id="dev-layout-section">
-        <p class="dev-mode-hint">Click a desk or HUD object (clock, calendar, field notes) or pick from the list. Arrows nudge · [ ] Z · Shift+[ ] Y · Ctrl+[ ] X · -/+ scale.</p>
+        <p class="dev-mode-hint">Click a desk or HUD object (clock, calendar, field notes) or pick from the list. Arrows nudge · [ ] Z · Shift+[ ] Y · Ctrl+[ ] X · -/+ scale. <code>window-view</code> is the window aperture — size it to the opening, then Save Layout.</p>
         <div class="dev-frame-zoom-block">
           <div class="dev-range-row">
             <label for="dev-frame-zoom">Frame zoom</label>
@@ -451,7 +458,19 @@ export class DevPanel {
   }
 
   private saveLayout(): void {
+    this.commitInputs();
+    if (this.desk.windowView.isMeasuring()) {
+      this.layout['window-view'] = this.desk.captureTransform('window-view');
+    }
     localStorage.setItem(DESK_LAYOUT_STORAGE_KEY, JSON.stringify(this.toLayoutFile(), null, 2));
+    const aperture = this.desk.measureWindowAperture();
+    if (aperture) {
+      this.desk.setWindowAperture(aperture, true);
+      this.flash(
+        `Layout saved. Window aperture ${aperture.w}×${aperture.h} at ${aperture.x},${aperture.y} (image px).`
+      );
+      return;
+    }
     this.flash('Layout saved to localStorage.');
   }
 
@@ -553,6 +572,9 @@ export class DevPanel {
     if (id === 'field-notes') {
       return '#game-ui';
     }
+    if (id === 'window-view') {
+      return '.window-view';
+    }
     const map: Partial<Record<DeskObjectId, string>> = {
       'bg-room': 'bg',
       'desk-surface': 'desk',
@@ -573,6 +595,7 @@ export class DevPanel {
       return;
     }
     localStorage.removeItem(DESK_LAYOUT_STORAGE_KEY);
+    this.desk.resetWindowAperture();
     this.applyFile(DEFAULT_DESK_LAYOUT);
     this.select(this.selected);
     this.flash('Layout reset to baked defaults.');

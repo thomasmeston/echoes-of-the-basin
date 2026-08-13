@@ -12,5 +12,11 @@
     "medicine": 100
   },
   "outpostName": "Outpost Tucunaré",
-  "missingOperator": "Marcos Viera"
+  "missingOperator": "Marcos Viera",
+  "stations": [
+    {
+      "frequency": 97.2,
+      "bed": "opera"
+    }
+  ]
 }

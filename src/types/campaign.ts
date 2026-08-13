@@ -4,6 +4,12 @@ export type FactionId = 'military' | 'river' | 'expedition' | 'guerrilla' | 'des
 
 export type ResourceId = 'food' | 'batteries' | 'medicine';
 
+export interface RadioStationDef {
+  frequency: number;
+  /** Looping radio program layered over static. */
+  bed: 'opera';
+}
+
 export interface CampaignMeta {
   startDate: string;
   totalDays: number;
@@ -11,6 +17,7 @@ export interface CampaignMeta {
   resources: Record<ResourceId, number>;
   outpostName: string;
   missingOperator: string;
+  stations?: RadioStationDef[];
 }
 
 export interface FactionDef {
