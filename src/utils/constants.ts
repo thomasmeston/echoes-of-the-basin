@@ -4,6 +4,10 @@ export const SAVE_KEY_PREFIX = 'echoes_save_slot_';
 export const SAVE_KEY = `${SAVE_KEY_PREFIX}0`;
 export const LEGACY_SAVE_KEY = 'amazonRadioMystery';
 export const TOTAL_DAYS = 15;
+/** Night watch begins at 18:00 local (minutes since midnight). */
+export const WATCH_START_MINUTES = 18 * 60;
+/** Game clock pace while a watch is active (1 real second → N game minutes). */
+export const GAME_MINUTES_PER_REAL_SECOND = 1;
 /** After reply beep (~0.65s) before notepad handwriting SFX / log. */
 export const REPLY_HANDWRITING_DELAY_MS = 900;
 /** Main dial exterior scale markings. */

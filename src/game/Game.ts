@@ -9,15 +9,22 @@ import { RadioUI } from '../ui/RadioUI';
 import { NotepadUI } from '../ui/NotepadUI';
 import { CalendarUI } from '../ui/CalendarUI';
 import { ResourceUI } from '../ui/ResourceUI';
+import { WatchClockUI } from '../ui/WatchClockUI';
 import { PauseMenu } from '../ui/PauseMenu';
 import { DevPanel } from '../ui/DevPanel';
 import { MapOverlay, type MapDiscoverResult } from '../ui/MapOverlay';
 import { PapersOverlay } from '../ui/PapersOverlay';
+import { OpsManualOverlay } from '../ui/OpsManualOverlay';
+import { SchedLogOverlay } from '../ui/SchedLogOverlay';
 import { TitleMenu } from '../ui/TitleMenu';
 import { IntroOverlay } from '../ui/IntroOverlay';
 import { DeskStage } from '../scene/DeskStage';
 import type { TransmissionDef } from '../types/campaign';
-import { REPLY_HANDWRITING_DELAY_MS, TOTAL_DAYS } from '../utils/constants';
+import {
+  GAME_MINUTES_PER_REAL_SECOND,
+  REPLY_HANDWRITING_DELAY_MS,
+  TOTAL_DAYS,
+} from '../utils/constants';
 
 export class Game {
   readonly state = new GameState();
@@ -29,10 +36,13 @@ export class Game {
   private radioUI!: RadioUI;
   private notepadUI!: NotepadUI;
   private calendarUI!: CalendarUI;
+  private watchClockUI!: WatchClockUI;
   private pauseMenu!: PauseMenu;
   private devPanel!: DevPanel;
   private mapOverlay!: MapOverlay;
   private papersOverlay!: PapersOverlay;
+  private opsManualOverlay!: OpsManualOverlay;
+  private schedLogOverlay!: SchedLogOverlay;
   private titleMenu!: TitleMenu;
   private introOverlay!: IntroOverlay;
   private deskStage!: DeskStage;
@@ -42,6 +52,8 @@ export class Game {
   private endingOverlay!: HTMLDivElement;
   private activeTransmission: TransmissionDef | null = null;
   private gameplayActive = false;
+  private watchTickId: number | null = null;
+  private lastWatchTickMs = 0;
 
   async init(container: HTMLElement): Promise<void> {
     this.audio.init();
@@ -61,20 +73,28 @@ export class Game {
       onTune: (delta) => this.tune(delta),
       onBand: (delta) => this.tuneBand(delta),
       onMeter: (delta) => this.tuneMeter(delta),
+      onPower: (delta) => this.tunePower(delta),
       onChoice: (choiceId) => this.choose(choiceId),
       deskStage: this.deskStage,
     });
     this.notepadUI = new NotepadUI(this.audio);
-    new ResourceUI(this.state, this.leftHud);
+    new ResourceUI(this.state, this.notepadUI.statusMount, 'notes');
+    this.watchClockUI = new WatchClockUI(this.leftHud);
     this.calendarUI = new CalendarUI(new Date(CAMPAIGN.startDate), this.leftHud);
+    this.deskStage.registerExternalObject('hud-clock', this.watchClockUI.el);
+    this.deskStage.registerExternalObject('hud-calendar', this.calendarUI.el);
+    this.deskStage.registerExternalObject('field-notes', this.notepadUI.el);
     this.mapOverlay = new MapOverlay(this.audio, {
       isDiscovered: (id) => this.state.hasDiscoveredLandmark(id),
       canAfford: (cost) => this.state.resources.batteries >= cost,
       onDiscover: (id, tokens) => this.discoverLandmark(id, tokens),
     });
     this.papersOverlay = new PapersOverlay(this.audio);
+    this.opsManualOverlay = new OpsManualOverlay(this.audio);
+    this.schedLogOverlay = new SchedLogOverlay(this.audio);
     this.bindMapClick();
-    this.bindPapersClick();
+    this.bindOpsManualClick();
+    this.bindSchedLogClick();
     this.devPanel = new DevPanel(this.deskStage);
     this.pauseMenu = new PauseMenu({
       audio: this.audio,
@@ -105,10 +125,14 @@ export class Game {
   }
 
   private get deskInspectOpen(): boolean {
-    return this.mapOverlay.isOpen || this.papersOverlay.isOpen;
+    return (
+      this.mapOverlay.isOpen ||
+      this.papersOverlay.isOpen ||
+      this.opsManualOverlay.isOpen
+    );
   }
 
-  private canOperateRadio(): boolean {
+  private canAccessRadio(): boolean {
     return (
       this.gameplayActive &&
       !this.pauseMenu.isOpen &&
@@ -116,6 +140,10 @@ export class Game {
       !this.deskInspectOpen &&
       !this.titleMenu.isOpen
     );
+  }
+
+  private canOperateRadio(): boolean {
+    return this.canAccessRadio() && this.state.radioOn;
   }
 
   tune(delta: number): void {
@@ -148,13 +176,32 @@ export class Game {
     this.autosave();
   }
 
+  tunePower(delta: number): void {
+    if (!this.canAccessRadio()) {
+      return;
+    }
+    // Any step toggles power (2-position dial).
+    if (delta === 0) {
+      return;
+    }
+    const on = this.state.toggleRadioPower();
+    this.radioUI.setPower(on);
+    this.audio.setRadioStatic(on);
+    if (on) {
+      this.audio.play('radioBeep', 0.7);
+      this.checkFrequency();
+    } else {
+      this.audio.play('staticBlip', 0.35);
+      this.activeTransmission = null;
+      this.radioUI.hideChoices();
+    }
+    this.autosave();
+  }
+
   choose(choiceId: string): void {
     if (
-      !this.gameplayActive ||
-      !this.activeTransmission ||
-      this.pauseMenu.isOpen ||
-      this.devPanel.isActive ||
-      this.deskInspectOpen
+      !this.canOperateRadio() ||
+      !this.activeTransmission
     ) {
       return;
     }
@@ -255,12 +302,16 @@ export class Game {
     }
     this.mapOverlay.hide();
     this.papersOverlay.hide();
+    this.opsManualOverlay.hide();
+    this.schedLogOverlay.hide();
     this.dayEndPrompt.style.display = 'none';
     this.endingOverlay.style.display = 'none';
     this.activeTransmission = null;
     this.radioUI.hideChoices();
     this.notepadUI.clear();
     this.gameplayActive = false;
+    this.stopWatchClock();
+    this.audio.setRadioStatic(false);
     this.setGameplayVisible(false);
     this.titleMenu.show(this.saveLoad.listSlots());
   }
@@ -290,6 +341,8 @@ export class Game {
     this.radioUI.setFrequency(this.state.currentFrequency);
     this.radioUI.setBand(this.state.band);
     this.radioUI.setMeter(this.state.meter);
+    this.radioUI.setPower(this.state.radioOn);
+    this.audio.setRadioStatic(this.gameplayActive && this.state.radioOn);
   }
 
   private enterGameplay(opts: { showOpening: boolean; autosave: boolean }): void {
@@ -297,8 +350,10 @@ export class Game {
     this.narrative.loadDay(this.state.currentDay);
     this.calendarUI.setDay(this.state.currentDay);
     this.notepadUI.setDay(this.state.currentDay);
-    this.syncRadioControls();
     this.gameplayActive = true;
+    this.syncRadioControls();
+    this.syncWallClock();
+    this.startWatchClock();
     this.setGameplayVisible(true);
     if (opts.showOpening) {
       this.narrative.showOpeningIfNeeded();
@@ -335,7 +390,6 @@ export class Game {
     }
 
     this.audio.play('staticBlip');
-    this.radioUI.twitchMeters();
     this.activeTransmission = transmission;
     this.radioUI.showChoices(transmission);
   }
@@ -345,6 +399,10 @@ export class Game {
       this.endingOverlay.querySelector('h2')!.textContent = 'Out of supplies';
       this.endingOverlay.querySelector('p')!.textContent = message;
       this.endingOverlay.style.display = 'flex';
+    });
+
+    this.state.events.on('watchTimeChanged', () => {
+      this.syncWallClock();
     });
 
     this.narrative.events.on('openingLog', (text) => {
@@ -358,6 +416,38 @@ export class Game {
     this.narrative.events.on('journalUpdated', (_id, entry) => {
       this.notepadUI.addLog(`Journal — ${entry.title}: ${entry.body}`, 'journal');
     });
+  }
+
+  private syncWallClock(): void {
+    const { hour, minute } = this.state.getWatchClock();
+    this.watchClockUI.setTime(hour, minute);
+  }
+
+  private startWatchClock(): void {
+    this.stopWatchClock();
+    this.lastWatchTickMs = performance.now();
+    const tick = (now: number) => {
+      this.watchTickId = requestAnimationFrame(tick);
+      if (!this.gameplayActive || this.pauseMenu.isOpen || this.titleMenu.isOpen) {
+        this.lastWatchTickMs = now;
+        return;
+      }
+      const dt = Math.min(1, (now - this.lastWatchTickMs) / 1000);
+      this.lastWatchTickMs = now;
+      if (dt > 0) {
+        this.state.advanceWatchMinutes(dt * GAME_MINUTES_PER_REAL_SECOND);
+      }
+      // Smooth minute-hand sweep (fractional watch minutes).
+      this.syncWallClock();
+    };
+    this.watchTickId = requestAnimationFrame(tick);
+  }
+
+  private stopWatchClock(): void {
+    if (this.watchTickId !== null) {
+      cancelAnimationFrame(this.watchTickId);
+      this.watchTickId = null;
+    }
   }
 
   private bindEscapeMenu(): void {
@@ -375,6 +465,14 @@ export class Game {
       }
       if (this.papersOverlay.isOpen) {
         this.papersOverlay.hide();
+        return;
+      }
+      if (this.opsManualOverlay.isOpen) {
+        this.opsManualOverlay.hide();
+        return;
+      }
+      if (this.schedLogOverlay.isOpen) {
+        this.schedLogOverlay.hide();
         return;
       }
       if (this.devPanel.isActive) {
@@ -436,19 +534,32 @@ export class Game {
   private bindMapClick(): void {
     this.bindDeskInspectTarget('map-folded', 'Open basin map', () => {
       this.papersOverlay.hide();
+      this.opsManualOverlay.hide();
+      this.schedLogOverlay.hide();
       this.mapOverlay.show();
     });
   }
 
-  private bindPapersClick(): void {
-    this.bindDeskInspectTarget('papers', 'Open plant field notes', () => {
+  private bindOpsManualClick(): void {
+    this.bindDeskInspectTarget('ops-manual', 'Open operating instructions', () => {
       this.mapOverlay.hide();
-      this.papersOverlay.show();
+      this.papersOverlay.hide();
+      this.schedLogOverlay.hide();
+      this.opsManualOverlay.show();
+    });
+  }
+
+  private bindSchedLogClick(): void {
+    this.bindDeskInspectTarget('sched-log', 'Open Sched Log', () => {
+      this.mapOverlay.hide();
+      this.papersOverlay.hide();
+      this.opsManualOverlay.hide();
+      this.schedLogOverlay.show();
     });
   }
 
   private bindDeskInspectTarget(
-    id: 'map-folded' | 'papers',
+    id: 'map-folded' | 'papers' | 'ops-manual' | 'sched-log',
     title: string,
     openFn: () => void
   ): void {

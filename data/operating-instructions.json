@@ -1,0 +1,58 @@
+{
+  "id": "ops-manual",
+  "title": "Operating Instructions",
+  "subtitle": "Outpost Tucunaré — Relief Operator Sheet",
+  "sketch": "ops-manual-sketch",
+  "preamble": "Read before the first watch. Fold this sheet when finished. HQ expects business as usual.",
+  "sections": [
+    {
+      "heading": "1. Power the set",
+      "steps": [
+        "Turn the Power dial to ON. The lamp should glow yellow.",
+        "If the lamp is dark, check batteries before calling for a generator run.",
+        "Power OFF when you leave the chair — the set draws hard overnight."
+      ]
+    },
+    {
+      "heading": "2. Tune the channel",
+      "steps": [
+        "Set Band (1–5) and Meter (A–B–C) as posted for the night’s sched.",
+        "Turn the main Tune dial (or drag) until the frequency display matches the call.",
+        "Soft static under the channel is normal. A sharp blip means traffic may be present."
+      ]
+    },
+    {
+      "heading": "3. Log incoming messages",
+      "steps": [
+        "Open the field notes drawer. Every reply you choose is written into the book.",
+        "Copy sender, frequency, and substance. Margin notes are allowed; invent nothing for HQ.",
+        "Thoughts and journal scraps also go in the notes — keep them separate from net traffic."
+      ]
+    },
+    {
+      "heading": "4. Relay, bury, or static",
+      "steps": [
+        "When choices appear: Relay sends the content on; Bury logs privately; Static claims you did not copy.",
+        "Relay costs batteries and may change who trusts you. Bury protects some voices. Static is silence with a cost of its own.",
+        "Assistance requests (medical, route, window) follow the same three paths — choose before the meter falls."
+      ]
+    },
+    {
+      "heading": "5. Maintain power & supplies",
+      "steps": [
+        "Watch the battery gauge. Relays and boat surveys both spend charge.",
+        "Food, batteries, and medicine drain each night you sleep. Do not run any to zero.",
+        "If supplies fail, the outpost goes dark. Conserve on quiet nights; spend when a life is on the line."
+      ]
+    },
+    {
+      "heading": "6. Desk tools",
+      "steps": [
+        "Map: survey coordinate squares; send the boat only when you can spare batteries.",
+        "Sched Log: 24-hour listen windows and assigned frequencies. Prefer typed blocks over margin ink.",
+        "This sheet: fold it back when done. Do not relay its contents on the open net."
+      ]
+    }
+  ],
+  "footer": "— Desk copy. Prior operator’s handwriting in the margin is not procedure."
+}

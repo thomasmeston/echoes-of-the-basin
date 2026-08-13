@@ -7,6 +7,7 @@ export interface RadioUIOptions {
   onTune: (delta: number) => void;
   onBand: (delta: number) => void;
   onMeter: (delta: number) => void;
+  onPower: (delta: number) => void;
   onChoice: (choiceId: string) => void;
   deskStage: DeskStage;
 }
@@ -40,6 +41,11 @@ export class RadioUI {
     this.options.deskStage.setMeterIndex(idx >= 0 ? idx : 0);
   }
 
+  setPower(on: boolean): void {
+    this.options.deskStage.setPowerOn(on);
+    this.frequencyEl.classList.toggle('frequency-display--off', !on);
+  }
+
   twitchMeters(): void {
     this.options.deskStage.twitchMeters();
   }
@@ -60,11 +66,13 @@ export class RadioUI {
       this.choicesContainer.appendChild(button);
     }
     this.choicesBox.style.display = 'block';
+    this.options.deskStage.setMetersLive(true);
   }
 
   hideChoices(): void {
     this.choicesBox.style.display = 'none';
     this.infoBox.style.display = 'none';
+    this.options.deskStage.setMetersLive(false);
   }
 
   private build(): void {
@@ -100,6 +108,11 @@ export class RadioUI {
       title: 'Meter',
       onStep: (delta) => this.options.onMeter(delta),
       dragThreshold: 0.55,
+    });
+    this.setupSteppedDial(this.options.deskStage.getPowerHitTarget(), {
+      title: 'Power',
+      onStep: (delta) => this.options.onPower(delta),
+      dragThreshold: 0.5,
     });
 
     this.infoBox = document.createElement('div');

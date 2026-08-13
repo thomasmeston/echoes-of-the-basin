@@ -14,6 +14,9 @@ test('day 1 switchboard smoke', async ({ page }) => {
 
   await page.evaluate(async () => {
     const game = window.game!;
+    if (!game.state.radioOn) {
+      game.tunePower(1);
+    }
     for (let i = 0; i < 48; i++) {
       game.tune(1);
       if (game.state.currentFrequency === 93.2) break;

@@ -1,17 +1,18 @@
-ï»¿Audio credits (free / royalty-free):
+Audio credits (free / royalty-free):
 
-- paper_unfold.wav â€” derived from Mixkit paper movement SFX (preview asset 1530),
+- paper_unfold.wav — derived from Mixkit paper movement SFX (preview asset 1530),
   Mixkit License: https://mixkit.co/free-sound-effects/paper/ (free for commercial use).
   Loudness-normalized WAV for reliable browser playback.
 
-- notepad_pull.wav â€” derived from Mixkit "Single book paging" (preview asset 1101),
+- notepad_pull.wav — derived from Mixkit "Single book paging" (preview asset 1101),
   Mixkit License: https://mixkit.co/free-sound-effects/page/ (free for commercial use).
 
-- handwriting.wav â€” trimmed from BigSoundBank "Pencil #1" (s0221) by Joseph Sardin,
+- handwriting.wav — trimmed from BigSoundBank "Pencil #1" (s0221) by Joseph Sardin,
   CC0: https://bigsoundbank.com/pencil-s0221.html (~1.25s loudnorm mono WAV).
 
-- typewriter.wav â€” Mixkit "Mechanical typewriter single hit" (preview asset 1382),
+- typewriter.wav — Mixkit "Mechanical typewriter single hit" (preview asset 1382),
   Mixkit License: https://mixkit.co/free-sound-effects/typewriter/ (free for commercial use).
   Gentle loudnorm mono WAV (~0.7s); intro playback is throttled so hits can ring.
 
-- 459925__rtb45__costa-rica-rainforest.wav â€” looping jungle ambience bed.
+- 459925__rtb45__costa-rica-rainforest.wav — looping jungle ambience bed.
+

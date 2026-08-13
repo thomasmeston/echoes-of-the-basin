@@ -9,6 +9,7 @@ import {
   EDITABLE_DESK_OBJECTS,
   FRAME_ZOOM_MAX,
   FRAME_ZOOM_MIN,
+  isHudObject,
   normalizeLayoutFile,
   normalizeTransform,
   type DeskLayoutFile,
@@ -77,7 +78,7 @@ export class DevPanel {
     this.loadStoredLayout();
 
     this.onKeyDown = (e) => this.handleKey(e);
-    this.onStageClick = (e) => this.handleStageClick(e);
+    this.onStageClick = (e) => this.handlePickClick(e);
   }
 
   get isActive(): boolean {
@@ -99,7 +100,8 @@ export class DevPanel {
     this.desk.setDevPickMode(true);
     this.select(this.selected);
     window.addEventListener('keydown', this.onKeyDown);
-    this.desk.root.addEventListener('click', this.onStageClick, true);
+    // Capture on document so HUD (clock / calendar / notes) is pickable too.
+    document.addEventListener('click', this.onStageClick, true);
   }
 
   hide(): void {
@@ -109,7 +111,7 @@ export class DevPanel {
     this.desk.setDevPickMode(false);
     this.desk.clearDevSelection();
     window.removeEventListener('keydown', this.onKeyDown);
-    this.desk.root.removeEventListener('click', this.onStageClick, true);
+    document.removeEventListener('click', this.onStageClick, true);
   }
 
   private buildMarkup(): string {
@@ -123,7 +125,7 @@ export class DevPanel {
         <button type="button" class="dev-mode-tab" data-tab="export">Export</button>
       </div>
       <div id="dev-layout-section">
-        <p class="dev-mode-hint">Click a desk object or pick from the list. Arrows nudge · [ ] Z · Shift+[ ] Y · Ctrl+[ ] X · -/+ scale.</p>
+        <p class="dev-mode-hint">Click a desk or HUD object (clock, calendar, field notes) or pick from the list. Arrows nudge · [ ] Z · Shift+[ ] Y · Ctrl+[ ] X · -/+ scale.</p>
         <div class="dev-frame-zoom-block">
           <div class="dev-range-row">
             <label for="dev-frame-zoom">Frame zoom</label>
@@ -367,11 +369,14 @@ export class DevPanel {
     this.desk.applyObjectTransform(this.selected, t);
   }
 
-  private handleStageClick(e: MouseEvent): void {
+  private handlePickClick(e: MouseEvent): void {
     if (!this.active) {
       return;
     }
     const target = e.target as HTMLElement | null;
+    if (target?.closest?.('#dev-panel')) {
+      return;
+    }
     const pick = target?.closest?.('[data-dev-object]') as HTMLElement | null;
     if (pick?.dataset.devObject) {
       e.preventDefault();
@@ -478,6 +483,19 @@ export class DevPanel {
         lines.push(
           `  transform: translateX(-50%) rotateX(${t.rotateX.toFixed(1)}deg) rotateY(${t.rotateY.toFixed(1)}deg) rotateZ(${t.rotateZ.toFixed(1)}deg) scale(${t.scale.toFixed(2)});`
         );
+      } else if (isHudObject(id)) {
+        lines.push(`  position: fixed;`);
+        lines.push(`  left: ${t.x.toFixed(2)}%;`);
+        lines.push(`  bottom: ${t.y.toFixed(2)}%;`);
+        lines.push(`  top: auto;`);
+        lines.push(`  width: ${Math.round(t.w)}px;`);
+        if (t.h > 0) {
+          lines.push(`  height: ${Math.round(t.h)}px;`);
+        }
+        lines.push(
+          `  transform: rotateX(${t.rotateX.toFixed(1)}deg) rotateY(${t.rotateY.toFixed(1)}deg) rotateZ(${t.rotateZ.toFixed(1)}deg) scale(${t.scale.toFixed(2)});`
+        );
+        lines.push(`  z-index: ${t.zIndex};`);
       } else {
         lines.push(`  left: ${t.x.toFixed(2)}%;`);
         lines.push(`  bottom: ${t.y.toFixed(2)}%;`);
@@ -514,17 +532,34 @@ export class DevPanel {
     if (id === 'meter-dial') {
       return '.radio-knob--meter-dial';
     }
+    if (id === 'power-dial') {
+      return '.radio-knob--power-dial';
+    }
+    if (id === 'power-light') {
+      return '.radio-power-light';
+    }
     if (id === 'dial-notches') {
       return '.dial-notch-ring';
     }
     if (id === 'tune-label') {
       return '.desk-dial-label';
     }
+    if (id === 'hud-clock') {
+      return '.hud-clock';
+    }
+    if (id === 'hud-calendar') {
+      return '.calendar-container';
+    }
+    if (id === 'field-notes') {
+      return '#game-ui';
+    }
     const map: Partial<Record<DeskObjectId, string>> = {
       'bg-room': 'bg',
       'desk-surface': 'desk',
       'mic-lollipop': 'mic',
       'map-folded': 'map',
+      'ops-manual': 'ops-manual',
+      'sched-log': 'sched-log',
       'radio-body': 'radio-body',
       'radio-dial': 'dial',
       'meter-needle-l': 'needle-l',

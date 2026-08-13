@@ -8,6 +8,7 @@ export class NotepadUI {
   private scrollSheet!: HTMLDivElement;
   private logContainer!: HTMLDivElement;
   private header!: HTMLDivElement;
+  private statusHost!: HTMLDivElement;
   private toggle!: HTMLButtonElement;
   private currentDay = 1;
   /** Earliest time handwriting SFX may play (coalesces burst logs into one hit). */
@@ -88,6 +89,15 @@ export class NotepadUI {
     this.logContainer.innerHTML = '';
   }
 
+  /** Mount point for persistent supplies / trust above the log. */
+  get statusMount(): HTMLElement {
+    return this.statusHost;
+  }
+
+  get el(): HTMLElement {
+    return this.container;
+  }
+
   private formatStamp(): string {
     const date = new Date(CAMPAIGN.startDate);
     date.setDate(date.getDate() + (this.currentDay - 1));
@@ -109,18 +119,23 @@ export class NotepadUI {
     this.container = document.createElement('div');
     this.container.id = 'game-ui';
     this.container.className = 'game-ui visible';
+    this.container.dataset.devObject = 'field-notes';
     this.container.setAttribute('aria-label', 'Field notes');
-    this.container.style.setProperty(
+
+    this.scrollSheet = document.createElement('div');
+    this.scrollSheet.className = 'notepad-scroll';
+    // Keep texture on the sheet (not #game-ui) so Dev Mode layout reset can't wipe it.
+    this.scrollSheet.style.setProperty(
       '--notepad-texture',
       `url("${publicUrl('images/notebook_texture.png')}")`
     );
 
-    this.scrollSheet = document.createElement('div');
-    this.scrollSheet.className = 'notepad-scroll';
-
     this.header = document.createElement('div');
     this.header.className = 'notepad-header';
     this.header.textContent = 'Field notes';
+
+    this.statusHost = document.createElement('div');
+    this.statusHost.className = 'notepad-status';
 
     this.logContainer = document.createElement('div');
     this.logContainer.className = 'log-container';
@@ -142,7 +157,7 @@ export class NotepadUI {
       }
     });
 
-    this.scrollSheet.append(this.header, this.logContainer);
+    this.scrollSheet.append(this.header, this.statusHost, this.logContainer);
     this.container.append(this.scrollSheet, this.toggle);
     document.body.appendChild(this.container);
   }

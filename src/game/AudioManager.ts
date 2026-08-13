@@ -5,12 +5,22 @@ const AMBIENCE_VOLUME_KEY = 'echoes_ambience_volume';
 /** Master mute (SFX + ambience). Legacy key name kept for existing saves. */
 const AUDIO_MUTED_KEY = 'echoes_sfx_muted';
 
+/** Soft bed under every tuned frequency while the radio is powered. */
+const RADIO_STATIC_GAIN = 0.16;
+
 /**
  * SFX one-shots + looping jungle ambience (no music bed).
  */
 export class AudioManager {
   private sounds = new Map<string, HTMLAudioElement>();
   private jungle: HTMLAudioElement | null = null;
+  /** Persistent low static while the radio is on. */
+  private radioStatic: HTMLAudioElement | null = null;
+  private radioStaticWanted = false;
+  /** Bumps when static should stop so late play() promises cannot restart it. */
+  private radioStaticGen = 0;
+  /** One-shot ambient static clones (same asset as the bed). */
+  private staticShots: HTMLAudioElement[] = [];
   /** Reused for intro keystrokes (avoids spawning hundreds of Audio nodes). */
   private typewriterVoice: HTMLAudioElement | null = null;
   private typewriterLastPlay = 0;
@@ -32,12 +42,18 @@ export class AudioManager {
     this.load('radioBeep', 'radio_beep.wav');
     this.load('paperUnfold', 'paper_unfold.wav');
     this.load('notepadPull', 'notepad_pull.wav');
+    /** Book open — same Mixkit paging sample as notepad pull. */
+    this.load('bookOpen', 'notepad_pull.wav');
     this.load('handwriting', 'handwriting.wav');
     this.load('typewriter', 'typewriter.wav');
 
     this.jungle = new Audio(publicUrl('audio/459925__rtb45__costa-rica-rainforest.wav'));
     this.jungle.preload = 'auto';
     this.jungle.loop = true;
+
+    this.radioStatic = new Audio(publicUrl('audio/static.wav'));
+    this.radioStatic.preload = 'auto';
+    this.radioStatic.loop = true;
   }
 
   /** Call from a user gesture so browsers allow subsequent playback. */
@@ -60,6 +76,7 @@ export class AudioManager {
       probe.volume = prev;
     }
     this.startAmbience();
+    this.applyRadioStatic();
   }
 
   load(name: string, file: string): void {
@@ -79,6 +96,16 @@ export class AudioManager {
     const audio = new Audio(base.currentSrc || base.src);
     audio.volume = Math.min(1, Math.max(0, volume * this.sfxVolume));
     audio.loop = loop;
+    if (name === 'static') {
+      this.staticShots.push(audio);
+      audio.addEventListener(
+        'ended',
+        () => {
+          this.staticShots = this.staticShots.filter((a) => a !== audio);
+        },
+        { once: true }
+      );
+    }
     void audio.play().catch(() => undefined);
   }
 
@@ -142,6 +169,57 @@ export class AudioManager {
   setVolume(value: number): void {
     this.sfxVolume = Math.min(1, Math.max(0, value));
     localStorage.setItem(SFX_VOLUME_KEY, String(this.sfxVolume));
+    this.applyRadioStatic();
+  }
+
+  /** Soft looping static while the desk radio is powered on. */
+  setRadioStatic(on: boolean): void {
+    this.radioStaticWanted = on;
+    if (!on) {
+      this.stopStaticShots();
+    }
+    this.applyRadioStatic();
+  }
+
+  private stopStaticShots(): void {
+    for (const audio of this.staticShots) {
+      audio.pause();
+      try {
+        audio.currentTime = 0;
+      } catch {
+        /* ignore */
+      }
+    }
+    this.staticShots = [];
+  }
+
+  private applyRadioStatic(): void {
+    if (!this.radioStatic) {
+      return;
+    }
+    const vol =
+      this.muted || !this.radioStaticWanted || this.sfxVolume <= 0
+        ? 0
+        : Math.min(1, Math.max(0, RADIO_STATIC_GAIN * this.sfxVolume));
+    this.radioStatic.volume = vol;
+    if (vol <= 0) {
+      this.radioStaticGen += 1;
+      this.radioStatic.pause();
+      try {
+        this.radioStatic.currentTime = 0;
+      } catch {
+        /* ignore */
+      }
+      return;
+    }
+    if (this.unlocked && this.radioStatic.paused) {
+      const gen = ++this.radioStaticGen;
+      void this.radioStatic.play().then(() => {
+        if (gen !== this.radioStaticGen || !this.radioStaticWanted) {
+          this.radioStatic?.pause();
+        }
+      }).catch(() => undefined);
+    }
   }
 
   getAmbienceVolume(): number {
@@ -161,7 +239,11 @@ export class AudioManager {
   setMuted(muted: boolean): void {
     this.muted = muted;
     localStorage.setItem(AUDIO_MUTED_KEY, muted ? '1' : '0');
+    if (muted) {
+      this.stopStaticShots();
+    }
     this.applyAmbienceVolume();
+    this.applyRadioStatic();
   }
 
   toggleMuted(): boolean {

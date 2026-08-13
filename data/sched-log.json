@@ -1,0 +1,23 @@
+﻿{
+  "id": "sched-log",
+  "title": "Sched Log",
+  "subtitle": "Outpost Tucunaré — 24-Hour Listen Schedule",
+  "sketch": "sched-log-sketch",
+  "preamble": "Local time. Seat the assigned frequency for each block. Acknowledge presence. Do not leave the chair mid-window unless relieved.",
+  "timezoneNote": "All times local (UTC−4). Band/Meter as posted on the night slip.",
+  "blocks": [
+    { "time": "00:00–02:00", "mhz": 88.5, "assignment": "Night desk standby", "handNote": "chair cold again" },
+    { "time": "02:00–04:00", "mhz": 90.3, "assignment": "River low-band watch" },
+    { "time": "04:00–06:00", "mhz": 91.7, "assignment": "Pre-dawn aviation net" },
+    { "time": "06:00–08:00", "mhz": 93.2, "assignment": "Morning Army sched (primary)", "handNote": "Marcos never missed this one" },
+    { "time": "08:00–10:00", "mhz": 94.8, "assignment": "Clinic / mercy traffic" },
+    { "time": "10:00–12:00", "mhz": 96.4, "assignment": "Survey Team Condor window" },
+    { "time": "12:00–14:00", "mhz": 98.1, "assignment": "Midday HQ check-in", "handNote": "who answers when Condor is quiet?" },
+    { "time": "14:00–16:00", "mhz": 99.5, "assignment": "River trader / Bend traffic" },
+    { "time": "16:00–18:00", "mhz": 101.6, "assignment": "Evening aviation sched" },
+    { "time": "18:00–20:00", "mhz": 103.0, "assignment": "Nightfall Condor beacon watch", "handNote": "heard breathing — not static" },
+    { "time": "20:00–22:00", "mhz": 104.6, "assignment": "Army late net / coded" },
+    { "time": "22:00–24:00", "mhz": 105.4, "assignment": "Close-out & battery check", "handNote": "do not relay 23:40" }
+  ],
+  "footer": "Prior operator's margin ink is not procedure. Copy only typed blocks into the field notes."
+}

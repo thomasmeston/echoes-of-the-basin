@@ -9,8 +9,13 @@ export class CalendarUI {
     this.currentDate = new Date(startDate);
     this.container = document.createElement('div');
     this.container.className = 'calendar-container';
+    this.container.dataset.devObject = 'hud-calendar';
     parent.appendChild(this.container);
     this.render();
+  }
+
+  get el(): HTMLElement {
+    return this.container;
   }
 
   setDay(day: number): void {
@@ -32,26 +37,25 @@ export class CalendarUI {
 
   private render(): void {
     this.container.innerHTML = '';
+
+    const pin = document.createElement('div');
+    pin.className = 'calendar-pin';
+    pin.setAttribute('aria-hidden', 'true');
+
+    const mast = document.createElement('div');
+    mast.className = 'calendar-mast';
+    mast.textContent = 'Outpost Tucunaré · Desk Calendar';
+
     const header = document.createElement('div');
     header.className = 'calendar-header';
     header.textContent = this.currentDate.toLocaleDateString('en-US', {
       month: 'long',
       year: 'numeric',
     });
-    this.container.appendChild(header);
-
-    const sub = document.createElement('div');
-    sub.className = 'calendar-sub';
-    sub.textContent = `Night ${this.displayDay} · ${this.currentDate.toLocaleDateString('en-US', {
-      weekday: 'long',
-      month: 'short',
-      day: 'numeric',
-    })}`;
-    this.container.appendChild(sub);
 
     const grid = document.createElement('div');
     grid.className = 'calendar-grid';
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
     for (const d of days) {
       const h = document.createElement('div');
       h.className = 'calendar-day-header';
@@ -78,6 +82,7 @@ export class CalendarUI {
       }
       grid.appendChild(cell);
     }
-    this.container.appendChild(grid);
+
+    this.container.append(pin, mast, header, grid);
   }
 }

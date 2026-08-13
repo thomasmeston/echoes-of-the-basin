@@ -6,11 +6,16 @@ export type RadioUiObjectId =
   | 'freq-display'
   | 'band-dial'
   | 'meter-dial'
+  | 'power-dial'
+  | 'power-light'
   | 'dial-notches'
   | 'tune-label';
 
-/** Editable desk targets — layers, radio cluster, and radio UI widgets. */
-export type DeskObjectId = DeskLayerId | 'radio-cluster' | RadioUiObjectId;
+/** Viewport HUD widgets — selectable in Dev Mode (fixed left/bottom %). */
+export type HudObjectId = 'hud-clock' | 'hud-calendar' | 'field-notes';
+
+/** Editable desk targets — layers, radio cluster, radio UI, and HUD widgets. */
+export type DeskObjectId = DeskLayerId | 'radio-cluster' | RadioUiObjectId | HudObjectId;
 
 export interface DeskObjectTransform {
   /** left % (radio-cluster / overlay: horizontal center %) */
@@ -56,8 +61,16 @@ export const RADIO_UI_OBJECTS: RadioUiObjectId[] = [
   'freq-display',
   'band-dial',
   'meter-dial',
+  'power-dial',
+  'power-light',
   'dial-notches',
   'tune-label',
+];
+
+export const HUD_OBJECTS: HudObjectId[] = [
+  'hud-clock',
+  'hud-calendar',
+  'field-notes',
 ];
 
 export const EDITABLE_DESK_OBJECTS: DeskObjectId[] = [
@@ -70,9 +83,12 @@ export const EDITABLE_DESK_OBJECTS: DeskObjectId[] = [
   'mic-lollipop',
   'lamp',
   'papers',
+  'ops-manual',
+  'sched-log',
   'map-folded',
   'desk-surface',
   'bg-room',
+  ...HUD_OBJECTS,
 ];
 
 /** Objects whose % coords are relative to `.desk-radio-cluster`. */
@@ -83,6 +99,10 @@ export const CLUSTER_RELATIVE_OBJECTS: DeskObjectId[] = [
   'meter-needle-r',
   ...RADIO_UI_OBJECTS,
 ];
+
+export function isHudObject(id: DeskObjectId): id is HudObjectId {
+  return (HUD_OBJECTS as string[]).includes(id);
+}
 
 export function defaultTransform(): DeskObjectTransform {
   return {
@@ -128,6 +148,9 @@ export function normalizeLayoutFile(raw: unknown): DeskLayoutFile {
     DeskObjectId,
     DeskObjectTransformLoose,
   ][]) {
+    if (!(EDITABLE_DESK_OBJECTS as string[]).includes(id)) {
+      continue;
+    }
     objects[id] = normalizeTransform(t);
   }
   return {

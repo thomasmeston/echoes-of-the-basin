@@ -13,9 +13,14 @@ export class ResourceUI {
   private resourceEls = new Map<ResourceId, HTMLElement>();
   private factionEls = new Map<FactionId, HTMLElement>();
 
-  constructor(private readonly state: GameState, parent: HTMLElement = document.body) {
+  constructor(
+    private readonly state: GameState,
+    parent: HTMLElement = document.body,
+    variant: 'panel' | 'notes' = 'panel'
+  ) {
     this.container = document.createElement('div');
-    this.container.className = 'resource-display';
+    this.container.className =
+      variant === 'notes' ? 'resource-display resource-display--notes' : 'resource-display';
     this.buildResources();
     this.buildFactions();
     parent.appendChild(this.container);
@@ -33,11 +38,12 @@ export class ResourceUI {
       const item = document.createElement('div');
       item.className = 'resource-item';
       item.innerHTML = `
-        <div class="resource-icon ${key}"></div>
         <div class="resource-name">${RESOURCE_LABELS[key]}</div>
-        <div class="resource-value">${value}</div>
+        <div class="resource-bar resource-bar--${key}" title="${RESOURCE_LABELS[key]}: ${value}">
+          <div class="resource-fill" style="width:${Math.min(100, Math.max(0, value))}%"></div>
+        </div>
       `;
-      this.resourceEls.set(key, item.querySelector('.resource-value')!);
+      this.resourceEls.set(key, item);
       this.container.appendChild(item);
     }
   }
@@ -67,8 +73,16 @@ export class ResourceUI {
   }
 
   private syncResources(): void {
-    for (const [key, el] of this.resourceEls) {
-      el.textContent = String(this.state.resources[key]);
+    for (const [key, item] of this.resourceEls) {
+      const value = this.state.resources[key];
+      const fill = item.querySelector('.resource-fill') as HTMLElement | null;
+      const bar = item.querySelector('.resource-bar') as HTMLElement | null;
+      if (fill) {
+        fill.style.width = `${Math.min(100, Math.max(0, value))}%`;
+      }
+      if (bar) {
+        bar.title = `${RESOURCE_LABELS[key]}: ${value}`;
+      }
     }
   }
 

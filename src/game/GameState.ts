@@ -4,6 +4,7 @@ import type { FactionId, ResourceId, ThreadId } from '../types/campaign';
 import {
   BAND_COUNT,
   METER_SETTINGS,
+  WATCH_START_MINUTES,
   type MeterSetting,
 } from '../utils/constants';
 
@@ -17,6 +18,7 @@ export interface GameStateEvents {
   clueAdded: [string];
   threadUpdate: [ThreadId, number];
   logMessage: [string, string];
+  watchTimeChanged: [number];
   [key: string]: unknown[];
 }
 
@@ -44,6 +46,10 @@ export class GameState {
   band = 1;
   /** Meter selector A / B / C. */
   meter: MeterSetting = 'A';
+  /** Main radio power switch. */
+  radioOn = false;
+  /** Minutes since midnight — local watch time for the wall clock / sched. */
+  watchMinutes = WATCH_START_MINUTES;
   campaignComplete = false;
 
   get currentFrequency(): number {
@@ -69,7 +75,36 @@ export class GameState {
     this.currentFrequencyIndex = 0;
     this.band = 1;
     this.meter = 'A';
+    this.radioOn = false;
+    this.watchMinutes = WATCH_START_MINUTES;
     this.campaignComplete = false;
+  }
+
+  /** Hour 0–23 and minute 0–59 for the current watch clock. */
+  getWatchClock(): { hour: number; minute: number } {
+    const mins = ((this.watchMinutes % 1440) + 1440) % 1440;
+    return { hour: Math.floor(mins / 60), minute: mins % 60 };
+  }
+
+  /** Advance watch time by fractional game minutes. */
+  advanceWatchMinutes(delta: number): void {
+    if (!Number.isFinite(delta) || delta === 0) {
+      return;
+    }
+    const prevMin = Math.floor(this.watchMinutes);
+    this.watchMinutes = (((this.watchMinutes + delta) % 1440) + 1440) % 1440;
+    if (Math.floor(this.watchMinutes) !== prevMin) {
+      this.events.emit('watchTimeChanged', this.watchMinutes);
+    }
+  }
+
+  setWatchMinutes(minutes: number): void {
+    this.watchMinutes = (((minutes % 1440) + 1440) % 1440);
+    this.events.emit('watchTimeChanged', this.watchMinutes);
+  }
+
+  resetWatchForNight(): void {
+    this.setWatchMinutes(WATCH_START_MINUTES);
   }
 
   setFlag(name: string, value = true): void {
@@ -149,9 +184,21 @@ export class GameState {
     }
   }
 
+  /** Toggle or set radio power. Returns the new on-state. */
+  setRadioOn(on: boolean): boolean {
+    this.radioOn = on;
+    return this.radioOn;
+  }
+
+  toggleRadioPower(): boolean {
+    this.radioOn = !this.radioOn;
+    return this.radioOn;
+  }
+
   advanceDay(): void {
     this.currentDay += 1;
     this.resolvedFrequencies.clear();
+    this.resetWatchForNight();
     this.events.emit('dayAdvanced', this.currentDay);
   }
 
@@ -189,6 +236,8 @@ export class GameState {
       currentFrequencyIndex: this.currentFrequencyIndex,
       band: this.band,
       meter: this.meter,
+      radioOn: this.radioOn,
+      watchMinutes: this.watchMinutes,
       campaignComplete: this.campaignComplete,
     };
   }
@@ -196,6 +245,8 @@ export class GameState {
   loadSaveData(
     data: ReturnType<GameState['getSaveData']> & {
       discoveredLandmarks?: string[];
+      radioOn?: boolean;
+      watchMinutes?: number;
     }
   ): void {
     this.currentDay = data.currentDay;
@@ -214,6 +265,11 @@ export class GameState {
         ? (data.meter as MeterSetting)
         : 'A'
     );
+    this.radioOn = data.radioOn !== false;
+    this.watchMinutes =
+      typeof data.watchMinutes === 'number' && Number.isFinite(data.watchMinutes)
+        ? ((data.watchMinutes % 1440) + 1440) % 1440
+        : WATCH_START_MINUTES;
     this.campaignComplete = data.campaignComplete;
   }
 }

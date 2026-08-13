@@ -7,6 +7,7 @@ import {
 import {
   defaultTransform,
   isClusterRelative,
+  isHudObject,
   type DeskLayoutMap,
   type DeskObjectId,
   type DeskObjectTransform,
@@ -16,6 +17,8 @@ export type DeskLayerId =
   | 'bg-room'
   | 'desk-surface'
   | 'papers'
+  | 'ops-manual'
+  | 'sched-log'
   | 'map-folded'
   | 'lamp'
   | 'radio-body'
@@ -28,6 +31,8 @@ const LAYER_FILES: Record<DeskLayerId, string> = {
   'bg-room': 'bg-room.png',
   'desk-surface': 'desk-surface.png',
   papers: 'papers.png',
+  'ops-manual': 'ops-manual-sketch.png',
+  'sched-log': 'sched-log-sketch.png',
   // map art is baked into desk-surface.png; map-folded is a hit target only
   'map-folded': 'map-folded.png',
   lamp: 'lamp.png',
@@ -59,11 +64,15 @@ export class DeskStage {
   /** Desk furniture + props; scales as a unit. Background stays outside. */
   readonly deskRig: HTMLDivElement;
   private layers = new Map<DeskLayerId, HTMLElement>();
+  /** HUD / off-stage elements registered for Dev Mode layout. */
+  private externalObjects = new Map<DeskObjectId, HTMLElement>();
   private dialEl!: HTMLElement;
   private needleL!: HTMLElement;
   private needleR!: HTMLElement;
   private bandFaceEl!: HTMLElement;
   private meterFaceEl!: HTMLElement;
+  private powerFaceEl!: HTMLElement;
+  private powerLightEl!: HTMLElement;
   private frequencyCount = 24;
   /** Continuous dial angle (degrees) — accumulates so wraps spin the short way. */
   private dialRotationDeg = 0;
@@ -72,6 +81,9 @@ export class DeskStage {
   private bandIndex = 0;
   private meterRotationDeg = 0;
   private meterIndex = 0;
+  private powerRotationDeg = 0;
+  /** 0 = ON, 1 = OFF */
+  private powerIndex = 0;
   private frameZoom = 1;
   private readonly onResize: () => void;
 
@@ -93,7 +105,14 @@ export class DeskStage {
     this.root.appendChild(this.deskRig);
 
     this.buildLayer('desk-surface', this.deskRig, 'desk-layer desk-layer--desk');
-    this.buildLayer('papers', this.deskRig, 'desk-layer desk-layer--papers');
+    const papers = this.buildLayer(
+      'papers',
+      this.deskRig,
+      'desk-layer desk-layer--papers desk-layer--deferred'
+    );
+    papers.hidden = true;
+    this.buildLayer('ops-manual', this.deskRig, 'desk-layer desk-layer--ops-manual');
+    this.buildLayer('sched-log', this.deskRig, 'desk-layer desk-layer--sched-log');
     this.buildMapHotspot();
     this.buildLayer('lamp', this.deskRig, 'desk-layer desk-layer--lamp desk-idle-flicker');
 
@@ -115,6 +134,20 @@ export class DeskStage {
       (i) => METER_SETTINGS[i] ?? ''
     );
     this.meterFaceEl = meter.face;
+    const power = this.buildRadioKnob(
+      'power-dial',
+      'Power',
+      2,
+      (i) => (i === 0 ? 'ON' : 'OFF')
+    );
+    this.powerFaceEl = power.face;
+    this.powerLightEl = document.createElement('div');
+    this.powerLightEl.className = 'radio-power-light';
+    this.powerLightEl.dataset.devObject = 'power-light';
+    this.powerLightEl.setAttribute('aria-hidden', 'true');
+    this.powerLightEl.title = 'Power lamp';
+    this.radioCluster.appendChild(this.powerLightEl);
+    this.setPowerOn(false);
     this.needleL = this.buildLayer(
       'meter-needle-l',
       this.radioCluster,
@@ -161,11 +194,19 @@ export class DeskStage {
   twitchMeters(): void {
     this.needleL.classList.remove('needle-twitch');
     this.needleR.classList.remove('needle-twitch');
-    // Force reflow so animation retriggers
     void this.needleL.offsetWidth;
     void this.needleR.offsetWidth;
     this.needleL.classList.add('needle-twitch');
     this.needleR.classList.add('needle-twitch');
+  }
+
+  setMetersLive(live: boolean): void {
+    this.needleL.classList.toggle('needle-live', live);
+    this.needleR.classList.toggle('needle-live', live);
+    if (!live) {
+      this.needleL.classList.remove('needle-twitch');
+      this.needleR.classList.remove('needle-twitch');
+    }
   }
 
   getDialHitTarget(): HTMLElement {
@@ -178,6 +219,10 @@ export class DeskStage {
 
   getMeterHitTarget(): HTMLElement {
     return this.meterFaceEl;
+  }
+
+  getPowerHitTarget(): HTMLElement {
+    return this.powerFaceEl;
   }
 
   setBandIndex(index: number): void {
@@ -206,9 +251,35 @@ export class DeskStage {
     this.applyKnobFaceRotation(this.meterFaceEl, this.meterRotationDeg);
   }
 
+  /** Power dial: 0 = ON, 1 = OFF. Updates knob + lamp. */
+  setPowerOn(on: boolean): void {
+    const index = on ? 0 : 1;
+    const n = 2;
+    const step = 360 / n;
+    let delta = index - this.powerIndex;
+    const half = n / 2;
+    if (delta > half) delta -= n;
+    else if (delta < -half) delta += n;
+    this.powerRotationDeg += delta * step;
+    this.powerIndex = index;
+    this.applyKnobFaceRotation(this.powerFaceEl, this.powerRotationDeg);
+    this.powerLightEl.classList.toggle('radio-power-light--on', on);
+    this.radioCluster.classList.toggle('desk-radio--off', !on);
+  }
+
+  /** Register a viewport HUD element for Dev Mode pick / transform. */
+  registerExternalObject(id: DeskObjectId, el: HTMLElement): void {
+    el.dataset.devObject = id;
+    this.externalObjects.set(id, el);
+  }
+
   getObjectElement(id: DeskObjectId): HTMLElement | null {
     if (id === 'radio-cluster') {
       return this.radioCluster;
+    }
+    const external = this.externalObjects.get(id);
+    if (external) {
+      return external;
     }
     const layer = this.layers.get(id as DeskLayerId);
     if (layer) {
@@ -219,10 +290,11 @@ export class DeskStage {
 
   setDevPickMode(enabled: boolean): void {
     this.root.classList.toggle('desk-stage--dev-pick', enabled);
+    document.body.classList.toggle('dev-mode-hud-pick', enabled);
   }
 
   highlightDevSelection(id: DeskObjectId | null): void {
-    this.root.querySelectorAll('.desk-dev-selected').forEach((el) => {
+    document.querySelectorAll('.desk-dev-selected').forEach((el) => {
       el.classList.remove('desk-dev-selected');
     });
     if (!id) {
@@ -241,6 +313,27 @@ export class DeskStage {
       return defaultTransform();
     }
     const cs = getComputedStyle(el);
+    if (isHudObject(id)) {
+      const box = el.getBoundingClientRect();
+      const readDeg = (prop: string) => {
+        const raw = el.style.getPropertyValue(prop).replace('deg', '');
+        const n = Number(raw);
+        return Number.isFinite(n) ? n : 0;
+      };
+      return {
+        x: Number(((box.left / window.innerWidth) * 100).toFixed(2)),
+        y: Number(
+          (((window.innerHeight - box.bottom) / window.innerHeight) * 100).toFixed(2)
+        ),
+        w: Math.round(box.width),
+        h: Math.round(box.height),
+        rotateX: readDeg('--dev-rotate-x'),
+        rotateY: readDeg('--dev-rotate-y'),
+        rotateZ: readDeg('--dev-rotate-z'),
+        scale: Number(el.style.getPropertyValue('--dev-scale')) || 1,
+        zIndex: Number.parseInt(cs.zIndex, 10) || 102,
+      };
+    }
     const ref =
       id === 'bg-room'
         ? this.root
@@ -258,7 +351,9 @@ export class DeskStage {
       id === 'dial-notches' ||
       id === 'tune-label' ||
       id === 'band-dial' ||
-      id === 'meter-dial';
+      id === 'meter-dial' ||
+      id === 'power-dial' ||
+      id === 'power-light';
     const x = centered
       ? ((box.left + box.width / 2 - frame.left) / frame.width) * 100
       : leftPct;
@@ -303,6 +398,20 @@ export class DeskStage {
       `rotateX(var(--dev-rotate-x)) rotateY(var(--dev-rotate-y)) ` +
       `rotateZ(var(--dev-rotate-z)) scale(var(--dev-scale))`;
 
+    if (isHudObject(id)) {
+      el.style.position = 'fixed';
+      el.style.left = `${t.x}%`;
+      el.style.right = 'auto';
+      el.style.bottom = `${t.y}%`;
+      el.style.top = 'auto';
+      el.style.width = t.w > 0 ? `${t.w}px` : '';
+      el.style.height = t.h > 0 ? `${t.h}px` : '';
+      el.style.margin = '0';
+      el.style.transform = rotScale;
+      el.style.transformOrigin = 'bottom left';
+      return;
+    }
+
     if (id === 'radio-cluster') {
       el.style.left = `${t.x}%`;
       el.style.right = 'auto';
@@ -345,7 +454,12 @@ export class DeskStage {
       return;
     }
 
-    if (id === 'band-dial' || id === 'meter-dial') {
+    if (
+      id === 'band-dial' ||
+      id === 'meter-dial' ||
+      id === 'power-dial' ||
+      id === 'power-light'
+    ) {
       el.style.transform = `translate(-50%, -50%) ${rotScale}`;
       return;
     }
@@ -397,6 +511,7 @@ export class DeskStage {
     const els = new Set<HTMLElement>([
       this.radioCluster,
       ...this.layers.values(),
+      ...this.externalObjects.values(),
       ...Array.from(this.root.querySelectorAll<HTMLElement>('[data-dev-object]')),
     ]);
     for (const el of els) {
@@ -425,7 +540,8 @@ export class DeskStage {
   }
 
   private applyKnobFaceRotation(face: HTMLElement, deg: number): void {
-    face.style.transform = `rotate(${deg}deg)`;
+    // Keep CSS centering; gameplay only adds rotation.
+    face.style.transform = `translate(-50%, -50%) rotate(${deg}deg)`;
   }
 
   private buildDialNotchRing(): HTMLElement {
@@ -464,7 +580,7 @@ export class DeskStage {
   }
 
   private buildRadioKnob(
-    id: 'band-dial' | 'meter-dial',
+    id: 'band-dial' | 'meter-dial' | 'power-dial',
     label: string,
     steps: number,
     markText: (index: number) => string
