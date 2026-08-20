@@ -8,31 +8,48 @@ const RESOURCE_LABELS: Record<ResourceId, string> = {
   medicine: 'Medicine',
 };
 
+export type ResourceSection = 'supplies' | 'trust';
+
 export class ResourceUI {
   private container: HTMLDivElement;
   private resourceEls = new Map<ResourceId, HTMLElement>();
   private factionEls = new Map<FactionId, HTMLElement>();
+  private readonly showHeadings: boolean;
 
   constructor(
     private readonly state: GameState,
     parent: HTMLElement = document.body,
-    variant: 'panel' | 'notes' = 'panel'
+    variant: 'panel' | 'notes' = 'panel',
+    sections: ResourceSection[] = ['supplies', 'trust']
   ) {
+    this.showHeadings = variant === 'panel' || sections.length > 1;
     this.container = document.createElement('div');
-    this.container.className =
-      variant === 'notes' ? 'resource-display resource-display--notes' : 'resource-display';
-    this.buildResources();
-    this.buildFactions();
+    const page = variant === 'notes' && sections.length === 1;
+    this.container.className = [
+      'resource-display',
+      variant === 'notes' ? 'resource-display--notes' : '',
+      page ? 'resource-display--page' : '',
+    ]
+      .filter(Boolean)
+      .join(' ');
+    if (sections.includes('supplies')) {
+      this.buildResources();
+    }
+    if (sections.includes('trust')) {
+      this.buildFactions();
+    }
     parent.appendChild(this.container);
     this.state.events.on('resourceUpdate', () => this.syncResources());
     this.state.events.on('factionUpdate', () => this.syncFactions());
   }
 
   private buildResources(): void {
-    const heading = document.createElement('div');
-    heading.className = 'panel-heading';
-    heading.textContent = 'Supplies';
-    this.container.appendChild(heading);
+    if (this.showHeadings) {
+      const heading = document.createElement('div');
+      heading.className = 'panel-heading';
+      heading.textContent = 'Supplies';
+      this.container.appendChild(heading);
+    }
 
     for (const [key, value] of Object.entries(this.state.resources) as [ResourceId, number][]) {
       const item = document.createElement('div');
@@ -49,10 +66,12 @@ export class ResourceUI {
   }
 
   private buildFactions(): void {
-    const heading = document.createElement('div');
-    heading.className = 'panel-heading';
-    heading.textContent = 'Trust';
-    this.container.appendChild(heading);
+    if (this.showHeadings) {
+      const heading = document.createElement('div');
+      heading.className = 'panel-heading';
+      heading.textContent = 'Trust';
+      this.container.appendChild(heading);
+    }
 
     for (const [key, def] of Object.entries(FACTIONS)) {
       if (key === 'desk') {

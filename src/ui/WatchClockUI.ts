@@ -63,8 +63,8 @@ export class WatchClockUI {
     const m = Number.isFinite(minute) ? Math.min(60, Math.max(0, minute)) : 0;
     const minuteDeg = m * 6;
     const hourDeg = h * 30 + m * 0.5;
-    this.hourHand.style.transform = `translate(-50%, -100%) rotate(${hourDeg}deg)`;
-    this.minuteHand.style.transform = `translate(-50%, -100%) rotate(${minuteDeg}deg)`;
+    this.hourHand.style.transform = `translateX(-50%) rotate(${hourDeg}deg)`;
+    this.minuteHand.style.transform = `translateX(-50%) rotate(${minuteDeg}deg)`;
     this.setPeriod(h24 >= 12);
   }
 

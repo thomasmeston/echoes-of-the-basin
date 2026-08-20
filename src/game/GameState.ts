@@ -51,6 +51,8 @@ export class GameState {
   /** Minutes since midnight — local watch time for the wall clock / sched. */
   watchMinutes = WATCH_START_MINUTES;
   campaignComplete = false;
+  /** Player + system field-note lines (restored into the notepad). */
+  fieldNotes: { message: string; type: string; stamp: string }[] = [];
 
   get currentFrequency(): number {
     return CAMPAIGN.frequencies[this.currentFrequencyIndex] ?? CAMPAIGN.frequencies[0];
@@ -78,6 +80,7 @@ export class GameState {
     this.radioOn = false;
     this.watchMinutes = WATCH_START_MINUTES;
     this.campaignComplete = false;
+    this.fieldNotes = [];
   }
 
   /** Hour 0–23 and minute 0–59 for the current watch clock. */
@@ -239,6 +242,7 @@ export class GameState {
       radioOn: this.radioOn,
       watchMinutes: this.watchMinutes,
       campaignComplete: this.campaignComplete,
+      fieldNotes: this.fieldNotes.map((n) => ({ ...n })),
     };
   }
 
@@ -247,6 +251,7 @@ export class GameState {
       discoveredLandmarks?: string[];
       radioOn?: boolean;
       watchMinutes?: number;
+      fieldNotes?: { message: string; type: string; stamp: string }[];
     }
   ): void {
     this.currentDay = data.currentDay;
@@ -271,5 +276,16 @@ export class GameState {
         ? ((data.watchMinutes % 1440) + 1440) % 1440
         : WATCH_START_MINUTES;
     this.campaignComplete = data.campaignComplete;
+    this.fieldNotes = Array.isArray(data.fieldNotes)
+      ? data.fieldNotes
+          .filter(
+            (n) =>
+              n &&
+              typeof n.message === 'string' &&
+              typeof n.type === 'string' &&
+              typeof n.stamp === 'string'
+          )
+          .map((n) => ({ message: n.message, type: n.type, stamp: n.stamp }))
+      : [];
   }
 }

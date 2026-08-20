@@ -445,8 +445,14 @@ export class DeskStage {
       el.style.right = 'auto';
       el.style.bottom = `${t.y}%`;
       el.style.top = 'auto';
-      el.style.width = t.w > 0 ? `${t.w}px` : '';
-      el.style.height = t.h > 0 ? `${t.h}px` : '';
+      if (id === 'hud-clock') {
+        const size = t.w > 0 ? t.w : t.h;
+        el.style.width = size > 0 ? `${size}px` : '';
+        el.style.height = size > 0 ? `${size}px` : '';
+      } else {
+        el.style.width = t.w > 0 ? `${t.w}px` : '';
+        el.style.height = t.h > 0 ? `${t.h}px` : '';
+      }
       el.style.margin = '0';
       el.style.transform = rotScale;
       el.style.transformOrigin = 'bottom left';

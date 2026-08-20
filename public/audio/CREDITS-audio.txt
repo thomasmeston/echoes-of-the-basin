@@ -14,7 +14,8 @@ Audio credits (free / royalty-free):
   Mixkit License: https://mixkit.co/free-sound-effects/typewriter/ (free for commercial use).
   Gentle loudnorm mono WAV (~0.7s); intro playback is throttled so hits can ring.
 
-- 459925__rtb45__costa-rica-rainforest.wav — looping jungle ambience bed.
+- 459925__rtb45__costa-rica-rainforest.mp3 — looping jungle ambience bed
+  (Freesound 459925 by rtb45; re-encoded 22.05 kHz stereo 64 kbps MP3).
 
 - opera-vesti-la-giubba.mp3, opera-la-donna-e-mobile.mp3, opera-e-lucevan-le-stelle.mp3 —
   Enrico Caruso 78rpm transfers (1904–1907), public domain, via Internet Archive

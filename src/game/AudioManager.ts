@@ -6,7 +6,7 @@ const AMBIENCE_VOLUME_KEY = 'echoes_ambience_volume';
 const AUDIO_MUTED_KEY = 'echoes_sfx_muted';
 
 /** Soft bed under every tuned frequency while the radio is powered. */
-const RADIO_STATIC_GAIN = 0.16;
+const RADIO_STATIC_GAIN = 0.34;
 /** Opera program sitting in the speaker with the static bed. */
 const OPERA_GAIN = 0.34;
 /** Static is quieter while a program is riding on top. */
@@ -61,7 +61,7 @@ export class AudioManager {
     this.load('handwriting', 'handwriting.wav');
     this.load('typewriter', 'typewriter.wav');
 
-    this.jungle = new Audio(publicUrl('audio/459925__rtb45__costa-rica-rainforest.wav'));
+    this.jungle = new Audio(publicUrl('audio/459925__rtb45__costa-rica-rainforest.mp3'));
     this.jungle.preload = 'auto';
     this.jungle.loop = true;
 

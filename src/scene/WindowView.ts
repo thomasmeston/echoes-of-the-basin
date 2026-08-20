@@ -6,7 +6,7 @@ const PLATE_V = '9';
 export const ROOM_IMAGE_SIZE = { w: 1536, h: 1024 };
 
 /** Painted rect on the 1536×1024 plates — keep in sync with composite_window_exteriors.py */
-export const WINDOW_PLATE_BBOX = { x: 1128, y: 197, w: 187, h: 252 };
+export const WINDOW_PLATE_BBOX = { x: 1122, y: 197, w: 193, h: 252 };
 
 export const WINDOW_APERTURE_STORAGE_KEY = 'echoes_window_aperture_v1';
 

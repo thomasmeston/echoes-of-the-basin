@@ -12,8 +12,8 @@ ROOT = Path(__file__).resolve().parents[1]
 DESK = ROOT / "public" / "images" / "desk"
 OUT = DESK / "window"
 
-# Thomas Dev Mode measure 2026-08-12 (viewport 2149×1081, bgZoom 1.11).
-BBOX = {"x": 1128, "y": 197, "w": 187, "h": 252}
+# Thomas Dev Mode measure 2026-08-19 (locked from echoes_window_aperture_v1).
+BBOX = {"x": 1122, "y": 197, "w": 193, "h": 252}
 
 
 def cover_bottom(src: Image.Image, tw: int, th: int) -> Image.Image:

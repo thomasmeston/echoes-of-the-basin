@@ -79,7 +79,12 @@ export class Game {
       deskStage: this.deskStage,
     });
     this.notepadUI = new NotepadUI(this.audio);
-    new ResourceUI(this.state, this.notepadUI.statusMount, 'notes');
+    this.notepadUI.onLog = (entry) => {
+      this.state.fieldNotes.push(entry);
+    };
+    this.notepadUI.onManualSave = () => this.autosave();
+    new ResourceUI(this.state, this.notepadUI.suppliesMount, 'notes', ['supplies']);
+    new ResourceUI(this.state, this.notepadUI.trustMount, 'notes', ['trust']);
     this.watchClockUI = new WatchClockUI(this.leftHud);
     this.calendarUI = new CalendarUI(new Date(CAMPAIGN.startDate), this.leftHud);
     this.deskStage.registerExternalObject('hud-clock', this.watchClockUI.el);
@@ -353,6 +358,7 @@ export class Game {
     this.narrative.loadDay(this.state.currentDay);
     this.calendarUI.setDay(this.state.currentDay);
     this.notepadUI.setDay(this.state.currentDay);
+    this.notepadUI.restoreEntries(this.state.fieldNotes);
     this.gameplayActive = true;
     this.syncRadioControls();
     this.syncWallClock();
@@ -483,6 +489,10 @@ export class Game {
       }
       if (this.schedLogOverlay.isOpen) {
         this.schedLogOverlay.hide();
+        return;
+      }
+      if (this.notepadUI.isComposing()) {
+        this.notepadUI.cancelCompose();
         return;
       }
       if (this.devPanel.isActive) {
