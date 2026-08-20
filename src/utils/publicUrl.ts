@@ -3,3 +3,6 @@ export function publicUrl(path: string): string {
   const normalized = path.replace(/^\//, '');
   return `${base}${normalized}`;
 }
+
+/** Bump when replacing `public/images/notebook_texture.png` so Pages/CDN drop the old sheet. */
+export const NOTEBOOK_TEXTURE_URL = `${publicUrl('images/notebook_texture.png')}?v=3`;

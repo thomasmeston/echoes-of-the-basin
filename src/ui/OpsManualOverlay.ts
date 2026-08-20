@@ -1,4 +1,4 @@
-import { publicUrl } from '../utils/publicUrl';
+import { NOTEBOOK_TEXTURE_URL } from '../utils/publicUrl';
 import type { AudioManager } from '../game/AudioManager';
 import opsManual from '../../data/operating-instructions.json';
 
@@ -49,7 +49,7 @@ export class OpsManualOverlay {
 
     this.el.innerHTML = `
       <div class="ops-overlay-backdrop" data-close="1"></div>
-      <div class="ops-overlay-sheet" style="--ops-paper-texture:url('${publicUrl('images/notebook_texture.png')}')">
+      <div class="ops-overlay-sheet" style="--ops-paper-texture:url('${NOTEBOOK_TEXTURE_URL}')">
         <button type="button" class="ops-overlay-close" data-close="1" aria-label="Close operating instructions">×</button>
         <header class="ops-card-header">
           <h2 class="ops-card-title">${this.ops.title}</h2>

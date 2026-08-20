@@ -45,4 +45,4 @@ npm run test:e2e  # Playwright smoke (optional)
 - Minimize diff; match existing patterns
 - Only commit when Thomas explicitly asks
 - `base: './'` for GitHub Pages; use `publicUrl()` for asset paths
-- Dev Mode: press `` ` `` (or Pause → Toggle Dev Mode) for layout nudges; localStorage key `echoes_desk_layout_v1`
+- Dev Mode: press `` ` `` (or Pause → Toggle Dev Mode) for layout nudges; localStorage key `echoes_desk_layout_v2`

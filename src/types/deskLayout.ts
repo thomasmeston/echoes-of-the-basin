@@ -48,7 +48,7 @@ export interface DeskLayoutFile {
   objects: DeskLayoutMap;
 }
 
-export const DESK_LAYOUT_STORAGE_KEY = 'echoes_desk_layout_v1';
+export const DESK_LAYOUT_STORAGE_KEY = 'echoes_desk_layout_v2';
 export const DEFAULT_FRAME_ZOOM = 1;
 export const DEFAULT_BG_ZOOM = 1;
 export const FRAME_ZOOM_MIN = 0.55;

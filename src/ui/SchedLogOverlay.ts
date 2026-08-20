@@ -1,4 +1,4 @@
-import { publicUrl } from '../utils/publicUrl';
+import { NOTEBOOK_TEXTURE_URL } from '../utils/publicUrl';
 import type { AudioManager } from '../game/AudioManager';
 import schedLog from '../../data/sched-log.json';
 
@@ -42,7 +42,7 @@ export class SchedLogOverlay {
     this.el.setAttribute('role', 'dialog');
     this.el.setAttribute('aria-label', this.log.title);
 
-    const paper = publicUrl('images/notebook_texture.png');
+    const paper = NOTEBOOK_TEXTURE_URL;
     const rows = this.renderRows(this.log.blocks, 0);
 
     this.el.innerHTML = `
