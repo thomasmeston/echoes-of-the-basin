@@ -1,4 +1,4 @@
-import { NOTEBOOK_TEXTURE_URL } from '../utils/publicUrl';
+import { notebookTextureUrl } from '../utils/publicUrl';
 import { CAMPAIGN } from '../data/loader';
 import type { AudioManager } from '../game/AudioManager';
 import type { TransmissionDef } from '../types/campaign';
@@ -178,8 +178,9 @@ export class NotepadUI {
     // Keep texture on the sheet (not #game-ui) so Dev Mode layout reset can't wipe it.
     this.scrollSheet.style.setProperty(
       '--notepad-texture',
-      `url("${NOTEBOOK_TEXTURE_URL}")`
+      `url("${notebookTextureUrl()}")`
     );
+    this.scrollSheet.style.backgroundImage = `url("${notebookTextureUrl()}")`;
 
     this.header = document.createElement('div');
     this.header.className = 'notepad-header';
