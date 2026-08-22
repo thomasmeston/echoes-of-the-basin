@@ -54,6 +54,8 @@ export interface DeskLayoutFile {
 }
 
 export const DESK_LAYOUT_STORAGE_KEY = 'echoes_desk_layout_v3';
+/** Older Save Layout keys — loaded if the current key is empty so a key bump cannot drop a nudge. */
+export const LEGACY_DESK_LAYOUT_STORAGE_KEYS = ['echoes_desk_layout_v2', 'echoes_desk_layout_v1'] as const;
 export const DEFAULT_FRAME_ZOOM = 1;
 export const DEFAULT_BG_ZOOM = 1;
 export const FRAME_ZOOM_MIN = 0.55;

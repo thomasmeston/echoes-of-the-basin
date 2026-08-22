@@ -6,6 +6,7 @@ import {
   DEFAULT_DESK_LAYOUT,
   DEFAULT_FRAME_ZOOM,
   DESK_LAYOUT_STORAGE_KEY,
+  LEGACY_DESK_LAYOUT_STORAGE_KEYS,
   EDITABLE_DESK_OBJECTS,
   FRAME_ZOOM_MAX,
   FRAME_ZOOM_MIN,
@@ -395,7 +396,10 @@ export class DevPanel {
     if (layer?.dataset.layer) {
       e.preventDefault();
       e.stopPropagation();
-      this.select(layer.dataset.layer as DeskObjectId);
+      // The radio face is the cluster hit — pick the whole radio, not radio-body.
+      const id =
+        layer.dataset.layer === 'radio-body' ? 'radio-cluster' : layer.dataset.layer;
+      this.select(id as DeskObjectId);
       return;
     }
     const cluster = target?.closest?.('.desk-radio-cluster') as HTMLElement | null;
@@ -462,16 +466,32 @@ export class DevPanel {
     if (this.desk.windowView.isMeasuring()) {
       this.layout['window-view'] = this.desk.captureTransform('window-view');
     }
-    localStorage.setItem(DESK_LAYOUT_STORAGE_KEY, JSON.stringify(this.toLayoutFile(), null, 2));
+    for (const id of EDITABLE_DESK_OBJECTS) {
+      if (!this.layout[id] && DEFAULT_DESK_LAYOUT.objects[id]) {
+        this.layout[id] = normalizeTransform(DEFAULT_DESK_LAYOUT.objects[id]);
+      }
+    }
+    const file = this.toLayoutFile();
+    try {
+      localStorage.setItem(DESK_LAYOUT_STORAGE_KEY, JSON.stringify(file, null, 2));
+    } catch (err) {
+      const reason = err instanceof Error ? err.message : String(err);
+      this.flash(`Save failed (${DESK_LAYOUT_STORAGE_KEY}): ${reason}`);
+      return;
+    }
+    const radio = file.objects['radio-cluster'];
+    const drawer = file.objects['drawer-right'];
     const aperture = this.desk.measureWindowAperture();
     if (aperture) {
       this.desk.setWindowAperture(aperture, true);
-      this.flash(
-        `Layout saved. Window aperture ${aperture.w}×${aperture.h} at ${aperture.x},${aperture.y} (image px).`
-      );
-      return;
     }
-    this.flash('Layout saved to localStorage.');
+    const bits = [
+      `Saved ${DESK_LAYOUT_STORAGE_KEY}`,
+      radio ? `radio ${radio.x.toFixed(1)},${radio.y.toFixed(1)}` : null,
+      drawer ? `drawer-right ${drawer.x.toFixed(1)},${drawer.y.toFixed(1)}` : null,
+      aperture ? `window ${aperture.w}×${aperture.h}` : null,
+    ].filter(Boolean);
+    this.flash(`${bits.join(' · ')}.`);
   }
 
   private async copyJson(): Promise<void> {
@@ -610,15 +630,19 @@ export class DevPanel {
   }
 
   private loadStoredLayout(): void {
-    try {
-      const raw = localStorage.getItem(DESK_LAYOUT_STORAGE_KEY);
-      if (raw) {
+    const keys = [DESK_LAYOUT_STORAGE_KEY, ...LEGACY_DESK_LAYOUT_STORAGE_KEYS];
+    for (const key of keys) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) {
+          continue;
+        }
         const parsed = JSON.parse(raw) as unknown;
         this.applyFile(normalizeLayoutFile(parsed));
         return;
+      } catch {
+        /* try next key */
       }
-    } catch {
-      /* fall through to baked default */
     }
     this.applyFile(DEFAULT_DESK_LAYOUT);
   }
@@ -643,6 +667,9 @@ export class DevPanel {
   }
 
   private parseNum(value: string, fallback: number): number {
+    if (value.trim() === '') {
+      return fallback;
+    }
     const n = Number(value);
     return Number.isFinite(n) ? n : fallback;
   }
