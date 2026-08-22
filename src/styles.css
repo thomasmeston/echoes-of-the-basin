@@ -4035,8 +4035,8 @@ body.dev-mode-active .pause-menu {
 .title-menu__panel {
     position: relative;
     z-index: 1;
-    width: min(440px, 100%);
-    padding: 36px 32px 28px;
+    width: min(480px, 100%);
+    padding: 40px 32px 28px;
     background: linear-gradient(165deg, rgba(236, 220, 180, 0.97) 0%, rgba(214, 190, 140, 0.95) 100%);
     border: 1px solid var(--panel-border);
     border-radius: 4px;
@@ -4045,30 +4045,84 @@ body.dev-mode-active .pause-menu {
     text-align: center;
 }
 
-.title-menu__eyebrow {
-    margin: 0 0 8px;
-    font-family: var(--font-ui);
-    font-size: 0.78rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+.title-menu__title {
+    margin: 0 0 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 0.95;
+    color: #14100a;
+}
+
+.title-menu__title-echo {
+    font-size: clamp(2.6rem, 7vw, 3.6rem);
+    letter-spacing: 0.04em;
+    text-shadow:
+        0 1px 0 rgba(255, 244, 214, 0.55),
+        0 0 18px rgba(201, 168, 108, 0.28);
+}
+
+.title-menu__title-of {
+    font-family: var(--font-display);
+    font-size: 0.82rem;
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: 0.34em;
+    text-transform: lowercase;
     color: var(--ink-muted);
 }
 
-.title-menu__title {
-    margin: 0 0 8px;
-    font-family: var(--font-display);
-    font-size: clamp(1.8rem, 4vw, 2.35rem);
-    font-weight: 700;
-    line-height: 1.15;
+.title-menu__title-basin {
+    font-size: clamp(1.7rem, 4.6vw, 2.25rem);
+    letter-spacing: 0.38em;
+    text-indent: 0.38em;
+    text-transform: uppercase;
     color: #1a140c;
 }
 
-.title-menu__tag {
-    margin: 0 0 28px;
-    font-family: var(--font-body);
-    font-size: 1rem;
-    font-style: italic;
-    color: var(--ink-muted);
+.title-menu__title::after {
+    content: "";
+    display: block;
+    width: min(220px, 70%);
+    height: 2px;
+    margin: 14px 0 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        var(--brass-dim) 18%,
+        var(--brass) 50%,
+        var(--brass-dim) 82%,
+        transparent 100%
+    );
+    box-shadow: 0 0 10px rgba(201, 168, 108, 0.45);
+    animation: title-static 3.6s ease-in-out infinite;
+}
+
+@keyframes title-static {
+    0%,
+    100% {
+        opacity: 0.55;
+        filter: brightness(0.9);
+    }
+    40% {
+        opacity: 1;
+        filter: brightness(1.15);
+    }
+    52% {
+        opacity: 0.4;
+    }
+    64% {
+        opacity: 0.95;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .title-menu__title::after {
+        animation: none;
+    }
 }
 
 .title-menu__slots {
@@ -4149,13 +4203,6 @@ body.dev-mode-active .pause-menu {
 
 .title-menu__btn--primary:hover {
     background: var(--accent-hover);
-}
-
-.title-menu__hint {
-    margin: 22px 0 0;
-    font-family: var(--font-body);
-    font-size: 0.85rem;
-    color: var(--ink-muted);
 }
 
 /* ——— Intro typewriter ——— */

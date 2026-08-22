@@ -20,11 +20,12 @@ export class TitleMenu {
       <div class="title-menu__bg" aria-hidden="true"></div>
       <div class="title-menu__veil" aria-hidden="true"></div>
       <div class="title-menu__panel">
-        <p class="title-menu__eyebrow">Field radio · Amazon basin</p>
-        <h1 class="title-menu__title">Echoes of the Basin</h1>
-        <p class="title-menu__tag">Night watch at Outpost Tucunaré</p>
+        <h1 class="title-menu__title">
+          <span class="title-menu__title-echo">Echoes</span>
+          <span class="title-menu__title-of">of the</span>
+          <span class="title-menu__title-basin">Basin</span>
+        </h1>
         <div class="title-menu__slots" role="list"></div>
-        <p class="title-menu__hint">Three watches. One empty chair.</p>
       </div>
     `;
     const bg = this.el.querySelector('.title-menu__bg') as HTMLDivElement;
