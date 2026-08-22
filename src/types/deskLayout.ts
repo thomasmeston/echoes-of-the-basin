@@ -12,7 +12,12 @@ export type RadioUiObjectId =
   | 'tune-label';
 
 /** Viewport HUD widgets — selectable in Dev Mode (fixed left/bottom %). */
-export type HudObjectId = 'hud-clock' | 'hud-calendar' | 'field-notes';
+export type HudObjectId =
+  | 'hud-clock'
+  | 'hud-calendar'
+  | 'field-notes'
+  | 'radio-message'
+  | 'radio-reply';
 
 /** Editable desk targets — layers, radio cluster, radio UI, HUD, and window aperture. */
 export type DeskObjectId = DeskLayerId | 'radio-cluster' | RadioUiObjectId | HudObjectId | 'window-view';
@@ -48,7 +53,7 @@ export interface DeskLayoutFile {
   objects: DeskLayoutMap;
 }
 
-export const DESK_LAYOUT_STORAGE_KEY = 'echoes_desk_layout_v2';
+export const DESK_LAYOUT_STORAGE_KEY = 'echoes_desk_layout_v3';
 export const DEFAULT_FRAME_ZOOM = 1;
 export const DEFAULT_BG_ZOOM = 1;
 export const FRAME_ZOOM_MIN = 0.55;
@@ -71,6 +76,8 @@ export const HUD_OBJECTS: HudObjectId[] = [
   'hud-clock',
   'hud-calendar',
   'field-notes',
+  'radio-message',
+  'radio-reply',
 ];
 
 export const EDITABLE_DESK_OBJECTS: DeskObjectId[] = [
@@ -82,10 +89,13 @@ export const EDITABLE_DESK_OBJECTS: DeskObjectId[] = [
   'meter-needle-r',
   'mic-lollipop',
   'lamp',
+  'speaker',
   'papers',
   'ops-manual',
   'sched-log',
   'map-folded',
+  'drawer-left',
+  'drawer-right',
   'desk-surface',
   'bg-room',
   'window-view',

@@ -52,7 +52,13 @@ export class GameState {
   watchMinutes = WATCH_START_MINUTES;
   campaignComplete = false;
   /** Player + system field-note lines (restored into the notepad). */
-  fieldNotes: { message: string; type: string; stamp: string }[] = [];
+  fieldNotes: {
+    message: string;
+    type: string;
+    stamp: string;
+    journalTitle?: string;
+    journalBody?: string;
+  }[] = [];
 
   get currentFrequency(): number {
     return CAMPAIGN.frequencies[this.currentFrequencyIndex] ?? CAMPAIGN.frequencies[0];
@@ -251,7 +257,13 @@ export class GameState {
       discoveredLandmarks?: string[];
       radioOn?: boolean;
       watchMinutes?: number;
-      fieldNotes?: { message: string; type: string; stamp: string }[];
+      fieldNotes?: {
+        message: string;
+        type: string;
+        stamp: string;
+        journalTitle?: string;
+        journalBody?: string;
+      }[];
     }
   ): void {
     this.currentDay = data.currentDay;
@@ -283,9 +295,17 @@ export class GameState {
               n &&
               typeof n.message === 'string' &&
               typeof n.type === 'string' &&
-              typeof n.stamp === 'string'
+              typeof n.stamp === 'string' &&
+              n.type !== 'thought' &&
+              !n.message.startsWith('Thought: ')
           )
-          .map((n) => ({ message: n.message, type: n.type, stamp: n.stamp }))
+          .map((n) => ({
+            message: n.message,
+            type: n.type,
+            stamp: n.stamp,
+            ...(typeof n.journalTitle === 'string' ? { journalTitle: n.journalTitle } : {}),
+            ...(typeof n.journalBody === 'string' ? { journalBody: n.journalBody } : {}),
+          }))
       : [];
   }
 }

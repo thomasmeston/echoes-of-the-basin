@@ -1,3 +1,4 @@
+import { isNightSceneFromWatchMinutes } from '../scene/WindowView';
 import { publicUrl } from '../utils/publicUrl';
 
 /** Analog watch clock for the left HUD (above the desk calendar). */
@@ -24,7 +25,7 @@ export class WatchClockUI {
   private hourHand: HTMLElement;
   private minuteHand: HTMLElement;
   private periodEl: HTMLElement;
-  private isPm = false;
+  private isNight = false;
 
   constructor(parent: HTMLElement) {
     this.el = document.createElement('div');
@@ -53,11 +54,19 @@ export class WatchClockUI {
     face.append(img, this.periodEl, this.hourHand, this.minuteHand, pin);
     this.el.appendChild(face);
     parent.appendChild(this.el);
-    this.setTime(18, 0);
+    this.setFromWatchMinutes(18 * 60);
+  }
+
+  /** Drive hands + sun/moon from the same minutes as the window plates. */
+  setFromWatchMinutes(minutes: number): void {
+    const total = ((minutes % 1440) + 1440) % 1440;
+    const hour = Math.floor(total / 60);
+    const minute = total % 60;
+    this.setTime(hour, minute, isNightSceneFromWatchMinutes(total));
   }
 
   /** `minute` may be fractional for a smooth sweep. */
-  setTime(hour: number, minute: number): void {
+  setTime(hour: number, minute: number, night?: boolean): void {
     const h24 = ((Math.floor(hour) % 24) + 24) % 24;
     const h = h24 % 12;
     const m = Number.isFinite(minute) ? Math.min(60, Math.max(0, minute)) : 0;
@@ -65,16 +74,17 @@ export class WatchClockUI {
     const hourDeg = h * 30 + m * 0.5;
     this.hourHand.style.transform = `translateX(-50%) rotate(${hourDeg}deg)`;
     this.minuteHand.style.transform = `translateX(-50%) rotate(${minuteDeg}deg)`;
-    this.setPeriod(h24 >= 12);
+    const nightScene = night ?? isNightSceneFromWatchMinutes(h24 * 60 + m);
+    this.setPeriod(nightScene);
   }
 
-  private setPeriod(pm: boolean): void {
-    if (pm === this.isPm && this.periodEl.innerHTML) {
+  private setPeriod(night: boolean): void {
+    if (night === this.isNight && this.periodEl.innerHTML) {
       return;
     }
-    this.isPm = pm;
-    this.periodEl.innerHTML = pm ? MOON_SVG : SUN_SVG;
-    this.periodEl.classList.toggle('hud-clock-period--pm', pm);
-    this.el.setAttribute('aria-label', pm ? 'Watch clock, PM' : 'Watch clock, AM');
+    this.isNight = night;
+    this.periodEl.innerHTML = night ? MOON_SVG : SUN_SVG;
+    this.periodEl.classList.toggle('hud-clock-period--pm', night);
+    this.el.setAttribute('aria-label', night ? 'Watch clock, night' : 'Watch clock, day');
   }
 }

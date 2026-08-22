@@ -60,6 +60,8 @@ export class AudioManager {
     this.load('bookOpen', 'notepad_pull.wav');
     this.load('handwriting', 'handwriting.wav');
     this.load('typewriter', 'typewriter.wav');
+    this.load('drawerOpen', 'drawer_open.wav');
+    this.load('drawerClose', 'drawer_close.wav');
 
     this.jungle = new Audio(publicUrl('audio/459925__rtb45__costa-rica-rainforest.mp3'));
     this.jungle.preload = 'auto';

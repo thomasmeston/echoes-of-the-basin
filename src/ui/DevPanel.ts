@@ -132,7 +132,7 @@ export class DevPanel {
         <button type="button" class="dev-mode-tab" data-tab="export">Export</button>
       </div>
       <div id="dev-layout-section">
-        <p class="dev-mode-hint">Click a desk or HUD object (clock, calendar, field notes) or pick from the list. Arrows nudge · [ ] Z · Shift+[ ] Y · Ctrl+[ ] X · -/+ scale. <code>window-view</code> is the window aperture — size it to the opening, then Save Layout.</p>
+        <p class="dev-mode-hint">Click a desk or HUD object (clock, calendar, field notes, radio message, reply, drawers) or pick from the list. Arrows nudge · [ ] Z · Shift+[ ] Y · Ctrl+[ ] X · -/+ scale. <code>window-view</code> is the window aperture — size it to the opening, then Save Layout.</p>
         <div class="dev-frame-zoom-block">
           <div class="dev-range-row">
             <label for="dev-frame-zoom">Frame zoom</label>
@@ -572,6 +572,12 @@ export class DevPanel {
     if (id === 'field-notes') {
       return '#game-ui';
     }
+    if (id === 'radio-message') {
+      return '.radio-message-bubble';
+    }
+    if (id === 'radio-reply') {
+      return '.response-box';
+    }
     if (id === 'window-view') {
       return '.window-view';
     }
@@ -580,6 +586,8 @@ export class DevPanel {
       'desk-surface': 'desk',
       'mic-lollipop': 'mic',
       'map-folded': 'map',
+      'drawer-left': 'drawer-left',
+      'drawer-right': 'drawer-right',
       'ops-manual': 'ops-manual',
       'sched-log': 'sched-log',
       'radio-body': 'radio-body',
@@ -619,6 +627,11 @@ export class DevPanel {
     this.layout = {};
     for (const [id, t] of Object.entries(file.objects) as [DeskObjectId, DeskObjectTransform][]) {
       this.layout[id] = normalizeTransform(t);
+    }
+    for (const id of ['radio-message', 'radio-reply', 'drawer-left', 'drawer-right', 'speaker'] as const) {
+      if (!this.layout[id] && DEFAULT_DESK_LAYOUT.objects[id]) {
+        this.layout[id] = normalizeTransform(DEFAULT_DESK_LAYOUT.objects[id]);
+      }
     }
     this.frameZoom = file.frameZoom;
     this.bgZoom = file.bgZoom;

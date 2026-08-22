@@ -57,22 +57,37 @@
     font-weight: 600;
 }
 
-.response-box {
+.response-box,
+.radio-reply-bubble {
     position: fixed;
     bottom: 28px;
     left: 50%;
     transform: translateX(-50%);
-    width: min(440px, calc(100vw - 360px));
-    background: var(--panel-bg);
-    border: 1px solid var(--panel-border);
-    border-radius: 4px;
-    padding: 16px 18px;
-    max-height: 220px;
-    overflow-y: auto;
-    box-shadow: var(--panel-shadow);
+    width: min(420px, calc(100vw - 48px));
+    background: rgba(28, 22, 14, 0.62);
+    border: 1px solid rgba(201, 168, 108, 0.42);
+    border-radius: 6px 16px 16px 16px;
+    padding: 12px 16px 14px;
+    max-height: none;
+    overflow: visible;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.38);
     z-index: 150;
-    color: var(--ink);
-    font-family: var(--font-body);
+    color: #f3ead4;
+    font-family: var(--font-ui);
+    pointer-events: auto;
+    backdrop-filter: blur(2px);
+    box-sizing: border-box;
+}
+
+.response-box::before,
+.radio-reply-bubble::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -8px;
+    transform: translateX(-50%);
+    border: 8px solid transparent;
+    border-bottom-color: rgba(28, 22, 14, 0.62);
 }
 
 .choices-container {
@@ -81,44 +96,67 @@
     gap: 10px;
 }
 
-.transmission-info {
+.transmission-info,
+.radio-message-bubble {
     position: fixed;
-    bottom: 250px;
     left: 50%;
+    bottom: 42%;
     transform: translateX(-50%);
-    width: min(440px, calc(100vw - 360px));
-    background: var(--panel-bg);
-    border: 1px solid var(--panel-border);
-    border-radius: 4px;
-    padding: 16px 18px;
-    box-shadow: var(--panel-shadow);
-    z-index: 150;
-    min-height: 120px;
-    max-height: 220px;
-    overflow-y: auto;
-    color: var(--ink);
-    font-family: var(--font-body);
+    width: min(420px, calc(100vw - 48px));
+    background: rgba(28, 22, 14, 0.62);
+    border: 1px solid rgba(201, 168, 108, 0.42);
+    border-radius: 16px 16px 16px 6px;
+    padding: 12px 16px 14px;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.38);
+    z-index: 140;
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
+    color: #f3ead4;
+    font-family: var(--font-ui);
+    pointer-events: auto;
+    backdrop-filter: blur(2px);
+    box-sizing: border-box;
+}
+
+.radio-message-bubble::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -8px;
+    transform: translateX(-50%);
+    border: 8px solid transparent;
+    border-top-color: rgba(28, 22, 14, 0.62);
+}
+
+.radio-message-bubble.desk-layout-override,
+.response-box.desk-layout-override {
+    max-width: none;
+    max-height: none;
+    height: auto !important;
+    overflow: visible;
+    box-sizing: border-box;
 }
 
 .transmission-info .sender {
-    color: var(--ink-muted);
+    color: rgba(232, 220, 180, 0.78);
     font-weight: 700;
-    margin-bottom: 12px;
-    font-family: var(--font-display);
-    font-size: 0.95rem;
-    letter-spacing: 0.02em;
-    border-bottom: 1px solid rgba(90, 70, 40, 0.35);
-    padding-bottom: 8px;
+    margin-bottom: 8px;
+    font-family: var(--font-ui);
+    font-size: 0.88rem;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid rgba(201, 168, 108, 0.28);
+    padding-bottom: 6px;
 }
 
 .transmission-info .message {
-    color: var(--ink);
-    font-family: var(--font-body);
+    color: #f3ead4;
+    font-family: var(--font-ui);
     font-size: 0.95rem;
-    line-height: 1.55;
+    line-height: 1.5;
     white-space: pre-wrap;
     word-wrap: break-word;
-    margin-bottom: 10px;
+    margin-bottom: 0;
 }
 
 /* Scrollbar — brass slat on paper */
@@ -173,10 +211,10 @@
 }
 
 .choice-button {
-    background: rgba(255, 248, 230, 0.75);
-    color: var(--ink);
-    border: 1px solid var(--brass-dim);
-    border-radius: 3px;
+    background: rgba(243, 234, 212, 0.1);
+    color: #f3ead4;
+    border: 1px solid rgba(201, 168, 108, 0.38);
+    border-radius: 6px;
     padding: 12px 14px;
     cursor: pointer;
     font-family: var(--font-ui);
@@ -190,10 +228,10 @@
 }
 
 .choice-button:hover {
-    background: rgba(255, 248, 230, 0.95);
-    border-color: var(--brass);
-    color: #1a140c;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    background: rgba(243, 234, 212, 0.2);
+    border-color: rgba(201, 168, 108, 0.7);
+    color: #fff6dc;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
 }
 
 #game-container {
@@ -995,8 +1033,39 @@
         0 1px 0 rgba(236, 224, 196, 0.75);
 }
 
+button.timestamp {
+    appearance: none;
+    background: none;
+    border: none;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    width: 100%;
+    padding: 0;
+    cursor: pointer;
+}
+
+button.timestamp:hover,
+.log-entry.is-expanded > button.timestamp {
+    opacity: 1;
+    text-decoration: underline;
+}
+
 .log-entry-body {
     margin: 0;
+    white-space: pre-wrap;
+}
+
+.log-entry-journal {
+    margin: 6px 0 0;
+    color: #1f4a2e;
+}
+
+.log-entry-journal-title {
+    font-weight: 700;
+}
+
+.log-entry-journal-body {
     white-space: pre-wrap;
 }
 
@@ -2069,7 +2138,7 @@ body {
 .hud-clock-period {
     position: absolute;
     left: 50%;
-    top: 22%;
+    top: 28%;
     width: 16%;
     height: 16%;
     transform: translateX(-50%);
@@ -2093,6 +2162,7 @@ body {
     transform-origin: 50% 100%;
     box-shadow: 0 0 1px rgba(0, 0, 0, 0.6);
     pointer-events: none;
+    z-index: 3;
 }
 
 .hud-clock-hand--hour {
@@ -2117,7 +2187,7 @@ body {
     border-radius: 50%;
     background: radial-gradient(circle at 35% 35%, #c9a86a, #6a5028 55%, #2a2014);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-    z-index: 2;
+    z-index: 4;
 }
 
 .hud-clock-caption {
@@ -2167,8 +2237,6 @@ body {
 }
 
 .desk-layer--papers:hover {
-    outline: 1px solid rgba(201, 168, 108, 0.4);
-    outline-offset: 2px;
     filter: brightness(1.05);
 }
 
@@ -2194,8 +2262,6 @@ body.dev-mode-active .desk-layer--papers {
 }
 
 .desk-layer--ops-manual:hover {
-    outline: 1px solid rgba(201, 168, 108, 0.45);
-    outline-offset: 2px;
     filter: brightness(1.06);
 }
 
@@ -2221,13 +2287,53 @@ body.dev-mode-active .desk-layer--ops-manual {
 }
 
 .desk-layer--sched-log:hover {
-    outline: 1px solid rgba(201, 168, 108, 0.45);
-    outline-offset: 2px;
     filter: brightness(1.06);
 }
 
 body.dev-mode-active .desk-layer--sched-log {
     cursor: crosshair;
+}
+
+.desk-layer--drawer {
+    z-index: 3;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: filter 0.15s ease;
+}
+
+.desk-layer--drawer-left {
+    left: 29%;
+    bottom: -12.5%;
+    width: 340px;
+    height: 210px;
+}
+
+.desk-layer--drawer-right {
+    left: 57.6%;
+    bottom: -12.5%;
+    width: 340px;
+    height: 210px;
+}
+
+.desk-layer--drawer img {
+    object-fit: contain;
+    object-position: center bottom;
+    opacity: 0;
+    transition: opacity 0.45s ease;
+    filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.45));
+}
+
+.desk-layer--drawer.is-open img {
+    opacity: 1;
+}
+
+.desk-layer--drawer:hover {
+    filter: brightness(1.04);
+}
+
+body.dev-mode-active .desk-layer--drawer {
+    cursor: crosshair;
+    outline: 1px dashed rgba(201, 168, 108, 0.55);
 }
 
 /* Invisible hotspot over the map painted into desk-surface.png */
@@ -2243,9 +2349,7 @@ body.dev-mode-active .desk-layer--sched-log {
 }
 
 .desk-layer--map:hover {
-    outline: 1px solid rgba(201, 168, 108, 0.35);
-    outline-offset: 2px;
-    background: rgba(201, 168, 108, 0.06);
+    background: transparent;
 }
 
 body.dev-mode-active .desk-layer--map {
@@ -2263,6 +2367,16 @@ body.dev-mode-active .desk-layer--map {
     transform: rotateY(180deg) scale(2.9);
     transform-origin: 50% 90%;
     z-index: 4;
+}
+
+.desk-layer--speaker {
+    left: 33.2%;
+    bottom: 23.8%;
+    width: 86px;
+    height: 90px;
+    transform: scale(1.7);
+    transform-origin: 50% 90%;
+    z-index: 5;
 }
 
 .desk-layer--mic {
@@ -2892,9 +3006,16 @@ body.dev-mode-active .desk-layer--map {
 
 body.dev-mode-hud-pick .hud-clock,
 body.dev-mode-hud-pick .calendar-container,
-body.dev-mode-hud-pick #game-ui {
+body.dev-mode-hud-pick #game-ui,
+body.dev-mode-hud-pick .radio-message-bubble,
+body.dev-mode-hud-pick .response-box {
     pointer-events: auto !important;
     cursor: crosshair;
+}
+
+body.dev-mode-active .radio-message-bubble,
+body.dev-mode-active .response-box {
+    display: block !important;
 }
 
 body.dev-mode-hud-pick .left-hud {
@@ -3869,8 +3990,8 @@ body.dev-mode-active .pause-menu {
 
 @media (max-width: 1100px) {
     /* Desk props no longer reflow — they live in .desk-rig and scale as a unit. */
-    .transmission-info {
-        bottom: 220px;
+    .transmission-info,
+    .radio-message-bubble {
         width: min(400px, calc(100vw - 40px));
     }
     .response-box {

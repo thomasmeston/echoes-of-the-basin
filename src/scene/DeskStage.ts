@@ -28,7 +28,10 @@ export type DeskLayerId =
   | 'ops-manual'
   | 'sched-log'
   | 'map-folded'
+  | 'drawer-left'
+  | 'drawer-right'
   | 'lamp'
+  | 'speaker'
   | 'radio-body'
   | 'radio-dial'
   | 'meter-needle-l'
@@ -43,7 +46,10 @@ const LAYER_FILES: Record<DeskLayerId, string> = {
   'sched-log': 'sched-log-sketch.png',
   // map art is baked into desk-surface.png; map-folded is a hit target only
   'map-folded': 'map-folded.png',
+  'drawer-left': 'drawer-left-open.png',
+  'drawer-right': 'drawer-right-open.png?v=5',
   lamp: 'lamp.png',
+  speaker: 'speaker.png?v=2',
   'radio-body': 'radio-body.png',
   'radio-dial': 'radio-dial.png',
   'meter-needle-l': 'meter-needle-l.png',
@@ -116,6 +122,8 @@ export class DeskStage {
     this.root.appendChild(this.deskRig);
 
     this.buildLayer('desk-surface', this.deskRig, 'desk-layer desk-layer--desk');
+    this.buildLayer('drawer-left', this.deskRig, 'desk-layer desk-layer--drawer desk-layer--drawer-left');
+    this.buildLayer('drawer-right', this.deskRig, 'desk-layer desk-layer--drawer desk-layer--drawer-right');
     const papers = this.buildLayer(
       'papers',
       this.deskRig,
@@ -126,6 +134,7 @@ export class DeskStage {
     this.buildLayer('sched-log', this.deskRig, 'desk-layer desk-layer--sched-log');
     this.buildMapHotspot();
     this.buildLayer('lamp', this.deskRig, 'desk-layer desk-layer--lamp desk-idle-flicker');
+    this.buildLayer('speaker', this.deskRig, 'desk-layer desk-layer--speaker');
 
     this.deskRig.appendChild(this.radioCluster);
     this.buildLayer('radio-body', this.radioCluster, 'desk-layer desk-layer--radio-body');
@@ -449,6 +458,10 @@ export class DeskStage {
         const size = t.w > 0 ? t.w : t.h;
         el.style.width = size > 0 ? `${size}px` : '';
         el.style.height = size > 0 ? `${size}px` : '';
+      } else if (id === 'radio-message' || id === 'radio-reply') {
+        el.style.width = t.w > 0 ? `${t.w}px` : '';
+        el.style.height = 'auto';
+        el.style.minHeight = '0';
       } else {
         el.style.width = t.w > 0 ? `${t.w}px` : '';
         el.style.height = t.h > 0 ? `${t.h}px` : '';
@@ -764,6 +777,21 @@ export class DeskStage {
     }
     this.radioCluster.appendChild(root);
     return { root, face };
+  }
+
+  toggleDrawer(side: 'left' | 'right'): boolean {
+    const el = this.layers.get(side === 'left' ? 'drawer-left' : 'drawer-right');
+    if (!el) {
+      return false;
+    }
+    const open = !el.classList.contains('is-open');
+    el.classList.toggle('is-open', open);
+    return open;
+  }
+
+  isDrawerOpen(side: 'left' | 'right'): boolean {
+    const el = this.layers.get(side === 'left' ? 'drawer-left' : 'drawer-right');
+    return Boolean(el?.classList.contains('is-open'));
   }
 
   /** Invisible clickable region aligned to the map painted on desk-surface. */

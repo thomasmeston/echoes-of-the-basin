@@ -62,6 +62,19 @@ export function daylightFromWatchMinutes(minutes: number): number {
   return (m - dawn0) / (dawn1 - dawn0);
 }
 
+/** Moon on the clock during night and dusk; sun during day and dawn. */
+export function isNightSceneFromWatchMinutes(minutes: number): boolean {
+  const d = daylightFromWatchMinutes(minutes);
+  if (d >= 1) {
+    return false;
+  }
+  if (d <= 0) {
+    return true;
+  }
+  const m = ((minutes % 1440) + 1440) % 1440;
+  return m >= 12 * 60;
+}
+
 /**
  * Illustrated day/night exterior, stacked on bg-room with the same
  * object-fit:cover + bg-zoom so the aperture cannot drift.

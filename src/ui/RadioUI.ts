@@ -116,19 +116,30 @@ export class RadioUI {
     });
 
     this.infoBox = document.createElement('div');
-    this.infoBox.className = 'transmission-info';
+    this.infoBox.className = 'transmission-info radio-message-bubble';
     this.infoBox.style.display = 'none';
+    this.infoBox.innerHTML = `
+      <div class="sender">Incoming</div>
+      <div class="message">Transmission preview</div>
+    `;
 
     this.choicesContainer = document.createElement('div');
     this.choicesContainer.className = 'choices-container';
+    const preview = document.createElement('button');
+    preview.type = 'button';
+    preview.className = 'choice-button';
+    preview.textContent = 'Reply preview';
+    this.choicesContainer.appendChild(preview);
 
     this.choicesBox = document.createElement('div');
-    this.choicesBox.className = 'response-box';
+    this.choicesBox.className = 'response-box radio-reply-bubble';
     this.choicesBox.style.display = 'none';
     this.choicesBox.appendChild(this.choicesContainer);
 
     document.body.appendChild(this.infoBox);
     document.body.appendChild(this.choicesBox);
+    this.options.deskStage.registerExternalObject('radio-message', this.infoBox);
+    this.options.deskStage.registerExternalObject('radio-reply', this.choicesBox);
   }
 
   private setupSteppedDial(

@@ -101,6 +101,7 @@ export class Game {
     this.bindMapClick();
     this.bindOpsManualClick();
     this.bindSchedLogClick();
+    this.bindDrawerClicks();
     this.devPanel = new DevPanel(this.deskStage);
     this.pauseMenu = new PauseMenu({
       audio: this.audio,
@@ -212,10 +213,11 @@ export class Game {
       return;
     }
     this.audio.play('radioBeep');
-    // Flag reactions also log (journal/thought); coalesce into one SFX after the beep.
+    // Flag reactions also write a journal into this reply; coalesce SFX after the beep.
     this.notepadUI.holdHandwriting(REPLY_HANDWRITING_DELAY_MS);
     const transmission = this.activeTransmission;
     const choice = transmission.choices.find((c) => c.id === choiceId);
+    const journalsBefore = new Set(Object.keys(this.narrative.getJournalEntries()));
     const result = this.campaign.applyChoice(transmission, choiceId);
     this.notepadUI.recordReply(
       transmission,
@@ -228,6 +230,7 @@ export class Game {
     if (result.thought) {
       this.narrative.showThought(result.thought);
     }
+    this.attachFreshJournals(journalsBefore, true);
     this.activeTransmission = null;
     this.radioUI.hideChoices();
     this.autosave();
@@ -423,19 +426,23 @@ export class Game {
     this.narrative.events.on('openingLog', (text) => {
       this.notepadUI.addLog(text, 'day');
     });
+  }
 
-    this.narrative.events.on('thoughtShown', (_id, text) => {
-      this.notepadUI.addLog(`Thought: ${text}`, 'thought');
-    });
-
-    this.narrative.events.on('journalUpdated', (_id, entry) => {
-      this.notepadUI.addLog(`Journal — ${entry.title}: ${entry.body}`, 'journal');
-    });
+  /** Fold new journal scraps into the latest reply (or log a standalone scrap). */
+  private attachFreshJournals(before: Set<string>, ontoLast: boolean): void {
+    for (const [id, entry] of Object.entries(this.narrative.getJournalEntries())) {
+      if (before.has(id)) {
+        continue;
+      }
+      if (ontoLast && this.notepadUI.attachJournalToLast(entry.title, entry.body)) {
+        continue;
+      }
+      this.notepadUI.addLog(`${entry.title}\n${entry.body}`, 'journal');
+    }
   }
 
   private syncWallClock(): void {
-    const { hour, minute } = this.state.getWatchClock();
-    this.watchClockUI.setTime(hour, minute);
+    this.watchClockUI.setFromWatchMinutes(this.state.watchMinutes);
     this.deskStage.windowView.setDaylight(daylightFromWatchMinutes(this.state.watchMinutes));
   }
 
@@ -536,6 +543,7 @@ export class Game {
       return { ok: false, reason: 'batteries' };
     }
 
+    const journalsBefore = new Set(Object.keys(this.narrative.getJournalEntries()));
     const result = this.campaign.applyTokens(tokens);
     this.state.markLandmarkDiscovered(landmarkId);
     for (const line of result.logLines) {
@@ -547,6 +555,7 @@ export class Game {
     if (result.thought) {
       this.narrative.showThought(result.thought);
     }
+    this.attachFreshJournals(journalsBefore, result.logLines.length > 0);
     this.autosave();
     return { ok: true };
   }
@@ -575,6 +584,43 @@ export class Game {
       this.papersOverlay.hide();
       this.opsManualOverlay.hide();
       this.schedLogOverlay.show();
+    });
+  }
+
+  private bindDrawerClicks(): void {
+    this.bindDrawer('drawer-left', 'left', 'Open left desk drawer');
+    this.bindDrawer('drawer-right', 'right', 'Open right desk drawer');
+  }
+
+  private bindDrawer(
+    id: 'drawer-left' | 'drawer-right',
+    side: 'left' | 'right',
+    title: string
+  ): void {
+    const el = this.deskStage.getObjectElement(id);
+    if (!el) {
+      return;
+    }
+    el.title = title;
+    el.setAttribute('role', 'button');
+    el.tabIndex = 0;
+    const toggle = (e: Event) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!this.gameplayActive || this.pauseMenu.isOpen || this.devPanel.isActive) {
+        return;
+      }
+      const open = this.deskStage.toggleDrawer(side);
+      this.audio.play(open ? 'drawerOpen' : 'drawerClose', 0.9);
+      el.title = open
+        ? `Close ${side} desk drawer`
+        : `Open ${side} desk drawer`;
+    };
+    el.addEventListener('click', toggle);
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        toggle(e);
+      }
     });
   }
 

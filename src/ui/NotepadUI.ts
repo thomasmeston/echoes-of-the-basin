@@ -7,6 +7,8 @@ export interface NotepadLogEntry {
   message: string;
   type: string;
   stamp: string;
+  journalTitle?: string;
+  journalBody?: string;
 }
 
 type NotepadPage = 'notes' | 'supplies' | 'trust';
@@ -31,6 +33,8 @@ export class NotepadUI {
   /** Earliest time handwriting SFX may play (coalesces burst logs into one hit). */
   private handwritingHoldUntil = 0;
   private handwritingTimer: ReturnType<typeof setTimeout> | null = null;
+  private lastEntry: NotepadLogEntry | null = null;
+  private lastEntryEl: HTMLElement | null = null;
   onLog: ((entry: NotepadLogEntry) => void) | null = null;
   onManualSave: (() => void) | null = null;
 
@@ -69,6 +73,23 @@ export class NotepadUI {
     this.addLog(lines.join('\n'), 'response');
   }
 
+  /** Append a journal scrap to the most recent note (same timestamp block). */
+  attachJournalToLast(title: string, body: string): boolean {
+    if (!this.lastEntry || !this.lastEntryEl) {
+      return false;
+    }
+    if (this.lastEntry.journalTitle) {
+      this.lastEntry.journalBody = [this.lastEntry.journalBody, title, body]
+        .filter(Boolean)
+        .join('\n\n');
+    } else {
+      this.lastEntry.journalTitle = title;
+      this.lastEntry.journalBody = body;
+    }
+    this.renderJournal(this.lastEntryEl, this.lastEntry);
+    return true;
+  }
+
   addLog(message: string, type = 'info'): void {
     const entry: NotepadLogEntry = {
       message,
@@ -82,7 +103,12 @@ export class NotepadUI {
 
   restoreEntries(entries: NotepadLogEntry[]): void {
     this.logContainer.replaceChildren();
+    this.lastEntry = null;
+    this.lastEntryEl = null;
     for (const entry of entries) {
+      if (entry.type === 'thought' || entry.message.startsWith('Thought: ')) {
+        continue;
+      }
       this.mountEntry(entry);
     }
   }
@@ -115,6 +141,8 @@ export class NotepadUI {
   clear(): void {
     this.closeComposer();
     this.logContainer.innerHTML = '';
+    this.lastEntry = null;
+    this.lastEntryEl = null;
     this.showPage('notes', { silent: true });
   }
 
@@ -134,18 +162,66 @@ export class NotepadUI {
     const el = document.createElement('div');
     el.className = `log-entry ${entry.type}`;
 
-    const stamp = document.createElement('div');
+    const foldable = entry.type === 'response';
+    const stamp = document.createElement(foldable ? 'button' : 'div');
     stamp.className = 'timestamp';
     stamp.textContent = entry.stamp;
 
     const body = document.createElement('div');
-    body.className = 'log-entry-body';
+    body.className = foldable ? 'log-entry-body log-entry-log' : 'log-entry-body';
     body.textContent = entry.message;
 
+    if (foldable) {
+      const btn = stamp as HTMLButtonElement;
+      btn.type = 'button';
+      btn.setAttribute('aria-expanded', 'false');
+      btn.setAttribute('aria-label', `Unfold log for ${entry.stamp}`);
+      body.hidden = true;
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const open = el.classList.toggle('is-expanded');
+        body.hidden = !open;
+        btn.setAttribute('aria-expanded', String(open));
+        btn.setAttribute(
+          'aria-label',
+          open ? `Fold log for ${entry.stamp}` : `Unfold log for ${entry.stamp}`
+        );
+      });
+    }
+
     el.append(stamp, body);
+    this.renderJournal(el, entry);
     this.logContainer.appendChild(el);
+    this.lastEntry = entry;
+    this.lastEntryEl = el;
     if (this.activePage === 'notes') {
       this.scrollSheet.scrollTop = this.scrollSheet.scrollHeight;
+    }
+  }
+
+  private renderJournal(el: HTMLElement, entry: NotepadLogEntry): void {
+    let slot = el.querySelector<HTMLElement>('.log-entry-journal');
+    if (!entry.journalTitle && !entry.journalBody) {
+      slot?.remove();
+      return;
+    }
+    if (!slot) {
+      slot = document.createElement('div');
+      slot.className = 'log-entry-journal';
+      el.appendChild(slot);
+    }
+    slot.replaceChildren();
+    if (entry.journalTitle) {
+      const title = document.createElement('div');
+      title.className = 'log-entry-journal-title';
+      title.textContent = entry.journalTitle;
+      slot.appendChild(title);
+    }
+    if (entry.journalBody) {
+      const body = document.createElement('div');
+      body.className = 'log-entry-journal-body';
+      body.textContent = entry.journalBody;
+      slot.appendChild(body);
     }
   }
 
