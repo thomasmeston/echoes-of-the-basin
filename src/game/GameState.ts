@@ -59,6 +59,14 @@ export class GameState {
     journalTitle?: string;
     journalBody?: string;
   }[] = [];
+  /** Cipher transmissions the player has decoded this run. */
+  decodedTransmissionIds = new Set<string>();
+  /** Call-sign gates the player has passed. */
+  callSignPassedIds = new Set<string>();
+  /** ACP slips already written to the log. */
+  slipLoggedIds = new Set<string>();
+  /** Discovered code words (uppercase). */
+  knownCodes = new Set<string>();
 
   get currentFrequency(): number {
     return CAMPAIGN.frequencies[this.currentFrequencyIndex] ?? CAMPAIGN.frequencies[0];
@@ -87,6 +95,10 @@ export class GameState {
     this.watchMinutes = WATCH_START_MINUTES;
     this.campaignComplete = false;
     this.fieldNotes = [];
+    this.decodedTransmissionIds = new Set();
+    this.callSignPassedIds = new Set();
+    this.slipLoggedIds = new Set();
+    this.knownCodes = new Set();
   }
 
   /** Hour 0–23 and minute 0–59 for the current watch clock. */
@@ -126,6 +138,37 @@ export class GameState {
       this.clues.add(clue);
       this.events.emit('clueAdded', clue);
     }
+  }
+
+  addKnownCode(code: string): void {
+    const next = code.trim().toUpperCase();
+    if (next) {
+      this.knownCodes.add(next);
+    }
+  }
+
+  markDecoded(id: string): void {
+    this.decodedTransmissionIds.add(id);
+  }
+
+  hasDecoded(id: string): boolean {
+    return this.decodedTransmissionIds.has(id);
+  }
+
+  markCallSignPassed(id: string): void {
+    this.callSignPassedIds.add(id);
+  }
+
+  hasCallSignPassed(id: string): boolean {
+    return this.callSignPassedIds.has(id);
+  }
+
+  markSlipLogged(id: string): void {
+    this.slipLoggedIds.add(id);
+  }
+
+  hasSlipLogged(id: string): boolean {
+    return this.slipLoggedIds.has(id);
   }
 
   markLandmarkDiscovered(landmarkId: string): void {
@@ -249,6 +292,10 @@ export class GameState {
       watchMinutes: this.watchMinutes,
       campaignComplete: this.campaignComplete,
       fieldNotes: this.fieldNotes.map((n) => ({ ...n })),
+      decodedTransmissionIds: [...this.decodedTransmissionIds],
+      callSignPassedIds: [...this.callSignPassedIds],
+      slipLoggedIds: [...this.slipLoggedIds],
+      knownCodes: [...this.knownCodes],
     };
   }
 
@@ -264,6 +311,10 @@ export class GameState {
         journalTitle?: string;
         journalBody?: string;
       }[];
+      decodedTransmissionIds?: string[];
+      callSignPassedIds?: string[];
+      slipLoggedIds?: string[];
+      knownCodes?: string[];
     }
   ): void {
     this.currentDay = data.currentDay;
@@ -307,5 +358,9 @@ export class GameState {
             ...(typeof n.journalBody === 'string' ? { journalBody: n.journalBody } : {}),
           }))
       : [];
+    this.decodedTransmissionIds = new Set(data.decodedTransmissionIds ?? []);
+    this.callSignPassedIds = new Set(data.callSignPassedIds ?? []);
+    this.slipLoggedIds = new Set(data.slipLoggedIds ?? []);
+    this.knownCodes = new Set((data.knownCodes ?? []).map((c) => c.toUpperCase()));
   }
 }

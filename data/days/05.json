@@ -1,7 +1,55 @@
 {
   "day": 5,
-  "requiredBeats": ["R2", "A2"],
+  "requiredBeats": [
+    "HQ_d5",
+    "R2",
+    "A2"
+  ],
   "transmissions": [
+    {
+      "id": "HQ_d5",
+      "frequency": 98.8,
+      "thread": "meta",
+      "sender": "HQ — Manaus relay",
+      "originator": "MANAUS HQ",
+      "addressee": "TANGO-SEVEN",
+      "precedence": "ROUTINE",
+      "message": "NIGHT 5 CHECK IN PERIOD CONFIRM ON STATION PERIOD BUSINESS AS USUAL PERIOD REPORT REQUIRED TRAFFIC BEFORE YOU SLEEP OVER",
+      "faction": "military",
+      "requires": [],
+      "choices": [
+        {
+          "id": "relay",
+          "text": "Confirm on station",
+          "on_success": [
+            "set_flag:HQ_d5_relayed",
+            "trust:military:2",
+            "resource:batteries:-3",
+            "log:HQ copies. Business as usual."
+          ]
+        },
+        {
+          "id": "bury",
+          "text": "Confirm — keep notes private",
+          "on_success": [
+            "set_flag:HQ_d5_buried",
+            "trust:military:1",
+            "resource:batteries:-2",
+            "log:You confirm. The rest stays in the book."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Delayed ack",
+          "on_success": [
+            "set_flag:HQ_d5_static",
+            "trust:military:-2",
+            "resource:batteries:-1",
+            "log:HQ repeats once."
+          ]
+        }
+      ]
+    },
     {
       "id": "R2",
       "frequency": 94.8,
@@ -9,11 +57,43 @@
       "sender": "Community voice — Bend do Sapo",
       "message": "Outsiders asking about sacred ground. Not soldiers. Survey maps. We did not invite them.",
       "faction": "river",
-      "requires": ["thread:R:>=1"],
+      "requires": [
+        "thread:R:>=1"
+      ],
       "choices": [
-        { "id": "bury", "text": "Log — do not relay names", "on_success": ["set_flag:R2_buried", "thread:R:2", "trust:river:6", "resource:batteries:-4", "log:You protect the bend on paper only."] },
-        { "id": "relay", "text": "Relay to HQ", "on_success": ["set_flag:R2_relayed", "thread:R:2", "trust:military:4", "trust:river:-5", "resource:batteries:-7", "log:HQ marks cultural incident noted."] },
-        { "id": "static", "text": "Static", "on_success": ["set_flag:R2_static", "thread:R:2", "resource:batteries:-2", "log:Silence."] }
+        {
+          "id": "bury",
+          "text": "Log — do not relay names",
+          "on_success": [
+            "set_flag:R2_buried",
+            "thread:R:2",
+            "trust:river:6",
+            "resource:batteries:-4",
+            "log:You protect the bend on paper only."
+          ]
+        },
+        {
+          "id": "relay",
+          "text": "Relay to HQ",
+          "on_success": [
+            "set_flag:R2_relayed",
+            "thread:R:2",
+            "trust:military:4",
+            "trust:river:-5",
+            "resource:batteries:-7",
+            "log:HQ marks cultural incident noted."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Static",
+          "on_success": [
+            "set_flag:R2_static",
+            "thread:R:2",
+            "resource:batteries:-2",
+            "log:Silence."
+          ]
+        }
       ]
     },
     {
@@ -25,9 +105,39 @@
       "faction": "military",
       "requires": [],
       "choices": [
-        { "id": "relay", "text": "Acknowledge", "on_success": ["set_flag:A2_relayed", "thread:A:3", "trust:military:7", "resource:batteries:-5", "log:Acknowledged."] },
-        { "id": "bury", "text": "Acknowledge privately", "on_success": ["set_flag:A2_buried", "thread:A:3", "trust:guerrilla:2", "resource:batteries:-4", "log:Blocked band noted without repeating."] },
-        { "id": "static", "text": "No ack", "on_success": ["set_flag:A2_static", "thread:A:3", "trust:military:-4", "resource:batteries:-2", "log:Net Control repeats. You answer late."] }
+        {
+          "id": "relay",
+          "text": "Acknowledge",
+          "on_success": [
+            "set_flag:A2_relayed",
+            "thread:A:3",
+            "trust:military:7",
+            "resource:batteries:-5",
+            "log:Acknowledged."
+          ]
+        },
+        {
+          "id": "bury",
+          "text": "Acknowledge privately",
+          "on_success": [
+            "set_flag:A2_buried",
+            "thread:A:3",
+            "trust:guerrilla:2",
+            "resource:batteries:-4",
+            "log:Blocked band noted without repeating."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "No ack",
+          "on_success": [
+            "set_flag:A2_static",
+            "thread:A:3",
+            "trust:military:-4",
+            "resource:batteries:-2",
+            "log:Net Control repeats. You answer late."
+          ]
+        }
       ]
     }
   ]

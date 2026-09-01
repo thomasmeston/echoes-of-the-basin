@@ -1,52 +1,115 @@
 {
   "day": 3,
-  "requiredBeats": ["R1", "A1"],
+  "requiredBeats": ["HQ_d3", "R1", "A1", "A_army"],
   "transmissions": [
     {
-      "id": "R1",
-      "frequency": 94.8,
-      "thread": "R",
-      "sender": "River trader — Bend do Sapo",
-      "message": "Strangers camped above the bend. Not military — not ours. Asking wrong questions about old paths. If you relay this, use the trader code only. Over.",
-      "faction": "river",
+      "id": "HQ_d3",
+      "frequency": 98.8,
+      "thread": "meta",
+      "sender": "HQ — Manaus relay",
+      "originator": "MANAUS HQ",
+      "addressee": "TANGO-SEVEN",
+      "precedence": "PRIORITY",
+      "message": "A VILLAGE UPRIVER IS ASKING FOR MEDICINE NOT POLITICS PERIOD IF YOU GO USE THE NEGRO FORK SQUARE PERIOD QUIET TRAFFIC MAY CHALLENGE BRAVO PERIOD KEEP THE CHANNEL CLEAN OVER",
+      "faction": "military",
       "requires": [],
       "choices": [
         {
           "id": "relay",
-          "text": "Relay to HQ with trader code",
+          "text": "Acknowledge — copy BRAVO and the village",
           "on_success": [
-            "set_flag:R1_relayed",
-            "clue:bend_strangers",
-            "thread:R:1",
-            "trust:military:5",
-            "trust:river:-6",
-            "resource:batteries:-8",
-            "log:HQ acknowledges. The trader band goes silent."
+            "set_flag:HQ_d3_relayed",
+            "clue:search_village",
+            "clue:code_bravo",
+            "code:BRAVO",
+            "trust:military:3",
+            "resource:batteries:-4",
+            "log:HQ calls it medicine. They still want a clean channel."
           ]
         },
         {
           "id": "bury",
-          "text": "Log privately — do not relay location",
+          "text": "Acknowledge — keep BRAVO off the open net",
           "on_success": [
-            "set_flag:R1_buried",
-            "clue:bend_strangers",
-            "thread:R:1",
-            "trust:river:8",
-            "resource:batteries:-4",
-            "log:You keep Bend do Sapo off the military net."
+            "set_flag:HQ_d3_buried",
+            "clue:search_village",
+            "clue:code_bravo",
+            "code:BRAVO",
+            "trust:river:3",
+            "resource:batteries:-3",
+            "log:BRAVO and the Negro fork stay in the book."
           ]
         },
         {
           "id": "static",
-          "text": "Didn't copy — lost in static",
+          "text": "Partial copy",
+          "on_success": [
+            "set_flag:HQ_d3_static",
+            "clue:search_village",
+            "clue:code_bravo",
+            "code:BRAVO",
+            "trust:military:-2",
+            "resource:batteries:-2",
+            "log:You still caught BRAVO and the village. HQ sighs."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "R1",
+      "frequency": 94.8,
+      "thread": "R",
+      "sender": "Village — shaman",
+      "originator": "SHAMAN NET",
+      "addressee": "TANGO-SEVEN",
+      "precedence": "PRIORITY",
+      "message": "FEVER ON THE FORK PERIOD WE ASK FOR BARK AND CLEAN CLOTH PERIOD NOT GUNS PERIOD IF YOU TELL THE ARMY THEY WILL COME ASKING WRONG QUESTIONS OVER",
+      "faction": "river",
+      "requires": ["clue:map_negro_village"],
+      "choices": [
+        {
+          "id": "relay",
+          "text": "Relay the ask to HQ as a medical",
+          "on_success": [
+            "set_flag:R1_relayed",
+            "clue:shaman_ask",
+            "thread:R:1",
+            "trust:military:4",
+            "trust:river:-5",
+            "resource:medicine:-4",
+            "resource:batteries:-6",
+            "log:HQ files it as civilian aid. The shaman band thins."
+          ]
+        },
+        {
+          "id": "bury",
+          "text": "Send medicine quietly — do not name the village",
+          "on_success": [
+            "set_flag:R1_buried",
+            "clue:shaman_ask",
+            "thread:R:1",
+            "trust:river:10",
+            "resource:medicine:-6",
+            "resource:batteries:-4",
+            "log:You promise bark and cloth. Their name stays off the Army net."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Didn't copy",
           "on_success": [
             "set_flag:R1_static",
             "thread:R:1",
-            "trust:river:-3",
+            "trust:river:-5",
             "resource:batteries:-2",
-            "log:Static. Maybe they heard you not copying."
+            "log:Static. A supply ask is still an ask."
           ]
         }
+      ],
+      "on_fail": [
+        "set_flag:R1_failed",
+        "trust:river:-5",
+        "log:The village does not hear you. River trust drops."
       ]
     },
     {
@@ -54,9 +117,17 @@
       "frequency": 100.9,
       "thread": "A",
       "sender": "Unregistered — coded",
-      "message": "...window after midnight... not the posted list... if you're the new voice, be careful who you serve...",
+      "originator": "UNKNOWN",
+      "addressee": "NEW VOICE",
+      "precedence": "PRIORITY",
+      "message": "WINDOW AFTER MIDNIGHT PERIOD NOT THE POSTED LIST PERIOD IF YOU ARE THE NEW VOICE BE CAREFUL WHO YOU SERVE OVER",
       "faction": "guerrilla",
       "requires": ["thread:A:>=1"],
+      "callSign": {
+        "challenge": "AUTHENTICATE — night word. OVER.",
+        "answer": "BRAVO",
+        "clueHint": "HQ debrief or Manaus wharf."
+      },
       "choices": [
         {
           "id": "relay",
@@ -68,7 +139,7 @@
             "trust:military:6",
             "trust:guerrilla:-8",
             "resource:batteries:-8",
-            "log:Net Control: \"Good catch.\" The coded voice does not return."
+            "log:Net Control: good catch. The coded voice does not return."
           ]
         },
         {
@@ -78,7 +149,7 @@
             "set_flag:A1_buried",
             "clue:coded_window",
             "thread:A:2",
-            "trust:guerrilla:4",
+            "trust:guerrilla:5",
             "resource:batteries:-4",
             "log:You write it in the margin. No one else sees."
           ]
@@ -93,6 +164,60 @@
             "trust:military:-2",
             "resource:batteries:-2",
             "log:Static. The voice tries once more, then fades."
+          ]
+        }
+      ],
+      "on_fail": [
+        "set_flag:A1_failed",
+        "trust:guerrilla:-4",
+        "trust:military:-2",
+        "log:Wrong word. Both nets hear you fumble."
+      ]
+    },
+    {
+      "id": "A_army",
+      "frequency": 90.3,
+      "thread": "A",
+      "sender": "Tango-Seven Net Control",
+      "originator": "TANGO-SEVEN NC",
+      "addressee": "RELIEF",
+      "precedence": "ROUTINE",
+      "message": "REMINDER PERIOD UNLISTED WINDOWS ARE TO BE LOGGED TO THIS DESK PERIOD IF THE WHARF TALKED YOU WILL FILE IT OVER",
+      "faction": "military",
+      "requires": [],
+      "choices": [
+        {
+          "id": "relay",
+          "text": "Promise to file unlisted windows",
+          "on_success": [
+            "set_flag:A_army_relayed",
+            "clue:clean_channel",
+            "thread:A:2",
+            "trust:military:6",
+            "resource:batteries:-4",
+            "log:You are still their operator. The other net is listening too."
+          ]
+        },
+        {
+          "id": "bury",
+          "text": "Acknowledge vaguely",
+          "on_success": [
+            "set_flag:A_army_buried",
+            "thread:A:2",
+            "trust:military:2",
+            "trust:guerrilla:2",
+            "resource:batteries:-3",
+            "log:You give them nothing they can quote."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "No copy",
+          "on_success": [
+            "set_flag:A_army_static",
+            "trust:military:-4",
+            "resource:batteries:-2",
+            "log:Net Control repeats once. Then a colder silence."
           ]
         }
       ]

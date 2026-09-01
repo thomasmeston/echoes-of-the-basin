@@ -1,23 +1,30 @@
 {
-  "opening_log": "The chair is still warm. Marcos Viera's mug — chipped handle, town fair prize. His log has gaps where there shouldn't be. HQ expects business as usual.",
+  "opening_log": "Marcos' mug — chipped handle. Half-drunk coffee. His log has gaps. HQ is on 98.8. They expect business as usual.",
   "on_flag": {
     "G1_relayed": { "thought": "hq_will_notice", "journal": "first_gap" },
     "G1_buried": { "thought": "keep_the_book", "journal": "first_gap" },
-    "A_soft_relayed": { "thought": "clean_channel", "journal": "net_control" }
+    "A_soft_relayed": { "thought": "clean_channel", "journal": "net_control" },
+    "G_cipher_relayed": { "thought": "negro_hint", "journal": "negro_page" },
+    "G_cipher_buried": { "thought": "negro_hint", "journal": "negro_page" }
   },
   "thoughts": {
     "hq_will_notice": "HQ notices reliability. That's not always a compliment.",
     "keep_the_book": "Some truths live in the log before they live on the net.",
-    "clean_channel": "Clean channel. Their words, not yours."
+    "clean_channel": "Clean channel. Their words, not yours.",
+    "negro_hint": "The numbers spelled a river. The map is not decoration."
   },
   "journal_entries": {
     "first_gap": {
       "title": "Log gap",
-      "body": "Marcos left a margin note about a frequency not on the posted list. HQ says routine rotation. The dates don't comfort me."
+      "body": "Marcos left a margin note and a string of numbers. HQ says routine rotation. The dates don't comfort me."
     },
     "net_control": {
       "title": "Net Control",
       "body": "First order: keep the channel clean. Unverified civilian bands are not my problem — until they are."
+    },
+    "negro_page": {
+      "title": "SEARCH THE NEGRO",
+      "body": "The pad is honest. Unfold the survey sheet. Quiet anchorage, if I can spare the batteries."
     }
   },
   "day_close": "Night one. The basin hums. Marcos's handwriting is clearer than HQ's."

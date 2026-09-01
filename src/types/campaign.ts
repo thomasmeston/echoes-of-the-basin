@@ -25,10 +25,18 @@ export interface FactionDef {
   voice: string;
 }
 
+export type PrecedenceId = 'ROUTINE' | 'PRIORITY' | 'IMMEDIATE' | 'FLASH';
+
 export interface ChoiceDef {
   id: string;
   text: string;
   on_success: string[];
+}
+
+export interface CallSignDef {
+  challenge: string;
+  answer: string;
+  clueHint?: string;
 }
 
 export interface TransmissionDef {
@@ -40,6 +48,27 @@ export interface TransmissionDef {
   faction: FactionId;
   requires: string[];
   choices: ChoiceDef[];
+  precedence?: PrecedenceId;
+  originator?: string;
+  addressee?: string;
+  /** Space-separated numbers; decode with that night's pad before choices. */
+  cipher?: string;
+  decoderDay?: number;
+  callSign?: CallSignDef;
+  /** Tokens if the player skips/fails decode or call-sign. */
+  on_fail?: string[];
+}
+
+export interface DecoderPage {
+  day: number;
+  title: string;
+  legend: string;
+  map: Record<string, string>;
+}
+
+export interface ClueDef {
+  title: string;
+  body: string;
 }
 
 export interface AmbientDef {

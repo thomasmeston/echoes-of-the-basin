@@ -1,22 +1,22 @@
 {
-  "opening_log": "First real choice tonight. River trader at Bend do Sapo. Coded voice on an unregistered band. River is not guerrilla — remember that.",
+  "opening_log": "HQ first. A shaman is asking for medicine — herbs and cloth, not guns. Boat the Negro fork if you mean to answer.",
   "on_flag": {
-    "R1_buried": { "thought": "bend_protected", "journal": "bend_strangers" },
-    "R1_relayed": { "thought": "bend_exposed", "journal": "bend_strangers" },
+    "R1_buried": { "thought": "herbs_kept", "journal": "shaman_page" },
+    "R1_relayed": { "thought": "herbs_filed", "journal": "shaman_page" },
     "A1_buried": { "journal": "coded_window" }
   },
   "thoughts": {
-    "bend_protected": "You kept a bend off the military net. Someone may remember.",
-    "bend_exposed": "HQ has the grid. The trader band went silent."
+    "herbs_kept": "You kept a village off the military net. Someone may remember.",
+    "herbs_filed": "HQ has the medical. The shaman band thinned."
   },
   "journal_entries": {
-    "bend_strangers": {
-      "title": "Bend do Sapo",
-      "body": "Strangers near the bend. River trader says not military. Survey maps, wrong questions."
+    "shaman_page": {
+      "title": "Herbs and cloth",
+      "body": "A supply ask. Not recruitment. River is not guerrilla."
     },
     "coded_window": {
       "title": "Coded window",
-      "body": "After midnight. Not the posted list. Someone knows I'm the new voice."
+      "body": "BRAVO opened the door. After midnight. Not the posted list. Be careful who you serve."
     }
   },
   "day_close": "Night three. You served someone tonight — maybe more than one."

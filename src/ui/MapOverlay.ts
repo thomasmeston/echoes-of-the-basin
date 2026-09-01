@@ -14,6 +14,7 @@ export type MapDiscoverResult =
 
 export interface MapOverlayOptions {
   isDiscovered: (landmarkId: string) => boolean;
+  isHinted?: (landmarkId: string) => boolean;
   canAfford: (cost: number) => boolean;
   onDiscover: (landmarkId: string, tokens: string[]) => MapDiscoverResult;
 }
@@ -208,6 +209,8 @@ export class MapOverlay {
       const found = region.landmarks.filter((l) => this.options.isDiscovered(l.id)).length;
       cell.classList.toggle('map-grid-cell--partial', found > 0 && found < total);
       cell.classList.toggle('map-grid-cell--complete', found > 0 && found >= total);
+      const hinted = region.landmarks.some((l) => this.options.isHinted?.(l.id));
+      cell.classList.toggle('map-grid-cell--hinted', hinted && found < total);
     });
 
     if (this.mode === 'focus') {
@@ -368,10 +371,14 @@ export class MapOverlay {
       btn.style.top = `${landmark.y}%`;
       btn.dataset.landmarkId = landmark.id;
       const discovered = this.options.isDiscovered(landmark.id);
+      const hinted = this.options.isHinted?.(landmark.id) ?? false;
       btn.classList.toggle('map-landmark--visited', discovered);
+      btn.classList.toggle('map-landmark--hinted', hinted && !discovered);
       btn.title = discovered
         ? `${landmark.name} (surveyed)`
-        : `${landmark.name} — ${landmark.costBatteries} batteries`;
+        : hinted
+          ? `${landmark.name} — requested — ${landmark.costBatteries} batteries`
+          : `${landmark.name} — ${landmark.costBatteries} batteries`;
       const iconUrl = publicUrl(`images/map/icons/${landmark.icon}.svg`);
       btn.innerHTML = `
         <span class="map-landmark-icon" aria-hidden="true" style="background-image:url('${iconUrl}')"></span>

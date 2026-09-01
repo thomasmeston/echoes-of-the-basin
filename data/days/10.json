@@ -1,7 +1,55 @@
 {
   "day": 10,
-  "requiredBeats": ["G6", "E5"],
+  "requiredBeats": [
+    "HQ_d10",
+    "G6",
+    "E5"
+  ],
   "transmissions": [
+    {
+      "id": "HQ_d10",
+      "frequency": 98.8,
+      "thread": "meta",
+      "sender": "HQ — Manaus relay",
+      "originator": "MANAUS HQ",
+      "addressee": "TANGO-SEVEN",
+      "precedence": "ROUTINE",
+      "message": "NIGHT 10 CHECK IN PERIOD CONFIRM ON STATION PERIOD BUSINESS AS USUAL PERIOD REPORT REQUIRED TRAFFIC BEFORE YOU SLEEP OVER",
+      "faction": "military",
+      "requires": [],
+      "choices": [
+        {
+          "id": "relay",
+          "text": "Confirm on station",
+          "on_success": [
+            "set_flag:HQ_d10_relayed",
+            "trust:military:2",
+            "resource:batteries:-3",
+            "log:HQ copies. Business as usual."
+          ]
+        },
+        {
+          "id": "bury",
+          "text": "Confirm — keep notes private",
+          "on_success": [
+            "set_flag:HQ_d10_buried",
+            "trust:military:1",
+            "resource:batteries:-2",
+            "log:You confirm. The rest stays in the book."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Delayed ack",
+          "on_success": [
+            "set_flag:HQ_d10_static",
+            "trust:military:-2",
+            "resource:batteries:-1",
+            "log:HQ repeats once."
+          ]
+        }
+      ]
+    },
     {
       "id": "G6",
       "frequency": 91.7,
@@ -9,11 +57,43 @@
       "sender": "Dead drop — coded for prior operator",
       "message": "Package at grid mark four. Not for Tango-Seven. If you're not Marcos, burn this copy.",
       "faction": "desk",
-      "requires": ["thread:G:>=4"],
+      "requires": [
+        "thread:G:>=4"
+      ],
       "choices": [
-        { "id": "bury", "text": "Log coordinates privately", "on_success": ["set_flag:G6_buried", "clue:dead_drop", "thread:G:6", "resource:batteries:-4", "log:Grid copied. No relay."] },
-        { "id": "relay", "text": "Relay to HQ", "on_success": ["set_flag:G6_relayed", "clue:dead_drop", "thread:G:6", "trust:military:6", "resource:batteries:-8", "log:HQ sends patrol reference."] },
-        { "id": "static", "text": "Burn copy", "on_success": ["set_flag:G6_static", "thread:G:6", "resource:batteries:-1", "log:Intercept destroyed."] }
+        {
+          "id": "bury",
+          "text": "Log coordinates privately",
+          "on_success": [
+            "set_flag:G6_buried",
+            "clue:dead_drop",
+            "thread:G:6",
+            "resource:batteries:-4",
+            "log:Grid copied. No relay."
+          ]
+        },
+        {
+          "id": "relay",
+          "text": "Relay to HQ",
+          "on_success": [
+            "set_flag:G6_relayed",
+            "clue:dead_drop",
+            "thread:G:6",
+            "trust:military:6",
+            "resource:batteries:-8",
+            "log:HQ sends patrol reference."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Burn copy",
+          "on_success": [
+            "set_flag:G6_static",
+            "thread:G:6",
+            "resource:batteries:-1",
+            "log:Intercept destroyed."
+          ]
+        }
       ]
     },
     {
@@ -23,11 +103,43 @@
       "sender": "Condor field lead",
       "message": "Do not tell the outpost everything you copy tonight. They're not the only ones listening.",
       "faction": "expedition",
-      "requires": ["thread:E:>=3"],
+      "requires": [
+        "thread:E:>=3"
+      ],
       "choices": [
-        { "id": "bury", "text": "Log — say nothing to HQ", "on_success": ["set_flag:E5_buried", "thread:E:5", "trust:expedition:5", "resource:batteries:-4", "log:Condor warning kept off open net."] },
-        { "id": "relay", "text": "Relay to HQ", "on_success": ["set_flag:E5_relayed", "thread:E:5", "trust:military:4", "trust:expedition:-4", "resource:batteries:-7", "log:HQ denies listening posts."] },
-        { "id": "static", "text": "Static", "on_success": ["set_flag:E5_static", "thread:E:5", "resource:batteries:-2", "log:Static."] }
+        {
+          "id": "bury",
+          "text": "Log — say nothing to HQ",
+          "on_success": [
+            "set_flag:E5_buried",
+            "thread:E:5",
+            "trust:expedition:5",
+            "resource:batteries:-4",
+            "log:Condor warning kept off open net."
+          ]
+        },
+        {
+          "id": "relay",
+          "text": "Relay to HQ",
+          "on_success": [
+            "set_flag:E5_relayed",
+            "thread:E:5",
+            "trust:military:4",
+            "trust:expedition:-4",
+            "resource:batteries:-7",
+            "log:HQ denies listening posts."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Static",
+          "on_success": [
+            "set_flag:E5_static",
+            "thread:E:5",
+            "resource:batteries:-2",
+            "log:Static."
+          ]
+        }
       ]
     }
   ]

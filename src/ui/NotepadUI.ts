@@ -1,5 +1,6 @@
 import { notebookTextureUrl } from '../utils/publicUrl';
-import { CAMPAIGN } from '../data/loader';
+import { CAMPAIGN, getClueDef } from '../data/loader';
+import { formatAcpSlip } from '../game/acpSlip';
 import type { AudioManager } from '../game/AudioManager';
 import type { TransmissionDef } from '../types/campaign';
 
@@ -11,7 +12,7 @@ export interface NotepadLogEntry {
   journalBody?: string;
 }
 
-type NotepadPage = 'notes' | 'supplies' | 'trust';
+type NotepadPage = 'notes' | 'supplies' | 'trust' | 'clues';
 
 export class NotepadUI {
   private container!: HTMLDivElement;
@@ -20,6 +21,7 @@ export class NotepadUI {
   private header!: HTMLDivElement;
   private suppliesHost!: HTMLDivElement;
   private trustHost!: HTMLDivElement;
+  private cluesHost!: HTMLDivElement;
   private notesPage!: HTMLDivElement;
   private pageEls = new Map<NotepadPage, HTMLElement>();
   private tabEls = new Map<NotepadPage, HTMLButtonElement>();
@@ -64,13 +66,50 @@ export class NotepadUI {
     outcomes: string[]
   ): void {
     const lines = [
-      `[${transmission.frequency} MHz] ${transmission.sender}: ${transmission.message}`,
+      formatAcpSlip(transmission),
+      `[${transmission.frequency} MHz]`,
       `Reply: ${replyText}`,
     ];
     for (const outcome of outcomes) {
       lines.push(`→ ${outcome}`);
     }
     this.addLog(lines.join('\n'), 'response');
+  }
+
+  recordSlip(transmission: TransmissionDef): void {
+    this.addLog(
+      `${formatAcpSlip(transmission)}\n[${transmission.frequency} MHz] — copied`,
+      'response'
+    );
+  }
+
+  recordClue(clueId: string): void {
+    const def = getClueDef(clueId);
+    this.addLog(`${def.title}\n${def.body}`, 'clue');
+  }
+
+  setClues(ids: string[]): void {
+    this.cluesHost.replaceChildren();
+    if (ids.length === 0) {
+      const empty = document.createElement('p');
+      empty.className = 'clues-empty';
+      empty.textContent = 'No pages yet. Traffic and the river will fill this book.';
+      this.cluesHost.appendChild(empty);
+      return;
+    }
+    for (const id of ids) {
+      const def = getClueDef(id);
+      const card = document.createElement('article');
+      card.className = 'clue-card';
+      const title = document.createElement('h3');
+      title.className = 'clue-card-title';
+      title.textContent = def.title;
+      const body = document.createElement('p');
+      body.className = 'clue-card-body';
+      body.textContent = def.body;
+      card.append(title, body);
+      this.cluesHost.appendChild(card);
+    }
   }
 
   /** Append a journal scrap to the most recent note (same timestamp block). */
@@ -265,7 +304,9 @@ export class NotepadUI {
       this.makeSep(),
       this.makeTab('supplies', 'Supplies'),
       this.makeSep(),
-      this.makeTab('trust', 'Trust')
+      this.makeTab('trust', 'Trust'),
+      this.makeSep(),
+      this.makeTab('clues', 'Clues')
     );
 
     this.logContainer = document.createElement('div');
@@ -365,11 +406,20 @@ export class NotepadUI {
     trustPage.dataset.page = 'trust';
     trustPage.appendChild(this.trustHost);
 
+    this.cluesHost = document.createElement('div');
+    this.cluesHost.className = 'notepad-page-body clues-list';
+    const cluesPage = document.createElement('div');
+    cluesPage.className = 'notepad-page';
+    cluesPage.dataset.page = 'clues';
+    cluesPage.appendChild(this.cluesHost);
+
     this.pageEls.set('notes', this.notesPage);
     this.pageEls.set('supplies', suppliesPage);
     this.pageEls.set('trust', trustPage);
+    this.pageEls.set('clues', cluesPage);
 
-    this.scrollSheet.append(this.header, this.notesPage, suppliesPage, trustPage);
+    this.scrollSheet.append(this.header, this.notesPage, suppliesPage, trustPage, cluesPage);
+    this.setClues([]);
     this.container.append(this.scrollSheet, this.toggle);
     this.scrollSheet.addEventListener('animationend', () => {
       this.scrollSheet.classList.remove('is-page-turn');

@@ -59,6 +59,19 @@ export class CampaignManager {
     );
   }
 
+  failTransmission(transmission: TransmissionDef): ConsequenceResult {
+    const tokens =
+      transmission.on_fail ??
+      ([
+        `set_flag:${transmission.id}_failed`,
+        `trust:${transmission.faction}:-4`,
+        'log:You let the traffic die. Someone on that net will remember.',
+      ] as string[]);
+    const result = this.applyTokens(tokens);
+    this.state.markTransmissionResolved(transmission.id, transmission.frequency);
+    return result;
+  }
+
   applyChoice(transmission: TransmissionDef, choiceId: string): ConsequenceResult {
     const choice = transmission.choices.find((c) => c.id === choiceId);
     if (!choice) {
@@ -109,6 +122,10 @@ export class CampaignManager {
     }
     if (token.startsWith('clue:')) {
       this.state.addClue(token.slice('clue:'.length));
+      return;
+    }
+    if (token.startsWith('code:')) {
+      this.state.addKnownCode(token.slice('code:'.length));
       return;
     }
     if (token.startsWith('thread:')) {

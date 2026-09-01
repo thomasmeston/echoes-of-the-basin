@@ -1,4 +1,4 @@
-import { CAMPAIGN } from '../data/loader';
+import { CAMPAIGN, getMapLandmark } from '../data/loader';
 import { GameState } from './GameState';
 import { CampaignManager } from './CampaignManager';
 import { NarrativeManager } from './NarrativeManager';
@@ -16,6 +16,7 @@ import { MapOverlay, type MapDiscoverResult } from '../ui/MapOverlay';
 import { PapersOverlay } from '../ui/PapersOverlay';
 import { OpsManualOverlay } from '../ui/OpsManualOverlay';
 import { SchedLogOverlay } from '../ui/SchedLogOverlay';
+import { DecodeBookOverlay } from '../ui/DecodeBookOverlay';
 import { TitleMenu } from '../ui/TitleMenu';
 import { IntroOverlay } from '../ui/IntroOverlay';
 import { DeskStage } from '../scene/DeskStage';
@@ -44,6 +45,7 @@ export class Game {
   private papersOverlay!: PapersOverlay;
   private opsManualOverlay!: OpsManualOverlay;
   private schedLogOverlay!: SchedLogOverlay;
+  private decodeBookOverlay!: DecodeBookOverlay;
   private titleMenu!: TitleMenu;
   private introOverlay!: IntroOverlay;
   private deskStage!: DeskStage;
@@ -76,6 +78,10 @@ export class Game {
       onMeter: (delta) => this.tuneMeter(delta),
       onPower: (delta) => this.tunePower(delta),
       onChoice: (choiceId) => this.choose(choiceId),
+      onOpenDecoder: () => this.decodeBookOverlay.show(),
+      onCipherSkip: () => this.failActiveTransmission(),
+      onCallSign: (code) => this.submitCallSign(code),
+      onCallSignRefuse: () => this.failActiveTransmission(),
       deskStage: this.deskStage,
     });
     this.notepadUI = new NotepadUI(this.audio);
@@ -92,15 +98,25 @@ export class Game {
     this.deskStage.registerExternalObject('field-notes', this.notepadUI.el);
     this.mapOverlay = new MapOverlay(this.audio, {
       isDiscovered: (id) => this.state.hasDiscoveredLandmark(id),
+      isHinted: (id) => this.isLandmarkHinted(id),
       canAfford: (cost) => this.state.resources.batteries >= cost,
       onDiscover: (id, tokens) => this.discoverLandmark(id, tokens),
     });
     this.papersOverlay = new PapersOverlay(this.audio);
     this.opsManualOverlay = new OpsManualOverlay(this.audio);
     this.schedLogOverlay = new SchedLogOverlay(this.audio);
+    this.decodeBookOverlay = new DecodeBookOverlay(this.audio, {
+      getDay: () => this.state.currentDay,
+      getActiveCipher: () => this.activeTransmission?.cipher ?? null,
+      getActiveDecoderDay: () =>
+        this.activeTransmission?.decoderDay ?? this.state.currentDay,
+      onDecoded: () => this.onCipherDecoded(),
+      onWrong: () => this.failActiveTransmission(),
+    });
     this.bindMapClick();
     this.bindOpsManualClick();
     this.bindSchedLogClick();
+    this.bindDecodeBookClick();
     this.bindDrawerClicks();
     this.devPanel = new DevPanel(this.deskStage);
     this.pauseMenu = new PauseMenu({
@@ -135,7 +151,9 @@ export class Game {
     return (
       this.mapOverlay.isOpen ||
       this.papersOverlay.isOpen ||
-      this.opsManualOverlay.isOpen
+      this.opsManualOverlay.isOpen ||
+      this.schedLogOverlay.isOpen ||
+      this.decodeBookOverlay.isOpen
     );
   }
 
@@ -313,6 +331,7 @@ export class Game {
     this.papersOverlay.hide();
     this.opsManualOverlay.hide();
     this.schedLogOverlay.hide();
+    this.decodeBookOverlay.hide();
     this.dayEndPrompt.style.display = 'none';
     this.endingOverlay.style.display = 'none';
     this.activeTransmission = null;
@@ -362,6 +381,7 @@ export class Game {
     this.calendarUI.setDay(this.state.currentDay);
     this.notepadUI.setDay(this.state.currentDay);
     this.notepadUI.restoreEntries(this.state.fieldNotes);
+    this.notepadUI.setClues([...this.state.clues]);
     this.gameplayActive = true;
     this.syncRadioControls();
     this.syncWallClock();
@@ -409,7 +429,77 @@ export class Game {
 
     this.audio.play('staticBlip', 0.55);
     this.activeTransmission = transmission;
+    this.presentTransmission(transmission);
+  }
+
+  private presentTransmission(transmission: TransmissionDef): void {
+    if (transmission.cipher && !this.state.hasDecoded(transmission.id)) {
+      this.radioUI.showCipher(transmission);
+      return;
+    }
+    if (transmission.callSign && !this.state.hasCallSignPassed(transmission.id)) {
+      this.radioUI.showCallSign(transmission, [...this.state.knownCodes]);
+      return;
+    }
+    if (!this.state.hasSlipLogged(transmission.id)) {
+      this.notepadUI.recordSlip(transmission);
+      this.state.markSlipLogged(transmission.id);
+    }
     this.radioUI.showChoices(transmission);
+  }
+
+  private onCipherDecoded(): void {
+    const tx = this.activeTransmission;
+    if (!tx?.cipher) {
+      return;
+    }
+    this.state.markDecoded(tx.id);
+    this.presentTransmission(tx);
+    this.autosave();
+  }
+
+  private submitCallSign(code: string): void {
+    const tx = this.activeTransmission;
+    if (!tx?.callSign) {
+      return;
+    }
+    const got = code.trim().toUpperCase();
+    const want = tx.callSign.answer.trim().toUpperCase();
+    if (got === want) {
+      this.state.markCallSignPassed(tx.id);
+      this.state.addKnownCode(want);
+      this.presentTransmission(tx);
+      this.autosave();
+      return;
+    }
+    this.failActiveTransmission();
+  }
+
+  private failActiveTransmission(): void {
+    const tx = this.activeTransmission;
+    if (!tx || !this.canOperateRadio()) {
+      return;
+    }
+    this.notepadUI.holdHandwriting(REPLY_HANDWRITING_DELAY_MS);
+    const journalsBefore = new Set(Object.keys(this.narrative.getJournalEntries()));
+    const result = this.campaign.failTransmission(tx);
+    this.notepadUI.recordReply(tx, 'No copy / failed gate', result.logLines);
+    this.attachFreshJournals(journalsBefore, true);
+    this.activeTransmission = null;
+    this.radioUI.hideChoices();
+    this.autosave();
+    if (this.campaign.isDayComplete()) {
+      this.showDayEndPrompt();
+    }
+  }
+
+  private isLandmarkHinted(landmarkId: string): boolean {
+    if (this.state.hasDiscoveredLandmark(landmarkId)) {
+      return false;
+    }
+    const found = getMapLandmark(landmarkId);
+    const hint = found?.landmark.hintClue;
+    return Boolean(hint && this.state.clues.has(hint));
   }
 
   private wireStateEvents(): void {
@@ -425,6 +515,12 @@ export class Game {
 
     this.narrative.events.on('openingLog', (text) => {
       this.notepadUI.addLog(text, 'day');
+    });
+
+    this.state.events.on('clueAdded', (clueId) => {
+      this.notepadUI.recordClue(clueId);
+      this.notepadUI.setClues([...this.state.clues]);
+      this.mapOverlay.refreshDiscoveredMarks();
     });
   }
 
@@ -498,6 +594,10 @@ export class Game {
         this.schedLogOverlay.hide();
         return;
       }
+      if (this.decodeBookOverlay.isOpen) {
+        this.decodeBookOverlay.hide();
+        return;
+      }
       if (this.notepadUI.isComposing()) {
         this.notepadUI.cancelCompose();
         return;
@@ -546,6 +646,7 @@ export class Game {
     const journalsBefore = new Set(Object.keys(this.narrative.getJournalEntries()));
     const result = this.campaign.applyTokens(tokens);
     this.state.markLandmarkDiscovered(landmarkId);
+    this.mapOverlay.refreshDiscoveredMarks();
     for (const line of result.logLines) {
       this.notepadUI.addLog(line, 'journal');
     }
@@ -565,6 +666,7 @@ export class Game {
       this.papersOverlay.hide();
       this.opsManualOverlay.hide();
       this.schedLogOverlay.hide();
+      this.decodeBookOverlay.hide();
       this.mapOverlay.show();
     });
   }
@@ -574,6 +676,7 @@ export class Game {
       this.mapOverlay.hide();
       this.papersOverlay.hide();
       this.schedLogOverlay.hide();
+      this.decodeBookOverlay.hide();
       this.opsManualOverlay.show();
     });
   }
@@ -583,7 +686,18 @@ export class Game {
       this.mapOverlay.hide();
       this.papersOverlay.hide();
       this.opsManualOverlay.hide();
+      this.decodeBookOverlay.hide();
       this.schedLogOverlay.show();
+    });
+  }
+
+  private bindDecodeBookClick(): void {
+    this.bindDeskInspectTarget('decode-book', 'Open decode book', () => {
+      this.mapOverlay.hide();
+      this.papersOverlay.hide();
+      this.opsManualOverlay.hide();
+      this.schedLogOverlay.hide();
+      this.decodeBookOverlay.show();
     });
   }
 
@@ -625,7 +739,7 @@ export class Game {
   }
 
   private bindDeskInspectTarget(
-    id: 'map-folded' | 'papers' | 'ops-manual' | 'sched-log',
+    id: 'map-folded' | 'papers' | 'ops-manual' | 'sched-log' | 'decode-book',
     title: string,
     openFn: () => void
   ): void {

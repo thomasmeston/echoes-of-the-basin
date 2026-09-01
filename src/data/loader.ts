@@ -2,6 +2,8 @@ import campaignMeta from '../../data/campaign.json';
 import factionsData from '../../data/factions.json';
 import endingsData from '../../data/endings.json';
 import mapRegionsData from '../../data/map-regions.json';
+import decodersData from '../../data/decoders.json';
+import cluesData from '../../data/clues.json';
 import day01 from '../../data/days/01.json';
 import day02 from '../../data/days/02.json';
 import day03 from '../../data/days/03.json';
@@ -34,8 +36,10 @@ import script14 from '../../data/story/days/14-script.json';
 import script15 from '../../data/story/days/15-script.json';
 import type {
   CampaignMeta,
+  ClueDef,
   DayDef,
   DayScriptDef,
+  DecoderPage,
   EndingDef,
   FactionDef,
 } from '../types/campaign';
@@ -45,6 +49,18 @@ export const CAMPAIGN = campaignMeta as CampaignMeta;
 export const FACTIONS = factionsData as Record<string, FactionDef>;
 export const ENDINGS = (endingsData as { endings: EndingDef[] }).endings;
 export const MAP_REGIONS = mapRegionsData as MapRegionsFile;
+export const DECODERS = decodersData as Record<string, DecoderPage>;
+export const DECODER_NIGHTS = 15;
+export const CLUES = cluesData as Record<string, ClueDef>;
+
+export function getDecoderPage(day: number): DecoderPage {
+  const n = Math.min(DECODER_NIGHTS, Math.max(1, Math.round(day)));
+  return DECODERS[String(n)] ?? DECODERS['1']!;
+}
+
+export function getClueDef(id: string): ClueDef {
+  return CLUES[id] ?? { title: id, body: 'Noted in the book.' };
+}
 
 export function getMapRegionAt(col: number, row: number): MapRegionDef | null {
   return MAP_REGIONS.regions.find((r) => r.col === col && r.row === row) ?? null;

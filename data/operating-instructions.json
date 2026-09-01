@@ -24,17 +24,17 @@
     {
       "heading": "3. Log incoming messages",
       "steps": [
-        "Open the field notes drawer. Every reply you choose is written into the book.",
-        "Copy sender, frequency, and substance. Margin notes are allowed; invent nothing for HQ.",
-        "Journal scraps sit under the same timestamp as the traffic. Click the time to unfold the copy."
+        "Every fully received message is copied into Field Notes as an ACP slip: precedence, originator, addressee, text.",
+        "HQ check-in is 98.8 each night. They will debrief you before the rest of the watch.",
+        "Clues (new pages) live on the Clues tab. Some point at a river square — unfold the desk map."
       ]
     },
     {
-      "heading": "4. Relay, bury, or static",
+      "heading": "4. Relay, bury, static — and gates",
       "steps": [
         "When choices appear: Relay sends the content on; Bury logs privately; Static claims you did not copy.",
-        "Relay costs batteries and may change who trusts you. Bury protects some voices. Static is silence with a cost of its own.",
-        "Assistance requests (medical, route, window) follow the same three paths — choose before the meter falls."
+        "Number strings need the DECODE pad on the desk (15 nights). Night 1 is 1 = A. Wrong pad or giving up costs trust.",
+        "Secret traffic may demand a code word (from HQ, a clue, or a boat landing). Wrong word or refuse costs trust."
       ]
     },
     {

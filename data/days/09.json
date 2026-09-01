@@ -1,7 +1,55 @@
 {
   "day": 9,
-  "requiredBeats": ["A4", "R4"],
+  "requiredBeats": [
+    "HQ_d9",
+    "A4",
+    "R4"
+  ],
   "transmissions": [
+    {
+      "id": "HQ_d9",
+      "frequency": 98.8,
+      "thread": "meta",
+      "sender": "HQ — Manaus relay",
+      "originator": "MANAUS HQ",
+      "addressee": "TANGO-SEVEN",
+      "precedence": "ROUTINE",
+      "message": "NIGHT 9 CHECK IN PERIOD CONFIRM ON STATION PERIOD BUSINESS AS USUAL PERIOD REPORT REQUIRED TRAFFIC BEFORE YOU SLEEP OVER",
+      "faction": "military",
+      "requires": [],
+      "choices": [
+        {
+          "id": "relay",
+          "text": "Confirm on station",
+          "on_success": [
+            "set_flag:HQ_d9_relayed",
+            "trust:military:2",
+            "resource:batteries:-3",
+            "log:HQ copies. Business as usual."
+          ]
+        },
+        {
+          "id": "bury",
+          "text": "Confirm — keep notes private",
+          "on_success": [
+            "set_flag:HQ_d9_buried",
+            "trust:military:1",
+            "resource:batteries:-2",
+            "log:You confirm. The rest stays in the book."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Delayed ack",
+          "on_success": [
+            "set_flag:HQ_d9_static",
+            "trust:military:-2",
+            "resource:batteries:-1",
+            "log:HQ repeats once."
+          ]
+        }
+      ]
+    },
     {
       "id": "A4",
       "frequency": 100.9,
@@ -9,11 +57,43 @@
       "sender": "Quiet voice",
       "message": "You're the new one. Marcos chose the chair empty. Be careful what you clean from the log.",
       "faction": "guerrilla",
-      "requires": ["thread:G:>=3"],
+      "requires": [
+        "thread:G:>=3"
+      ],
       "choices": [
-        { "id": "bury", "text": "Log only", "on_success": ["set_flag:A4_buried", "thread:A:5", "trust:guerrilla:5", "resource:batteries:-4", "log:Written without relaying."] },
-        { "id": "relay", "text": "Relay to Net Control", "on_success": ["set_flag:A4_relayed", "thread:A:5", "trust:military:5", "trust:guerrilla:-6", "resource:batteries:-8", "log:Net Control wants the band traced."] },
-        { "id": "static", "text": "Static", "on_success": ["set_flag:A4_static", "thread:A:5", "resource:batteries:-2", "log:Static."] }
+        {
+          "id": "bury",
+          "text": "Log only",
+          "on_success": [
+            "set_flag:A4_buried",
+            "thread:A:5",
+            "trust:guerrilla:5",
+            "resource:batteries:-4",
+            "log:Written without relaying."
+          ]
+        },
+        {
+          "id": "relay",
+          "text": "Relay to Net Control",
+          "on_success": [
+            "set_flag:A4_relayed",
+            "thread:A:5",
+            "trust:military:5",
+            "trust:guerrilla:-6",
+            "resource:batteries:-8",
+            "log:Net Control wants the band traced."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Static",
+          "on_success": [
+            "set_flag:A4_static",
+            "thread:A:5",
+            "resource:batteries:-2",
+            "log:Static."
+          ]
+        }
       ]
     },
     {
@@ -23,11 +103,45 @@
       "sender": "Elder voice",
       "message": "Survey team took samples without asking. Condor name on the crates. Warn them if you can — quietly.",
       "faction": "river",
-      "requires": ["thread:E:>=1", "thread:R:>=2"],
+      "requires": [
+        "thread:E:>=1",
+        "thread:R:>=2"
+      ],
       "choices": [
-        { "id": "bury", "text": "Warn off-net only", "on_success": ["set_flag:R4_buried", "thread:R:4", "trust:river:6", "trust:expedition:2", "resource:batteries:-4", "log:Warning kept off military net."] },
-        { "id": "relay", "text": "Relay to HQ", "on_success": ["set_flag:R4_relayed", "thread:R:4", "trust:military:4", "trust:river:-5", "resource:batteries:-7", "log:HQ says survey authorized."] },
-        { "id": "static", "text": "Static", "on_success": ["set_flag:R4_static", "thread:R:4", "resource:batteries:-2", "log:Silence."] }
+        {
+          "id": "bury",
+          "text": "Warn off-net only",
+          "on_success": [
+            "set_flag:R4_buried",
+            "thread:R:4",
+            "trust:river:6",
+            "trust:expedition:2",
+            "resource:batteries:-4",
+            "log:Warning kept off military net."
+          ]
+        },
+        {
+          "id": "relay",
+          "text": "Relay to HQ",
+          "on_success": [
+            "set_flag:R4_relayed",
+            "thread:R:4",
+            "trust:military:4",
+            "trust:river:-5",
+            "resource:batteries:-7",
+            "log:HQ says survey authorized."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Static",
+          "on_success": [
+            "set_flag:R4_static",
+            "thread:R:4",
+            "resource:batteries:-2",
+            "log:Silence."
+          ]
+        }
       ]
     }
   ]

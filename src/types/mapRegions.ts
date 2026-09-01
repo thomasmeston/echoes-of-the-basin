@@ -1,3 +1,5 @@
+import type { FactionId } from './campaign';
+
 export type MapPoint = [number, number];
 
 export interface MapGridDef {
@@ -24,6 +26,10 @@ export interface MapLandmarkDef {
   costBatteries: number;
   once: boolean;
   onDiscover: string[];
+  /** Which faction request this landing serves. */
+  faction?: FactionId;
+  /** Radio/HQ clue that highlights this landmark on the map. */
+  hintClue?: string;
 }
 
 export interface MapRegionDef {

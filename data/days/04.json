@@ -1,7 +1,55 @@
 {
   "day": 4,
-  "requiredBeats": ["G3", "E2"],
+  "requiredBeats": [
+    "HQ_d4",
+    "G3",
+    "E2"
+  ],
   "transmissions": [
+    {
+      "id": "HQ_d4",
+      "frequency": 98.8,
+      "thread": "meta",
+      "sender": "HQ — Manaus relay",
+      "originator": "MANAUS HQ",
+      "addressee": "TANGO-SEVEN",
+      "precedence": "ROUTINE",
+      "message": "NIGHT 4 CHECK IN PERIOD CONFIRM ON STATION PERIOD BUSINESS AS USUAL PERIOD REPORT REQUIRED TRAFFIC BEFORE YOU SLEEP OVER",
+      "faction": "military",
+      "requires": [],
+      "choices": [
+        {
+          "id": "relay",
+          "text": "Confirm on station",
+          "on_success": [
+            "set_flag:HQ_d4_relayed",
+            "trust:military:2",
+            "resource:batteries:-3",
+            "log:HQ copies. Business as usual."
+          ]
+        },
+        {
+          "id": "bury",
+          "text": "Confirm — keep notes private",
+          "on_success": [
+            "set_flag:HQ_d4_buried",
+            "trust:military:1",
+            "resource:batteries:-2",
+            "log:You confirm. The rest stays in the book."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Delayed ack",
+          "on_success": [
+            "set_flag:HQ_d4_static",
+            "trust:military:-2",
+            "resource:batteries:-1",
+            "log:HQ repeats once."
+          ]
+        }
+      ]
+    },
     {
       "id": "G3",
       "frequency": 93.2,
@@ -9,11 +57,43 @@
       "sender": "Margin frequency — unlisted",
       "message": "92.8 MHz. Not on the posted list. Marcos wrote it here twice. Last entry: listening tonight.",
       "faction": "desk",
-      "requires": ["thread:G:>=1"],
+      "requires": [
+        "thread:G:>=1"
+      ],
       "choices": [
-        { "id": "bury", "text": "Log the unlisted frequency", "on_success": ["set_flag:G3_buried", "clue:unlisted_freq", "thread:G:3", "resource:batteries:-4", "log:You add 92.8 to the margin."] },
-        { "id": "relay", "text": "Report to HQ", "on_success": ["set_flag:G3_relayed", "clue:unlisted_freq", "thread:G:3", "trust:military:5", "resource:batteries:-6", "log:HQ orders watch on unlisted bands."] },
-        { "id": "static", "text": "Ignore", "on_success": ["set_flag:G3_static", "thread:G:3", "resource:batteries:-2", "log:You turn the dial away."] }
+        {
+          "id": "bury",
+          "text": "Log the unlisted frequency",
+          "on_success": [
+            "set_flag:G3_buried",
+            "clue:unlisted_freq",
+            "thread:G:3",
+            "resource:batteries:-4",
+            "log:You add 92.8 to the margin."
+          ]
+        },
+        {
+          "id": "relay",
+          "text": "Report to HQ",
+          "on_success": [
+            "set_flag:G3_relayed",
+            "clue:unlisted_freq",
+            "thread:G:3",
+            "trust:military:5",
+            "resource:batteries:-6",
+            "log:HQ orders watch on unlisted bands."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Ignore",
+          "on_success": [
+            "set_flag:G3_static",
+            "thread:G:3",
+            "resource:batteries:-2",
+            "log:You turn the dial away."
+          ]
+        }
       ]
     },
     {
@@ -23,11 +103,43 @@
       "sender": "Weak beacon — Condor",
       "message": "Condor callsign... words wrong... grid not matching last report...",
       "faction": "expedition",
-      "requires": ["clue:condor_missed"],
+      "requires": [
+        "clue:condor_missed"
+      ],
       "choices": [
-        { "id": "relay", "text": "Relay fragment", "on_success": ["set_flag:E2_relayed", "clue:condor_beacon", "thread:E:2", "trust:expedition:5", "resource:batteries:-7", "log:Fragment relayed. HQ silent."] },
-        { "id": "bury", "text": "Log only", "on_success": ["set_flag:E2_buried", "clue:condor_beacon", "thread:E:2", "resource:batteries:-4", "log:Wrong words copied into the book."] },
-        { "id": "static", "text": "Static", "on_success": ["set_flag:E2_static", "thread:E:2", "resource:batteries:-2", "log:Beacon swallowed by static."] }
+        {
+          "id": "relay",
+          "text": "Relay fragment",
+          "on_success": [
+            "set_flag:E2_relayed",
+            "clue:condor_beacon",
+            "thread:E:2",
+            "trust:expedition:5",
+            "resource:batteries:-7",
+            "log:Fragment relayed. HQ silent."
+          ]
+        },
+        {
+          "id": "bury",
+          "text": "Log only",
+          "on_success": [
+            "set_flag:E2_buried",
+            "clue:condor_beacon",
+            "thread:E:2",
+            "resource:batteries:-4",
+            "log:Wrong words copied into the book."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Static",
+          "on_success": [
+            "set_flag:E2_static",
+            "thread:E:2",
+            "resource:batteries:-2",
+            "log:Beacon swallowed by static."
+          ]
+        }
       ]
     }
   ]

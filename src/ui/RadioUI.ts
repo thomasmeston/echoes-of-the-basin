@@ -1,6 +1,7 @@
 import type { TransmissionDef } from '../types/campaign';
 import type { DeskStage } from '../scene/DeskStage';
 import { CAMPAIGN } from '../data/loader';
+import { formatAcpSlip } from '../game/acpSlip';
 import { BAND_COUNT, METER_SETTINGS, type MeterSetting } from '../utils/constants';
 
 export interface RadioUIOptions {
@@ -9,6 +10,10 @@ export interface RadioUIOptions {
   onMeter: (delta: number) => void;
   onPower: (delta: number) => void;
   onChoice: (choiceId: string) => void;
+  onOpenDecoder?: () => void;
+  onCipherSkip?: () => void;
+  onCallSign?: (code: string) => void;
+  onCallSignRefuse?: () => void;
   deskStage: DeskStage;
 }
 
@@ -52,8 +57,8 @@ export class RadioUI {
 
   showChoices(transmission: TransmissionDef): void {
     this.infoBox.innerHTML = `
-      <div class="sender">${transmission.sender}</div>
-      <div class="message">${transmission.message}</div>
+      <div class="sender">${transmission.originator ?? transmission.sender}</div>
+      <div class="message acp-slip">${escapeHtml(formatAcpSlip(transmission))}</div>
     `;
     this.infoBox.style.display = 'block';
     this.choicesContainer.innerHTML = '';
@@ -67,6 +72,80 @@ export class RadioUI {
     }
     this.choicesBox.style.display = 'block';
     this.options.deskStage.setMetersLive(true);
+  }
+
+  showCipher(transmission: TransmissionDef): void {
+    this.infoBox.innerHTML = `
+      <div class="sender">${transmission.originator ?? transmission.sender}</div>
+      <div class="message acp-slip">PREC ${transmission.precedence ?? 'PRIORITY'}
+FROM ${transmission.originator ?? transmission.sender}
+TO ${transmission.addressee ?? 'TANGO-SEVEN'}
+CIPHER ${transmission.cipher}</div>
+    `;
+    this.infoBox.style.display = 'block';
+    this.choicesContainer.innerHTML = '';
+    const openBtn = document.createElement('button');
+    openBtn.type = 'button';
+    openBtn.className = 'choice-button';
+    openBtn.textContent = 'Open decode book';
+    openBtn.addEventListener('click', () => this.options.onOpenDecoder?.());
+    const skip = document.createElement('button');
+    skip.type = 'button';
+    skip.className = 'choice-button';
+    skip.textContent = 'Give up — lost in static';
+    skip.addEventListener('click', () => this.options.onCipherSkip?.());
+    this.choicesContainer.append(openBtn, skip);
+    this.choicesBox.style.display = 'block';
+    this.options.deskStage.setMetersLive(true);
+  }
+
+  showCallSign(transmission: TransmissionDef, knownCodes: string[]): void {
+    const gate = transmission.callSign!;
+    this.infoBox.innerHTML = `
+      <div class="sender">${transmission.originator ?? transmission.sender}</div>
+      <div class="message">${escapeHtml(gate.challenge)}</div>
+    `;
+    this.infoBox.style.display = 'block';
+    this.choicesContainer.innerHTML = '';
+    const row = document.createElement('div');
+    row.className = 'callsign-row';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'callsign-input';
+    input.autocomplete = 'off';
+    input.placeholder = 'Code word';
+    input.setAttribute('aria-label', 'Call-sign code word');
+    const send = document.createElement('button');
+    send.type = 'button';
+    send.className = 'choice-button';
+    send.textContent = 'Confirm';
+    const submit = () => this.options.onCallSign?.(input.value);
+    send.addEventListener('click', submit);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        submit();
+      }
+    });
+    row.append(input, send);
+    this.choicesContainer.appendChild(row);
+    for (const code of knownCodes) {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'choice-button callsign-chip';
+      chip.textContent = code;
+      chip.addEventListener('click', () => this.options.onCallSign?.(code));
+      this.choicesContainer.appendChild(chip);
+    }
+    const refuse = document.createElement('button');
+    refuse.type = 'button';
+    refuse.className = 'choice-button';
+    refuse.textContent = 'Refuse — no copy';
+    refuse.addEventListener('click', () => this.options.onCallSignRefuse?.());
+    this.choicesContainer.appendChild(refuse);
+    this.choicesBox.style.display = 'block';
+    this.options.deskStage.setMetersLive(true);
+    input.focus();
   }
 
   hideChoices(): void {
@@ -136,8 +215,8 @@ export class RadioUI {
     this.choicesBox.style.display = 'none';
     this.choicesBox.appendChild(this.choicesContainer);
 
-    document.body.appendChild(this.infoBox);
-    document.body.appendChild(this.choicesBox);
+    cluster.appendChild(this.infoBox);
+    cluster.appendChild(this.choicesBox);
     this.options.deskStage.registerExternalObject('radio-message', this.infoBox);
     this.options.deskStage.registerExternalObject('radio-reply', this.choicesBox);
   }
@@ -208,4 +287,12 @@ export class RadioUI {
     dial.addEventListener('pointerup', end);
     dial.addEventListener('pointercancel', end);
   }
+}
+
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }

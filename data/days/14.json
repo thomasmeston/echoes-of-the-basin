@@ -1,7 +1,54 @@
 {
   "day": 14,
-  "requiredBeats": ["G8"],
+  "requiredBeats": [
+    "HQ_d14",
+    "G8"
+  ],
   "transmissions": [
+    {
+      "id": "HQ_d14",
+      "frequency": 98.8,
+      "thread": "meta",
+      "sender": "HQ — Manaus relay",
+      "originator": "MANAUS HQ",
+      "addressee": "TANGO-SEVEN",
+      "precedence": "ROUTINE",
+      "message": "NIGHT 14 CHECK IN PERIOD CONFIRM ON STATION PERIOD BUSINESS AS USUAL PERIOD REPORT REQUIRED TRAFFIC BEFORE YOU SLEEP OVER",
+      "faction": "military",
+      "requires": [],
+      "choices": [
+        {
+          "id": "relay",
+          "text": "Confirm on station",
+          "on_success": [
+            "set_flag:HQ_d14_relayed",
+            "trust:military:2",
+            "resource:batteries:-3",
+            "log:HQ copies. Business as usual."
+          ]
+        },
+        {
+          "id": "bury",
+          "text": "Confirm — keep notes private",
+          "on_success": [
+            "set_flag:HQ_d14_buried",
+            "trust:military:1",
+            "resource:batteries:-2",
+            "log:You confirm. The rest stays in the book."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Delayed ack",
+          "on_success": [
+            "set_flag:HQ_d14_static",
+            "trust:military:-2",
+            "resource:batteries:-1",
+            "log:HQ repeats once."
+          ]
+        }
+      ]
+    },
     {
       "id": "G8",
       "frequency": 93.2,
@@ -9,11 +56,43 @@
       "sender": "Assembled log — your notes",
       "message": "Marcos: warn river / chase Condor / flee paperwork / or simply gone. The basin keeps more than one truth.",
       "faction": "desk",
-      "requires": ["thread:G:>=6"],
+      "requires": [
+        "thread:G:>=6"
+      ],
       "choices": [
-        { "id": "bury", "text": "Copy river truth forward", "on_success": ["set_flag:G8_river", "thread:G:8", "trust:river:5", "resource:batteries:-4", "log:Log aligned with the bend."] },
-        { "id": "relay", "text": "Copy official truth forward", "on_success": ["set_flag:G8_official", "thread:G:8", "trust:military:5", "resource:batteries:-6", "log:Log aligned with HQ."] },
-        { "id": "static", "text": "Leave gaps intentionally", "on_success": ["set_flag:G8_gaps", "thread:G:8", "trust:guerrilla:3", "resource:batteries:-3", "log:Incomplete log — like Marcos left it."] }
+        {
+          "id": "bury",
+          "text": "Copy river truth forward",
+          "on_success": [
+            "set_flag:G8_river",
+            "thread:G:8",
+            "trust:river:5",
+            "resource:batteries:-4",
+            "log:Log aligned with the bend."
+          ]
+        },
+        {
+          "id": "relay",
+          "text": "Copy official truth forward",
+          "on_success": [
+            "set_flag:G8_official",
+            "thread:G:8",
+            "trust:military:5",
+            "resource:batteries:-6",
+            "log:Log aligned with HQ."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Leave gaps intentionally",
+          "on_success": [
+            "set_flag:G8_gaps",
+            "thread:G:8",
+            "trust:guerrilla:3",
+            "resource:batteries:-3",
+            "log:Incomplete log — like Marcos left it."
+          ]
+        }
       ]
     }
   ]

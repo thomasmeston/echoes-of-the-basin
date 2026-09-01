@@ -1,4 +1,5 @@
 import { publicUrl } from '../utils/publicUrl';
+import { DEFAULT_DESK_LAYOUT } from '../types/deskLayout';
 
 /** Bump when replacing exterior-day/night PNGs so the browser drops stale plates. */
 const PLATE_V = '9';
@@ -24,21 +25,9 @@ export interface WindowApertureMeasure extends WindowApertureBBox {
 }
 
 export function loadWindowAperture(): WindowApertureBBox {
-  try {
-    const raw = localStorage.getItem(WINDOW_APERTURE_STORAGE_KEY);
-    if (!raw) {
-      return { ...WINDOW_PLATE_BBOX };
-    }
-    const parsed = JSON.parse(raw) as Partial<WindowApertureBBox>;
-    const x = Number(parsed.x);
-    const y = Number(parsed.y);
-    const w = Number(parsed.w);
-    const h = Number(parsed.h);
-    if ([x, y, w, h].every(Number.isFinite) && w > 4 && h > 4) {
-      return { x: Math.round(x), y: Math.round(y), w: Math.round(w), h: Math.round(h) };
-    }
-  } catch {
-    /* baked default */
+  const baked = DEFAULT_DESK_LAYOUT.windowAperture;
+  if (baked && baked.w > 4 && baked.h > 4) {
+    return { ...baked };
   }
   return { ...WINDOW_PLATE_BBOX };
 }

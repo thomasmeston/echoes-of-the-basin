@@ -1,7 +1,54 @@
 {
   "day": 15,
-  "requiredBeats": ["FINALE"],
+  "requiredBeats": [
+    "HQ_d15",
+    "FINALE"
+  ],
   "transmissions": [
+    {
+      "id": "HQ_d15",
+      "frequency": 98.8,
+      "thread": "meta",
+      "sender": "HQ — Manaus relay",
+      "originator": "MANAUS HQ",
+      "addressee": "TANGO-SEVEN",
+      "precedence": "ROUTINE",
+      "message": "NIGHT 15 CHECK IN PERIOD CONFIRM ON STATION PERIOD BUSINESS AS USUAL PERIOD REPORT REQUIRED TRAFFIC BEFORE YOU SLEEP OVER",
+      "faction": "military",
+      "requires": [],
+      "choices": [
+        {
+          "id": "relay",
+          "text": "Confirm on station",
+          "on_success": [
+            "set_flag:HQ_d15_relayed",
+            "trust:military:2",
+            "resource:batteries:-3",
+            "log:HQ copies. Business as usual."
+          ]
+        },
+        {
+          "id": "bury",
+          "text": "Confirm — keep notes private",
+          "on_success": [
+            "set_flag:HQ_d15_buried",
+            "trust:military:1",
+            "resource:batteries:-2",
+            "log:You confirm. The rest stays in the book."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Delayed ack",
+          "on_success": [
+            "set_flag:HQ_d15_static",
+            "trust:military:-2",
+            "resource:batteries:-1",
+            "log:HQ repeats once."
+          ]
+        }
+      ]
+    },
     {
       "id": "FINALE",
       "frequency": 98.1,
@@ -11,9 +58,37 @@
       "faction": "desk",
       "requires": [],
       "choices": [
-        { "id": "bury", "text": "Close log — private duty", "on_success": ["set_flag:FINALE_buried", "set_flag:campaign_complete", "resource:batteries:-3", "log:Log closed without fanfare."] },
-        { "id": "relay", "text": "Send summary to HQ", "on_success": ["set_flag:FINALE_relayed", "set_flag:campaign_complete", "trust:military:5", "resource:batteries:-6", "log:Summary sent. HQ thanks you."] },
-        { "id": "static", "text": "Leave chair silent", "on_success": ["set_flag:FINALE_static", "set_flag:campaign_complete", "resource:batteries:-2", "log:Static. Basin keeps its secrets."] }
+        {
+          "id": "bury",
+          "text": "Close log — private duty",
+          "on_success": [
+            "set_flag:FINALE_buried",
+            "set_flag:campaign_complete",
+            "resource:batteries:-3",
+            "log:Log closed without fanfare."
+          ]
+        },
+        {
+          "id": "relay",
+          "text": "Send summary to HQ",
+          "on_success": [
+            "set_flag:FINALE_relayed",
+            "set_flag:campaign_complete",
+            "trust:military:5",
+            "resource:batteries:-6",
+            "log:Summary sent. HQ thanks you."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Leave chair silent",
+          "on_success": [
+            "set_flag:FINALE_static",
+            "set_flag:campaign_complete",
+            "resource:batteries:-2",
+            "log:Static. Basin keeps its secrets."
+          ]
+        }
       ]
     }
   ]

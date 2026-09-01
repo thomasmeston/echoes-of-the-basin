@@ -1,18 +1,24 @@
 {
-  "opening_log": "Batteries down a notch. Porangatu is asking about Marcos by name. Condor missed a check-in.",
+  "opening_log": "HQ is 98.8 again. They will have news. Condor missed a sched. The eastern channel is on the sheet.",
   "on_flag": {
     "G2_buried": { "journal": "town_rumor" },
-    "E1_relayed": { "journal": "condor_missed" }
+    "E1_relayed": { "journal": "condor_cry" },
+    "E1_buried": { "journal": "condor_cry" },
+    "E_cipher_buried": { "journal": "help_grid" }
   },
   "journal_entries": {
     "town_rumor": {
       "title": "Town rumor",
       "body": "Porangatu says Marcos was called upriver. HQ already said reassignment. Same week, different stories."
     },
-    "condor_missed": {
-      "title": "Condor missed check-in",
-      "body": "Survey Team Condor missed 1800 check-in. Grid seven-four-niner. HQ marked noted."
+    "condor_cry": {
+      "title": "Condor FLASH",
+      "body": "They authenticated SIERRA and asked for water. Grid seven-four-niner. HQ said noted."
+    },
+    "help_grid": {
+      "title": "HELP GRID",
+      "body": "Plus-two pad. They asked you not to tell the outpost everything. The eastern channel is waiting."
     }
   },
-  "day_close": "Night two. Two threads: a friend missing, a party lost."
+  "day_close": "Night two. A friend missing. A party crying for help."
 }

@@ -23,7 +23,15 @@ interface OpsManualFile {
  */
 export class OpsManualOverlay {
   private el: HTMLDivElement;
+  private sheetEl!: HTMLElement;
   private open = false;
+  private drag: {
+    pointerId: number;
+    startX: number;
+    startY: number;
+    originLeft: number;
+    originTop: number;
+  } | null = null;
   private onKeyDown: (e: KeyboardEvent) => void;
   private readonly ops = opsManual as OpsManualFile;
 
@@ -61,6 +69,7 @@ export class OpsManualOverlay {
       </div>
     `;
     document.body.appendChild(this.el);
+    this.sheetEl = this.el.querySelector('.ops-overlay-sheet') as HTMLElement;
 
     this.el.addEventListener('click', (e) => {
       const t = e.target as HTMLElement | null;
@@ -68,6 +77,7 @@ export class OpsManualOverlay {
         this.hide();
       }
     });
+    this.bindDrag();
 
     this.onKeyDown = (e) => {
       if (this.open && e.key === 'Escape') {
@@ -88,10 +98,10 @@ export class OpsManualOverlay {
     }
     this.open = true;
     this.el.classList.remove('hidden');
-    const sheet = this.el.querySelector('.ops-overlay-sheet') as HTMLElement;
-    sheet.classList.remove('ops-overlay-sheet--open');
-    void sheet.offsetWidth;
-    sheet.classList.add('ops-overlay-sheet--open');
+    this.sheetEl.classList.remove('ops-overlay-sheet--open');
+    void this.sheetEl.offsetWidth;
+    this.sheetEl.classList.add('ops-overlay-sheet--open');
+    this.pinSheet();
     void this.audio.unlock().then(() => {
       this.audio.play('paperUnfold', 1);
     });
@@ -103,8 +113,77 @@ export class OpsManualOverlay {
       return;
     }
     this.open = false;
+    this.drag = null;
+    this.sheetEl.classList.remove('ops-overlay-sheet--dragging');
     this.el.classList.add('hidden');
-    this.el.querySelector('.ops-overlay-sheet')?.classList.remove('ops-overlay-sheet--open');
+    this.sheetEl.classList.remove('ops-overlay-sheet--open');
+    this.sheetEl.style.position = '';
+    this.sheetEl.style.left = '';
+    this.sheetEl.style.top = '';
+    this.sheetEl.style.margin = '';
+    this.sheetEl.style.transform = '';
     window.removeEventListener('keydown', this.onKeyDown, true);
+  }
+
+  private pinSheet(): void {
+    const w = this.sheetEl.offsetWidth;
+    const h = this.sheetEl.offsetHeight;
+    const left = Math.max(12, (window.innerWidth - w) / 2);
+    const top = Math.max(12, (window.innerHeight - h) / 2);
+    this.sheetEl.style.position = 'fixed';
+    this.sheetEl.style.left = `${left}px`;
+    this.sheetEl.style.top = `${top}px`;
+    this.sheetEl.style.margin = '0';
+    this.sheetEl.style.transform = 'none';
+  }
+
+  private bindDrag(): void {
+    const onPointerDown = (e: PointerEvent) => {
+      if (!this.open || e.button !== 0) {
+        return;
+      }
+      const t = e.target as HTMLElement;
+      if (t.closest('[data-close]')) {
+        return;
+      }
+      const rect = this.sheetEl.getBoundingClientRect();
+      this.drag = {
+        pointerId: e.pointerId,
+        startX: e.clientX,
+        startY: e.clientY,
+        originLeft: rect.left,
+        originTop: rect.top,
+      };
+      this.sheetEl.classList.add('ops-overlay-sheet--dragging');
+      this.sheetEl.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    };
+
+    const onPointerMove = (e: PointerEvent) => {
+      if (!this.drag || e.pointerId !== this.drag.pointerId) {
+        return;
+      }
+      this.sheetEl.style.left = `${this.drag.originLeft + (e.clientX - this.drag.startX)}px`;
+      this.sheetEl.style.top = `${this.drag.originTop + (e.clientY - this.drag.startY)}px`;
+      this.sheetEl.style.transform = 'none';
+    };
+
+    const onPointerUp = (e: PointerEvent) => {
+      if (!this.drag || e.pointerId !== this.drag.pointerId) {
+        return;
+      }
+      this.drag = null;
+      this.sheetEl.classList.remove('ops-overlay-sheet--dragging');
+      try {
+        this.sheetEl.releasePointerCapture(e.pointerId);
+      } catch {
+        /* already released */
+      }
+    };
+
+    this.sheetEl.addEventListener('pointerdown', onPointerDown);
+    this.sheetEl.addEventListener('pointermove', onPointerMove);
+    this.sheetEl.addEventListener('pointerup', onPointerUp);
+    this.sheetEl.addEventListener('pointercancel', onPointerUp);
   }
 }

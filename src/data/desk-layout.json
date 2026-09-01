@@ -2,6 +2,12 @@
   "version": 2,
   "frameZoom": 1,
   "bgZoom": 1.11,
+  "windowAperture": {
+    "x": 1122,
+    "y": 197,
+    "w": 193,
+    "h": 252
+  },
   "objects": {
     "radio-cluster": {
       "x": 50,
@@ -14,16 +20,115 @@
       "scale": 1,
       "zIndex": 5
     },
-    "bg-room": {
-      "x": 0,
-      "y": 0,
-      "w": 2492,
-      "h": 1115,
+    "radio-overlay": {
+      "x": 50,
+      "y": 78,
+      "w": 190,
+      "h": 72,
       "rotateX": 0,
       "rotateY": 0,
       "rotateZ": 0,
       "scale": 1,
-      "zIndex": 1
+      "zIndex": 8
+    },
+    "freq-display": {
+      "x": 46.5,
+      "y": 84,
+      "w": 154,
+      "h": 28,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 0.75,
+      "zIndex": 5
+    },
+    "band-dial": {
+      "x": 8.5,
+      "y": 2.5,
+      "w": 56,
+      "h": 72,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1,
+      "zIndex": 5
+    },
+    "meter-dial": {
+      "x": 84.5,
+      "y": 2.5,
+      "w": 56,
+      "h": 72,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1,
+      "zIndex": 5
+    },
+    "power-dial": {
+      "x": 15,
+      "y": 24,
+      "w": 56,
+      "h": 72,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1,
+      "zIndex": 5
+    },
+    "power-light": {
+      "x": 5,
+      "y": 49.25,
+      "w": 14,
+      "h": 14,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1,
+      "zIndex": 6
+    },
+    "dial-notches": {
+      "x": 46.35,
+      "y": -4.73,
+      "w": 168,
+      "h": 168,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1,
+      "zIndex": 3
+    },
+    "tune-label": {
+      "x": 46.85,
+      "y": 0.2,
+      "w": 80,
+      "h": 14,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1,
+      "zIndex": 5
+    },
+    "radio-message": {
+      "x": 47.5,
+      "y": 107.5,
+      "w": 420,
+      "h": 0,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1.35,
+      "zIndex": 12
+    },
+    "radio-reply": {
+      "x": 47.5,
+      "y": -54,
+      "w": 420,
+      "h": 0,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1.2,
+      "zIndex": 13
     },
     "radio-body": {
       "x": -3.34,
@@ -35,61 +140,6 @@
       "rotateZ": 0,
       "scale": 1,
       "zIndex": 1
-    },
-    "desk-surface": {
-      "x": 0,
-      "y": -37,
-      "w": 2492,
-      "h": 513,
-      "rotateX": 0,
-      "rotateY": 0,
-      "rotateZ": 0,
-      "scale": 1.55,
-      "zIndex": 2
-    },
-    "mic-lollipop": {
-      "x": 65.5,
-      "y": 25.5,
-      "w": 58,
-      "h": 160,
-      "rotateX": 0,
-      "rotateY": 0,
-      "rotateZ": 0,
-      "scale": 3.2,
-      "zIndex": 6
-    },
-    "lamp": {
-      "x": 27.5,
-      "y": 26,
-      "w": 96,
-      "h": 150,
-      "rotateX": 0,
-      "rotateY": 180,
-      "rotateZ": 0,
-      "scale": 2.9,
-      "zIndex": 4
-    },
-    "speaker": {
-      "x": 33.2,
-      "y": 23.8,
-      "w": 86,
-      "h": 90,
-      "rotateX": 0,
-      "rotateY": 0,
-      "rotateZ": 0,
-      "scale": 1.7,
-      "zIndex": 5
-    },
-    "papers": {
-      "x": 40.85,
-      "y": 3,
-      "w": 121,
-      "h": 87,
-      "rotateX": 0,
-      "rotateY": 0,
-      "rotateZ": 0,
-      "scale": 1,
-      "zIndex": 3
     },
     "radio-dial": {
       "x": 46.55,
@@ -124,115 +174,49 @@
       "scale": 1.2,
       "zIndex": 3
     },
-    "radio-overlay": {
-      "x": 50,
-      "y": 78,
-      "w": 190,
-      "h": 72,
+    "mic-lollipop": {
+      "x": 68.5,
+      "y": 23.5,
+      "w": 58,
+      "h": 160,
       "rotateX": 0,
       "rotateY": 0,
       "rotateZ": 0,
-      "scale": 1,
-      "zIndex": 8
-    },
-    "freq-display": {
-      "x": 46.5,
-      "y": 84,
-      "w": 154,
-      "h": 28,
-      "rotateX": 0,
-      "rotateY": 0,
-      "rotateZ": 0,
-      "scale": 0.75,
-      "zIndex": 5
-    },
-    "drawer-left": {
-      "x": 29,
-      "y": -12.5,
-      "w": 340,
-      "h": 210,
-      "rotateX": 0,
-      "rotateY": 0,
-      "rotateZ": 0,
-      "scale": 2.25,
-      "zIndex": 3
-    },
-    "drawer-right": {
-      "x": 57.6,
-      "y": -12.5,
-      "w": 340,
-      "h": 210,
-      "rotateX": 0,
-      "rotateY": 0,
-      "rotateZ": 0,
-      "scale": 2.2,
-      "zIndex": 3
-    },
-    "map-folded": {
-      "x": 30,
-      "y": 20,
-      "w": 520,
-      "h": 70,
-      "rotateX": 0,
-      "rotateY": 0,
-      "rotateZ": 0,
-      "scale": 1,
-      "zIndex": 3
-    },
-    "meter-dial": {
-      "x": 84.5,
-      "y": 2.5,
-      "w": 56,
-      "h": 72,
-      "rotateX": 0,
-      "rotateY": 0,
-      "rotateZ": 0,
-      "scale": 1,
-      "zIndex": 5
-    },
-    "band-dial": {
-      "x": 8.5,
-      "y": 2.5,
-      "w": 56,
-      "h": 72,
-      "rotateX": 0,
-      "rotateY": 0,
-      "rotateZ": 0,
-      "scale": 1,
-      "zIndex": 5
-    },
-    "dial-notches": {
-      "x": 46.35,
-      "y": -4.73,
-      "w": 168,
-      "h": 168,
-      "rotateX": 0,
-      "rotateY": 0,
-      "rotateZ": 0,
-      "scale": 1,
-      "zIndex": 3
-    },
-    "power-dial": {
-      "x": 15,
-      "y": 24,
-      "w": 56,
-      "h": 72,
-      "rotateX": 0,
-      "rotateY": 0,
-      "rotateZ": 0,
-      "scale": 1,
-      "zIndex": 5
-    },
-    "power-light": {
-      "x": 5,
-      "y": 49.25,
-      "w": 14,
-      "h": 14,
-      "rotateX": 0,
-      "rotateY": 0,
-      "rotateZ": 0,
-      "scale": 1,
+      "scale": 3.2,
       "zIndex": 6
+    },
+    "lamp": {
+      "x": 27.5,
+      "y": 26,
+      "w": 96,
+      "h": 150,
+      "rotateX": 0,
+      "rotateY": 180,
+      "rotateZ": 0,
+      "scale": 2.9,
+      "zIndex": 4
+    },
+    "speaker": {
+      "x": 63.2,
+      "y": 25.8,
+      "w": 86,
+      "h": 90,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1.7,
+      "zIndex": 5
+    },
+    "papers": {
+      "x": 40.85,
+      "y": 3,
+      "w": 121,
+      "h": 87,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1,
+      "zIndex": 3
     },
     "ops-manual": {
       "x": 41.25,
@@ -256,6 +240,83 @@
       "scale": 1,
       "zIndex": 4
     },
+    "decode-book": {
+      "x": 47.5,
+      "y": 3.55,
+      "w": 80,
+      "h": 110,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": -8,
+      "scale": 1,
+      "zIndex": 5
+    },
+    "map-folded": {
+      "x": 30,
+      "y": 20,
+      "w": 520,
+      "h": 70,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1,
+      "zIndex": 3
+    },
+    "drawer-left": {
+      "x": 29,
+      "y": -12.5,
+      "w": 340,
+      "h": 210,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 2.25,
+      "zIndex": 3
+    },
+    "drawer-right": {
+      "x": 57.1,
+      "y": -13,
+      "w": 340,
+      "h": 210,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 2.3,
+      "zIndex": 3
+    },
+    "desk-surface": {
+      "x": 0,
+      "y": -37,
+      "w": 2492,
+      "h": 513,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1.55,
+      "zIndex": 2
+    },
+    "bg-room": {
+      "x": 0,
+      "y": 0,
+      "w": 2492,
+      "h": 1115,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1,
+      "zIndex": 1
+    },
+    "window-view": {
+      "x": 75.58,
+      "y": 59.2,
+      "w": 253,
+      "h": 331,
+      "rotateX": 0,
+      "rotateY": 0,
+      "rotateZ": 0,
+      "scale": 1,
+      "zIndex": 2
+    },
     "hud-clock": {
       "x": 4.53,
       "y": 81.92,
@@ -277,50 +338,6 @@
       "rotateZ": 0,
       "scale": 0.8,
       "zIndex": 102
-    },
-    "radio-message": {
-      "x": 37.5,
-      "y": 52.5,
-      "w": 420,
-      "h": 0,
-      "rotateX": 0,
-      "rotateY": 0,
-      "rotateZ": 0,
-      "scale": 1,
-      "zIndex": 140
-    },
-    "radio-reply": {
-      "x": 37.5,
-      "y": 1.5,
-      "w": 420,
-      "h": 0,
-      "rotateX": 0,
-      "rotateY": 0,
-      "rotateZ": 0,
-      "scale": 1,
-      "zIndex": 150
-    },
-    "window-view": {
-      "x": 75.58,
-      "y": 57.31,
-      "w": 225,
-      "h": 293,
-      "rotateX": 0,
-      "rotateY": 0,
-      "rotateZ": 0,
-      "scale": 1,
-      "zIndex": 2
-    },
-    "tune-label": {
-      "x": 46.85,
-      "y": 0.2,
-      "w": 80,
-      "h": 14,
-      "rotateX": 0,
-      "rotateY": 0,
-      "rotateZ": 0,
-      "scale": 1,
-      "zIndex": 5
     }
   }
 }

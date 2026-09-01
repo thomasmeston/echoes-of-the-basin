@@ -1,7 +1,55 @@
 {
   "day": 7,
-  "requiredBeats": ["A3", "R3"],
+  "requiredBeats": [
+    "HQ_d7",
+    "A3",
+    "R3"
+  ],
   "transmissions": [
+    {
+      "id": "HQ_d7",
+      "frequency": 98.8,
+      "thread": "meta",
+      "sender": "HQ — Manaus relay",
+      "originator": "MANAUS HQ",
+      "addressee": "TANGO-SEVEN",
+      "precedence": "ROUTINE",
+      "message": "NIGHT 7 CHECK IN PERIOD CONFIRM ON STATION PERIOD BUSINESS AS USUAL PERIOD REPORT REQUIRED TRAFFIC BEFORE YOU SLEEP OVER",
+      "faction": "military",
+      "requires": [],
+      "choices": [
+        {
+          "id": "relay",
+          "text": "Confirm on station",
+          "on_success": [
+            "set_flag:HQ_d7_relayed",
+            "trust:military:2",
+            "resource:batteries:-3",
+            "log:HQ copies. Business as usual."
+          ]
+        },
+        {
+          "id": "bury",
+          "text": "Confirm — keep notes private",
+          "on_success": [
+            "set_flag:HQ_d7_buried",
+            "trust:military:1",
+            "resource:batteries:-2",
+            "log:You confirm. The rest stays in the book."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Delayed ack",
+          "on_success": [
+            "set_flag:HQ_d7_static",
+            "trust:military:-2",
+            "resource:batteries:-1",
+            "log:HQ repeats once."
+          ]
+        }
+      ]
+    },
     {
       "id": "A3",
       "frequency": 100.9,
@@ -9,11 +57,43 @@
       "sender": "Quiet net — weather window",
       "message": "Need clear window 0200-0400. Logistics only. Confirm if safe.",
       "faction": "guerrilla",
-      "requires": ["thread:A:>=2"],
+      "requires": [
+        "thread:A:>=2"
+      ],
       "choices": [
-        { "id": "bury", "text": "Log window — no relay", "on_success": ["set_flag:A3_buried", "thread:A:4", "trust:guerrilla:5", "resource:batteries:-4", "log:Window noted. Net stays quiet."] },
-        { "id": "relay", "text": "Relay to Net Control", "on_success": ["set_flag:A3_relayed", "thread:A:4", "trust:military:6", "trust:guerrilla:-7", "resource:batteries:-8", "log:Net Control interdicts the window."] },
-        { "id": "static", "text": "No copy", "on_success": ["set_flag:A3_static", "thread:A:4", "resource:batteries:-2", "log:Static."] }
+        {
+          "id": "bury",
+          "text": "Log window — no relay",
+          "on_success": [
+            "set_flag:A3_buried",
+            "thread:A:4",
+            "trust:guerrilla:5",
+            "resource:batteries:-4",
+            "log:Window noted. Net stays quiet."
+          ]
+        },
+        {
+          "id": "relay",
+          "text": "Relay to Net Control",
+          "on_success": [
+            "set_flag:A3_relayed",
+            "thread:A:4",
+            "trust:military:6",
+            "trust:guerrilla:-7",
+            "resource:batteries:-8",
+            "log:Net Control interdicts the window."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "No copy",
+          "on_success": [
+            "set_flag:A3_static",
+            "thread:A:4",
+            "resource:batteries:-2",
+            "log:Static."
+          ]
+        }
       ]
     },
     {
@@ -23,11 +103,44 @@
       "sender": "River guide",
       "message": "Safe route east if you don't shout our location on the open net.",
       "faction": "river",
-      "requires": ["thread:R:>=1", "clue:map_bend_landing"],
+      "requires": [
+        "thread:R:>=1",
+        "clue:map_bend_landing"
+      ],
       "choices": [
-        { "id": "bury", "text": "Protect route — log only", "on_success": ["set_flag:R3_buried", "thread:R:3", "trust:river:7", "resource:batteries:-4", "log:Route kept off HQ desk."] },
-        { "id": "relay", "text": "Relay to HQ", "on_success": ["set_flag:R3_relayed", "thread:R:3", "trust:military:5", "trust:river:-6", "resource:batteries:-7", "log:HQ copies grid reference."] },
-        { "id": "static", "text": "Static", "on_success": ["set_flag:R3_static", "thread:R:3", "resource:batteries:-2", "log:Silence on river band."] }
+        {
+          "id": "bury",
+          "text": "Protect route — log only",
+          "on_success": [
+            "set_flag:R3_buried",
+            "thread:R:3",
+            "trust:river:7",
+            "resource:batteries:-4",
+            "log:Route kept off HQ desk."
+          ]
+        },
+        {
+          "id": "relay",
+          "text": "Relay to HQ",
+          "on_success": [
+            "set_flag:R3_relayed",
+            "thread:R:3",
+            "trust:military:5",
+            "trust:river:-6",
+            "resource:batteries:-7",
+            "log:HQ copies grid reference."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Static",
+          "on_success": [
+            "set_flag:R3_static",
+            "thread:R:3",
+            "resource:batteries:-2",
+            "log:Silence on river band."
+          ]
+        }
       ]
     }
   ]

@@ -8,6 +8,7 @@ import {
   defaultTransform,
   isClusterRelative,
   isHudObject,
+  isRadioBubble,
   type DeskLayoutMap,
   type DeskObjectId,
   type DeskObjectTransform,
@@ -15,7 +16,6 @@ import {
 import {
   WindowView,
   WINDOW_APERTURE_STORAGE_KEY,
-  WINDOW_PLATE_BBOX,
   coverZoomScreenFromImage,
   loadWindowAperture,
   type WindowApertureBBox,
@@ -27,6 +27,7 @@ export type DeskLayerId =
   | 'papers'
   | 'ops-manual'
   | 'sched-log'
+  | 'decode-book'
   | 'map-folded'
   | 'drawer-left'
   | 'drawer-right'
@@ -44,6 +45,7 @@ const LAYER_FILES: Record<DeskLayerId, string> = {
   papers: 'papers.png',
   'ops-manual': 'ops-manual-sketch.png',
   'sched-log': 'sched-log-sketch.png',
+  'decode-book': 'decode-book-sketch.png?v=2',
   // map art is baked into desk-surface.png; map-folded is a hit target only
   'map-folded': 'map-folded.png',
   'drawer-left': 'drawer-left-open.png',
@@ -132,6 +134,7 @@ export class DeskStage {
     papers.hidden = true;
     this.buildLayer('ops-manual', this.deskRig, 'desk-layer desk-layer--ops-manual');
     this.buildLayer('sched-log', this.deskRig, 'desk-layer desk-layer--sched-log');
+    this.buildLayer('decode-book', this.deskRig, 'desk-layer desk-layer--decode-book');
     this.buildMapHotspot();
     this.buildLayer('lamp', this.deskRig, 'desk-layer desk-layer--lamp desk-idle-flicker');
     this.buildLayer('speaker', this.deskRig, 'desk-layer desk-layer--speaker');
@@ -403,7 +406,8 @@ export class DeskStage {
       id === 'band-dial' ||
       id === 'meter-dial' ||
       id === 'power-dial' ||
-      id === 'power-light';
+      id === 'power-light' ||
+      isRadioBubble(id);
     const x = centered
       ? ((box.left + box.width / 2 - frame.left) / frame.width) * 100
       : leftPct;
@@ -458,10 +462,6 @@ export class DeskStage {
         const size = t.w > 0 ? t.w : t.h;
         el.style.width = size > 0 ? `${size}px` : '';
         el.style.height = size > 0 ? `${size}px` : '';
-      } else if (id === 'radio-message' || id === 'radio-reply') {
-        el.style.width = t.w > 0 ? `${t.w}px` : '';
-        el.style.height = 'auto';
-        el.style.minHeight = '0';
       } else {
         el.style.width = t.w > 0 ? `${t.w}px` : '';
         el.style.height = t.h > 0 ? `${t.h}px` : '';
@@ -544,7 +544,13 @@ export class DeskStage {
       return;
     }
 
-    if (id === 'radio-overlay' || id === 'freq-display' || id === 'tune-label') {
+    if (id === 'radio-overlay' || id === 'freq-display' || id === 'tune-label' || isRadioBubble(id)) {
+      if (isRadioBubble(id)) {
+        el.style.height = 'auto';
+        el.style.minHeight = '0';
+        el.style.margin = '0';
+        el.style.transformOrigin = 'bottom center';
+      }
       el.style.transform = `translateX(-50%) ${rotScale}`;
       return;
     }
@@ -633,20 +639,17 @@ export class DeskStage {
     };
   }
 
-  setWindowAperture(box: WindowApertureBBox, persist = true): void {
+  setWindowAperture(box: WindowApertureBBox, _persist = false): void {
     this.windowAperture = {
       x: Math.round(box.x),
       y: Math.round(box.y),
       w: Math.round(box.w),
       h: Math.round(box.h),
     };
-    if (persist) {
-      localStorage.setItem(WINDOW_APERTURE_STORAGE_KEY, JSON.stringify(this.windowAperture));
-    }
   }
 
   resetWindowAperture(): void {
-    this.windowAperture = { ...WINDOW_PLATE_BBOX };
+    this.windowAperture = loadWindowAperture();
     localStorage.removeItem(WINDOW_APERTURE_STORAGE_KEY);
   }
 

@@ -35,11 +35,15 @@
           "pathIndex": 2,
           "costBatteries": 4,
           "once": true,
+          "faction": "guerrilla",
+          "hintClue": "code_bravo",
           "onDiscover": [
             "resource:batteries:-4",
-            "clue:manaus_wharf",
+            "clue:map_manaus_wharf",
+            "clue:code_bravo",
+            "code:BRAVO",
             "set_flag:map_manaus_wharf",
-            "log:Boat reports: wharf chatter about an unlisted night window near the Negro mouth."
+            "log:Boat reports: wharf chatter — unlisted night window. Someone says the quiet net answers BRAVO."
           ]
         },
         {
@@ -51,11 +55,14 @@
           "pathIndex": 3,
           "costBatteries": 4,
           "once": true,
+          "faction": "desk",
+          "hintClue": "search_negro",
           "onDiscover": [
             "resource:batteries:-4",
             "clue:map_negro_mouth",
             "set_flag:map_negro_mouth",
-            "log:Boat reports: blackwater meets silt — pilots mark a quiet anchorage off the posted charts."
+            "thread:G:2",
+            "log:Boat reports: quiet anchorage. A folded slip in Marcos's hand — he was here after 'reassignment.'"
           ]
         }
       ]
@@ -83,11 +90,14 @@
           "pathIndex": 2,
           "costBatteries": 5,
           "once": true,
+          "faction": "expedition",
+          "hintClue": "search_east",
           "onDiscover": [
             "resource:batteries:-5",
             "clue:map_bend_camp",
             "set_flag:map_bend_camp",
-            "log:Boat reports: tents above the bend, survey stakes, questions about old paths."
+            "thread:E:1",
+            "log:Boat reports: tents and survey stakes — Condor's kind of mess, or someone following them."
           ]
         },
         {
@@ -99,12 +109,14 @@
           "pathIndex": 3,
           "costBatteries": 4,
           "once": true,
+          "faction": "river",
+          "hintClue": "shaman_ask",
           "onDiscover": [
             "resource:batteries:-4",
             "clue:map_bend_landing",
             "set_flag:map_bend_landing",
             "trust:river:2",
-            "log:Boat reports: trader code chalked on a post — Bend do Sapo still watches the water."
+            "log:Boat reports: trader code on a post. They will move herbs if you keep the Army deaf."
           ]
         }
       ]
@@ -132,11 +144,14 @@
           "pathIndex": 2,
           "costBatteries": 4,
           "once": true,
+          "faction": "desk",
+          "hintClue": "search_negro",
           "onDiscover": [
             "resource:batteries:-4",
             "clue:map_negro_rapids",
             "set_flag:map_negro_rapids",
-            "log:Boat reports: rapids force a portage — someone left a cache marker half-hidden in the brush."
+            "thread:G:2",
+            "log:Boat reports: cache marker at the portage. Half a page in Marcos's hand — upriver, not rotation."
           ]
         },
         {
@@ -148,12 +163,14 @@
           "pathIndex": 3,
           "costBatteries": 4,
           "once": true,
+          "faction": "river",
+          "hintClue": "search_village",
           "onDiscover": [
             "resource:batteries:-4",
             "clue:map_negro_village",
             "set_flag:map_negro_village",
             "trust:river:3",
-            "log:Boat reports: elders will talk if you keep their name off the military net."
+            "log:Boat reports: the shaman will talk on 94.8 if you keep their name off the Army net."
           ]
         }
       ]
@@ -181,11 +198,13 @@
           "pathIndex": 2,
           "costBatteries": 4,
           "once": true,
+          "faction": "military",
+          "hintClue": "clean_channel",
           "onDiscover": [
             "resource:batteries:-4",
             "clue:map_east_wharf",
             "set_flag:map_east_wharf",
-            "log:Boat reports: a quiet relay post — schedules scratched for boats that never log with HQ."
+            "log:Boat reports: a quiet relay — boats that never log with HQ. Army will want this filed."
           ]
         },
         {
@@ -197,11 +216,14 @@
           "pathIndex": 3,
           "costBatteries": 3,
           "once": true,
+          "faction": "expedition",
+          "hintClue": "search_east",
           "onDiscover": [
             "resource:batteries:-3",
             "clue:map_east_bend",
             "set_flag:map_east_bend",
-            "log:Boat reports: channel bend matches a grid mark Condor once hung on — if the rumor is true."
+            "thread:E:2",
+            "log:Boat reports: channel bend matches Condor's grid. Their evening pad may still be live."
           ]
         }
       ]

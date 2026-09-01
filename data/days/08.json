@@ -1,7 +1,55 @@
 {
   "day": 8,
-  "requiredBeats": ["G5", "E4"],
+  "requiredBeats": [
+    "HQ_d8",
+    "G5",
+    "E4"
+  ],
   "transmissions": [
+    {
+      "id": "HQ_d8",
+      "frequency": 98.8,
+      "thread": "meta",
+      "sender": "HQ — Manaus relay",
+      "originator": "MANAUS HQ",
+      "addressee": "TANGO-SEVEN",
+      "precedence": "ROUTINE",
+      "message": "NIGHT 8 CHECK IN PERIOD CONFIRM ON STATION PERIOD BUSINESS AS USUAL PERIOD REPORT REQUIRED TRAFFIC BEFORE YOU SLEEP OVER",
+      "faction": "military",
+      "requires": [],
+      "choices": [
+        {
+          "id": "relay",
+          "text": "Confirm on station",
+          "on_success": [
+            "set_flag:HQ_d8_relayed",
+            "trust:military:2",
+            "resource:batteries:-3",
+            "log:HQ copies. Business as usual."
+          ]
+        },
+        {
+          "id": "bury",
+          "text": "Confirm — keep notes private",
+          "on_success": [
+            "set_flag:HQ_d8_buried",
+            "trust:military:1",
+            "resource:batteries:-2",
+            "log:You confirm. The rest stays in the book."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Delayed ack",
+          "on_success": [
+            "set_flag:HQ_d8_static",
+            "trust:military:-2",
+            "resource:batteries:-1",
+            "log:HQ repeats once."
+          ]
+        }
+      ]
+    },
     {
       "id": "G5",
       "frequency": 93.2,
@@ -9,11 +57,43 @@
       "sender": "Porangatu — memory",
       "message": "Saw Marcos at the dock three days after HQ says he left upriver. He looked like he was waiting for someone.",
       "faction": "desk",
-      "requires": ["clue:town_rumor"],
+      "requires": [
+        "clue:town_rumor"
+      ],
       "choices": [
-        { "id": "bury", "text": "Log contradiction privately", "on_success": ["set_flag:G5_buried", "clue:marcos_sighting", "thread:G:5", "resource:batteries:-4", "log:Dates side by side. They don't match."] },
-        { "id": "relay", "text": "Relay to HQ", "on_success": ["set_flag:G5_relayed", "clue:marcos_sighting", "thread:G:5", "trust:military:4", "resource:batteries:-7", "log:HQ says disregard local rumor."] },
-        { "id": "static", "text": "Static", "on_success": ["set_flag:G5_static", "thread:G:5", "resource:batteries:-2", "log:You don't copy Porangatu."] }
+        {
+          "id": "bury",
+          "text": "Log contradiction privately",
+          "on_success": [
+            "set_flag:G5_buried",
+            "clue:marcos_sighting",
+            "thread:G:5",
+            "resource:batteries:-4",
+            "log:Dates side by side. They don't match."
+          ]
+        },
+        {
+          "id": "relay",
+          "text": "Relay to HQ",
+          "on_success": [
+            "set_flag:G5_relayed",
+            "clue:marcos_sighting",
+            "thread:G:5",
+            "trust:military:4",
+            "resource:batteries:-7",
+            "log:HQ says disregard local rumor."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Static",
+          "on_success": [
+            "set_flag:G5_static",
+            "thread:G:5",
+            "resource:batteries:-2",
+            "log:You don't copy Porangatu."
+          ]
+        }
       ]
     },
     {
@@ -23,11 +103,46 @@
       "sender": "Condor — grid reference",
       "message": "Grid seven-four-niner matches Bend do Sapo approach. Map doesn't match official survey.",
       "faction": "expedition",
-      "requires": ["clue:bend_strangers", "thread:E:>=2", "clue:map_east_bend"],
+      "requires": [
+        "clue:bend_strangers",
+        "thread:E:>=2",
+        "clue:map_east_bend"
+      ],
       "choices": [
-        { "id": "bury", "text": "Log grid overlap", "on_success": ["set_flag:E4_buried", "clue:grid_overlap", "thread:E:4", "thread:R:4", "resource:batteries:-4", "log:Expedition and river stories touch the same bend."] },
-        { "id": "relay", "text": "Relay to HQ", "on_success": ["set_flag:E4_relayed", "clue:grid_overlap", "thread:E:4", "trust:military:5", "resource:batteries:-7", "log:HQ marks grid for review."] },
-        { "id": "static", "text": "Static", "on_success": ["set_flag:E4_static", "thread:E:4", "resource:batteries:-2", "log:Static."] }
+        {
+          "id": "bury",
+          "text": "Log grid overlap",
+          "on_success": [
+            "set_flag:E4_buried",
+            "clue:grid_overlap",
+            "thread:E:4",
+            "thread:R:4",
+            "resource:batteries:-4",
+            "log:Expedition and river stories touch the same bend."
+          ]
+        },
+        {
+          "id": "relay",
+          "text": "Relay to HQ",
+          "on_success": [
+            "set_flag:E4_relayed",
+            "clue:grid_overlap",
+            "thread:E:4",
+            "trust:military:5",
+            "resource:batteries:-7",
+            "log:HQ marks grid for review."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Static",
+          "on_success": [
+            "set_flag:E4_static",
+            "thread:E:4",
+            "resource:batteries:-2",
+            "log:Static."
+          ]
+        }
       ]
     }
   ]

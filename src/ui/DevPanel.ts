@@ -6,18 +6,19 @@ import {
   DEFAULT_DESK_LAYOUT,
   DEFAULT_FRAME_ZOOM,
   DESK_LAYOUT_STORAGE_KEY,
+  DESK_LAYOUT_WRITE_URL,
   LEGACY_DESK_LAYOUT_STORAGE_KEYS,
   EDITABLE_DESK_OBJECTS,
   FRAME_ZOOM_MAX,
   FRAME_ZOOM_MIN,
   isHudObject,
-  normalizeLayoutFile,
   normalizeTransform,
   type DeskLayoutFile,
   type DeskLayoutMap,
   type DeskObjectId,
   type DeskObjectTransform,
 } from '../types/deskLayout';
+import { WINDOW_APERTURE_STORAGE_KEY } from '../scene/WindowView';
 
 const STEP = {
   pos: 0.5,
@@ -45,6 +46,7 @@ export class DevPanel {
   private bgZoomSlider!: HTMLInputElement;
   private bgZoomValue!: HTMLInputElement;
   private statusEl!: HTMLParagraphElement;
+  private lastWritten: DeskLayoutFile | null = null;
   private onKeyDown: (e: KeyboardEvent) => void;
   private onStageClick: (e: MouseEvent) => void;
 
@@ -133,7 +135,7 @@ export class DevPanel {
         <button type="button" class="dev-mode-tab" data-tab="export">Export</button>
       </div>
       <div id="dev-layout-section">
-        <p class="dev-mode-hint">Click a desk or HUD object (clock, calendar, field notes, radio message, reply, drawers) or pick from the list. Arrows nudge · [ ] Z · Shift+[ ] Y · Ctrl+[ ] X · -/+ scale. <code>window-view</code> is the window aperture — size it to the opening, then Save Layout.</p>
+        <p class="dev-mode-hint">Click a desk or HUD object (clock, calendar, field notes, radio message, reply, drawers) or pick from the list. Message/reply sit on the radio and scale with the desk. Arrows nudge · [ ] Z · Shift+[ ] Y · Ctrl+[ ] X · -/+ scale. <code>window-view</code> is the window aperture — size it to the opening, then Save Layout to write <code>src/data/desk-layout.json</code>.</p>
         <div class="dev-frame-zoom-block">
           <div class="dev-range-row">
             <label for="dev-frame-zoom">Frame zoom</label>
@@ -168,11 +170,11 @@ export class DevPanel {
           <button type="button" class="dev-btn" id="dev-copy-json">Copy Layout JSON</button>
           <button type="button" class="dev-btn" id="dev-copy-css">Copy CSS snippet</button>
           <button type="button" class="dev-btn dev-btn-danger" id="dev-reset-layout">Reset Layout</button>
-          <p id="dev-status" class="dev-mode-hint">Saved to localStorage (<code>${DESK_LAYOUT_STORAGE_KEY}</code>).</p>
+          <p id="dev-status" class="dev-mode-hint">Save writes <code>src/data/desk-layout.json</code> (needs <code>npm run dev</code>).</p>
         </div>
       </div>
       <div id="dev-export-section" class="hidden">
-        <p class="dev-mode-hint">Paste copied CSS into <code>src/styles.css</code> desk-layer rules, or keep localStorage overrides for playtests.</p>
+        <p class="dev-mode-hint">Paste copied CSS into <code>src/styles.css</code> desk-layer rules. Save Layout writes the JSON file used at boot.</p>
         <button type="button" class="dev-btn" id="dev-copy-css-2">Copy CSS snippet</button>
         <button type="button" class="dev-btn" id="dev-copy-json-2">Copy Layout JSON</button>
       </div>
@@ -253,7 +255,9 @@ export class DevPanel {
       }
     });
 
-    this.el.querySelector('#dev-save-layout')!.addEventListener('click', () => this.saveLayout());
+    this.el.querySelector('#dev-save-layout')!.addEventListener('click', () => {
+      void this.saveLayout();
+    });
     this.el.querySelector('#dev-copy-json')!.addEventListener('click', () => this.copyJson());
     this.el.querySelector('#dev-copy-json-2')!.addEventListener('click', () => this.copyJson());
     this.el.querySelector('#dev-copy-css')!.addEventListener('click', () => this.copyCss());
@@ -286,11 +290,23 @@ export class DevPanel {
   }
 
   private toLayoutFile(): DeskLayoutFile {
+    const objects: DeskLayoutMap = {};
+    for (const id of EDITABLE_DESK_OBJECTS) {
+      const t = this.layout[id];
+      if (t) {
+        objects[id] = t;
+      }
+    }
+    const live = this.desk.measureWindowAperture();
+    const windowAperture = live
+      ? { x: live.x, y: live.y, w: live.w, h: live.h }
+      : DEFAULT_DESK_LAYOUT.windowAperture;
     return {
       version: 2,
       frameZoom: this.frameZoom,
       bgZoom: this.bgZoom,
-      objects: this.layout,
+      ...(windowAperture ? { windowAperture } : {}),
+      objects,
     };
   }
 
@@ -461,7 +477,7 @@ export class DevPanel {
     }
   }
 
-  private saveLayout(): void {
+  private async saveLayout(): Promise<void> {
     this.commitInputs();
     if (this.desk.windowView.isMeasuring()) {
       this.layout['window-view'] = this.desk.captureTransform('window-view');
@@ -472,21 +488,34 @@ export class DevPanel {
       }
     }
     const file = this.toLayoutFile();
+    const aperture = file.windowAperture;
+    if (aperture) {
+      this.desk.setWindowAperture(aperture, false);
+    }
     try {
-      localStorage.setItem(DESK_LAYOUT_STORAGE_KEY, JSON.stringify(file, null, 2));
+      const res = await fetch(DESK_LAYOUT_WRITE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(file, null, 2),
+      });
+      if (!res.ok) {
+        const detail = (await res.text()).trim();
+        this.flash(
+          `Could not write src/data/desk-layout.json (${res.status}${detail ? `: ${detail}` : ''}). Use npm run dev.`
+        );
+        return;
+      }
     } catch (err) {
       const reason = err instanceof Error ? err.message : String(err);
-      this.flash(`Save failed (${DESK_LAYOUT_STORAGE_KEY}): ${reason}`);
+      this.flash(`Could not write src/data/desk-layout.json: ${reason}. Use npm run dev.`);
       return;
     }
+    this.clearBrowserLayoutCache();
+    this.lastWritten = file;
     const radio = file.objects['radio-cluster'];
     const drawer = file.objects['drawer-right'];
-    const aperture = this.desk.measureWindowAperture();
-    if (aperture) {
-      this.desk.setWindowAperture(aperture, true);
-    }
     const bits = [
-      `Saved ${DESK_LAYOUT_STORAGE_KEY}`,
+      'Wrote src/data/desk-layout.json',
       radio ? `radio ${radio.x.toFixed(1)},${radio.y.toFixed(1)}` : null,
       drawer ? `drawer-right ${drawer.x.toFixed(1)},${drawer.y.toFixed(1)}` : null,
       aperture ? `window ${aperture.w}×${aperture.h}` : null,
@@ -542,7 +571,11 @@ export class DevPanel {
         if (t.h > 0) {
           lines.push(`  height: ${Math.round(t.h)}px;`);
         }
-        const centered = id === 'radio-overlay' || id === 'freq-display';
+        const centered =
+          id === 'radio-overlay' ||
+          id === 'freq-display' ||
+          id === 'radio-message' ||
+          id === 'radio-reply';
         lines.push(
           `  transform: ${centered ? 'translateX(-50%) ' : ''}rotateX(${t.rotateX.toFixed(1)}deg) rotateY(${t.rotateY.toFixed(1)}deg) rotateZ(${t.rotateZ.toFixed(1)}deg) scale(${t.scale.toFixed(2)});`
         );
@@ -610,6 +643,7 @@ export class DevPanel {
       'drawer-right': 'drawer-right',
       'ops-manual': 'ops-manual',
       'sched-log': 'sched-log',
+      'decode-book': 'decode-book',
       'radio-body': 'radio-body',
       'radio-dial': 'dial',
       'meter-needle-l': 'needle-l',
@@ -622,29 +656,23 @@ export class DevPanel {
     if (!window.confirm('Reset to baked desk layout defaults?')) {
       return;
     }
-    localStorage.removeItem(DESK_LAYOUT_STORAGE_KEY);
+    this.clearBrowserLayoutCache();
     this.desk.resetWindowAperture();
-    this.applyFile(DEFAULT_DESK_LAYOUT);
+    this.applyFile(this.lastWritten ?? DEFAULT_DESK_LAYOUT);
     this.select(this.selected);
-    this.flash('Layout reset to baked defaults.');
+    this.flash('Layout reset to last saved src/data/desk-layout.json.');
   }
 
   private loadStoredLayout(): void {
-    const keys = [DESK_LAYOUT_STORAGE_KEY, ...LEGACY_DESK_LAYOUT_STORAGE_KEYS];
-    for (const key of keys) {
-      try {
-        const raw = localStorage.getItem(key);
-        if (!raw) {
-          continue;
-        }
-        const parsed = JSON.parse(raw) as unknown;
-        this.applyFile(normalizeLayoutFile(parsed));
-        return;
-      } catch {
-        /* try next key */
-      }
-    }
     this.applyFile(DEFAULT_DESK_LAYOUT);
+  }
+
+  private clearBrowserLayoutCache(): void {
+    localStorage.removeItem(DESK_LAYOUT_STORAGE_KEY);
+    for (const key of LEGACY_DESK_LAYOUT_STORAGE_KEYS) {
+      localStorage.removeItem(key);
+    }
+    localStorage.removeItem(WINDOW_APERTURE_STORAGE_KEY);
   }
 
   private applyFile(file: DeskLayoutFile): void {
@@ -663,6 +691,10 @@ export class DevPanel {
     this.desk.applyLayout(this.layout);
     this.desk.setFrameZoom(this.frameZoom);
     this.desk.setBgZoom(this.bgZoom);
+    if (file.windowAperture) {
+      this.desk.setWindowAperture(file.windowAperture, false);
+      this.desk.layoutWindowAperture();
+    }
     this.syncZoomUi();
   }
 

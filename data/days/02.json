@@ -1,13 +1,131 @@
 {
   "day": 2,
-  "requiredBeats": ["G2", "E1"],
+  "requiredBeats": ["HQ_d2", "E1", "G2", "E_cipher"],
   "transmissions": [
+    {
+      "id": "HQ_d2",
+      "frequency": 98.8,
+      "thread": "meta",
+      "sender": "HQ — Manaus relay",
+      "originator": "MANAUS HQ",
+      "addressee": "TANGO-SEVEN",
+      "precedence": "IMMEDIATE",
+      "message": "SURVEY TEAM CONDOR MISSED EVENING SCHED PERIOD IF THEY CALL THE CHALLENGE IS SIERRA PERIOD SEARCH THE EASTERN CHANNEL ON YOUR SHEET PERIOD ACKNOWLEDGE OVER",
+      "faction": "military",
+      "requires": [],
+      "choices": [
+        {
+          "id": "relay",
+          "text": "Acknowledge — copy SIERRA",
+          "on_success": [
+            "set_flag:HQ_d2_relayed",
+            "clue:condor_missed",
+            "clue:search_east",
+            "clue:code_sierra",
+            "code:SIERRA",
+            "trust:military:4",
+            "resource:batteries:-4",
+            "log:SIERRA is in the book. HQ wants Condor found, quietly."
+          ]
+        },
+        {
+          "id": "bury",
+          "text": "Acknowledge — keep SIERRA off the open net",
+          "on_success": [
+            "set_flag:HQ_d2_buried",
+            "clue:condor_missed",
+            "clue:search_east",
+            "clue:code_sierra",
+            "code:SIERRA",
+            "trust:expedition:2",
+            "resource:batteries:-3",
+            "log:You write SIERRA small. Eastern channel is circled."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Weak copy of the debrief",
+          "on_success": [
+            "set_flag:HQ_d2_static",
+            "clue:search_east",
+            "clue:code_sierra",
+            "code:SIERRA",
+            "trust:military:-3",
+            "resource:batteries:-2",
+            "log:You still caught SIERRA and the eastern channel. HQ is not pleased."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E1",
+      "frequency": 96.4,
+      "thread": "E",
+      "sender": "Survey Team Condor",
+      "originator": "CONDOR",
+      "addressee": "ANY STATION",
+      "precedence": "FLASH",
+      "message": "CONDOR CALLING ANY STATION PERIOD WE ARE OFF THE RIVER AND LOW ON WATER PERIOD LAST GRID SEVEN FOUR NINER PERIOD RELAY IF YOU COPY OVER",
+      "faction": "expedition",
+      "requires": [],
+      "callSign": {
+        "challenge": "CONDOR — AUTHENTICATE. Night challenge. OVER.",
+        "answer": "SIERRA",
+        "clueHint": "HQ debrief or the eastern landing."
+      },
+      "choices": [
+        {
+          "id": "relay",
+          "text": "Relay the cry to HQ",
+          "on_success": [
+            "set_flag:E1_relayed",
+            "clue:condor_grid",
+            "thread:E:1",
+            "trust:expedition:8",
+            "trust:military:3",
+            "resource:batteries:-8",
+            "log:Relay sent. HQ marks it noted. Condor sounds farther already."
+          ]
+        },
+        {
+          "id": "bury",
+          "text": "Log the cry — wait for a cleaner window",
+          "on_success": [
+            "set_flag:E1_buried",
+            "clue:condor_grid",
+            "thread:E:1",
+            "trust:expedition:4",
+            "resource:batteries:-4",
+            "log:You write seven-four-niner. No one answers them but you."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Lost in static",
+          "on_success": [
+            "set_flag:E1_static",
+            "thread:E:1",
+            "trust:expedition:-6",
+            "resource:batteries:-2",
+            "log:You let a FLASH die. The frequency goes quiet."
+          ]
+        }
+      ],
+      "on_fail": [
+        "set_flag:E1_failed",
+        "trust:expedition:-6",
+        "log:No SIERRA. Condor's cry fades. Expedition trust drops."
+      ]
+    },
     {
       "id": "G2",
       "frequency": 91.7,
       "thread": "G",
       "sender": "Town relay — Porangatu",
-      "message": "Heard Marcos called upriver last week. Folks asking when he's coming back. You know anything? Over.",
+      "originator": "PORANGATU",
+      "addressee": "TANGO-SEVEN",
+      "precedence": "ROUTINE",
+      "message": "HEARD MARCOS CALLED UPRIVER LAST WEEK PERIOD FOLKS ASKING WHEN HE IS COMING BACK PERIOD YOU KNOW ANYTHING OVER",
       "faction": "desk",
       "requires": ["clue:log_gap"],
       "choices": [
@@ -49,50 +167,59 @@
       ]
     },
     {
-      "id": "E1",
-      "frequency": 96.4,
+      "id": "E_cipher",
+      "frequency": 103.0,
       "thread": "E",
-      "sender": "Survey Team Condor",
-      "message": "Condor base, missed scheduled check-in at 1800. Last position grid seven-four-niner. Request relay if anyone copies. Over.",
+      "sender": "Condor — pad traffic",
+      "originator": "CONDOR",
+      "addressee": "TANGO-SEVEN",
+      "precedence": "IMMEDIATE",
+      "message": "HELP GRID — last camp on the eastern channel. Do not tell the outpost everything.",
+      "cipher": "6 3 10 14 0 5 16 7 2",
+      "decoderDay": 2,
       "faction": "expedition",
-      "requires": [],
+      "requires": ["clue:condor_missed"],
       "choices": [
         {
           "id": "relay",
-          "text": "Relay to HQ and Condor base",
+          "text": "Relay the grid to HQ",
           "on_success": [
-            "set_flag:E1_relayed",
-            "clue:condor_missed",
-            "thread:E:1",
-            "trust:expedition:6",
-            "trust:military:3",
-            "resource:batteries:-8",
-            "log:Relay sent. HQ marks it \"noted.\""
+            "set_flag:E_cipher_relayed",
+            "clue:search_east",
+            "thread:E:2",
+            "trust:military:4",
+            "trust:expedition:3",
+            "resource:batteries:-6",
+            "log:HQ has the grid. Condor asked you not to tell the outpost everything."
           ]
         },
         {
           "id": "bury",
-          "text": "Log — wait for confirmation",
+          "text": "Keep the grid in the book",
           "on_success": [
-            "set_flag:E1_buried",
-            "clue:condor_missed",
-            "thread:E:1",
-            "trust:expedition:3",
+            "set_flag:E_cipher_buried",
+            "clue:search_east",
+            "thread:E:2",
+            "trust:expedition:6",
             "resource:batteries:-4",
-            "log:You write it down. No one answers Condor on your watch."
+            "log:HELP GRID stays off the Army net. The eastern channel is still yours to boat."
           ]
         },
         {
           "id": "static",
-          "text": "Lost in static",
+          "text": "Lose the pad in static",
           "on_success": [
-            "set_flag:E1_static",
-            "thread:E:1",
+            "set_flag:E_cipher_static",
             "trust:expedition:-4",
             "resource:batteries:-2",
-            "log:You let the call die. The frequency goes quiet."
+            "log:The plus-two pad goes unused. Condor does not repeat."
           ]
         }
+      ],
+      "on_fail": [
+        "set_flag:E_cipher_failed",
+        "trust:expedition:-5",
+        "log:Wrong pad. Condor's numbers stay noise."
       ]
     }
   ],

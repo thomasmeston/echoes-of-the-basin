@@ -1,0 +1,90 @@
+{
+  "log_gap": {
+    "title": "Marcos — torn page",
+    "body": "A night with no entry. Margin ink: do not trust the posted list. Try the leftover numbers on 91.0."
+  },
+  "search_negro": {
+    "title": "Search the Negro mouth",
+    "body": "HQ and the desk both point downriver. Unfold the map — Rio Negro mouth / quiet anchorage."
+  },
+  "map_negro_mouth": {
+    "title": "Quiet anchorage",
+    "body": "Boat report: blackwater meeting silt, an unmarked hold. Someone left a folded slip: Marcos was here after 'reassignment.'"
+  },
+  "map_negro_rapids": {
+    "title": "Cache at the portage",
+    "body": "A marker in the brush. Half a log page in Marcos's hand — he was moving upriver, not rotating out."
+  },
+  "town_rumor": {
+    "title": "Called upriver",
+    "body": "Porangatu still asks when Marco comes back. HQ's rotation story does not reach town."
+  },
+  "condor_missed": {
+    "title": "Condor overdue",
+    "body": "Survey Team Condor missed a sched. Last words point at the eastern channel. Challenge if they call: SIERRA."
+  },
+  "search_east": {
+    "title": "Search the eastern channel",
+    "body": "Unfold the map — Channel bend / stranger camp. Condor hung a grid mark there."
+  },
+  "map_east_bend": {
+    "title": "Condor grid",
+    "body": "Channel bend matches Condor's last grid. Their evening pad may still be live on 103.0."
+  },
+  "map_bend_camp": {
+    "title": "Stranger camp",
+    "body": "Survey stakes above the bend. Not Army issue. Questions about old paths."
+  },
+  "condor_grid": {
+    "title": "Grid seven-four-niner",
+    "body": "Condor's last position. Cross with the eastern channel landing if you can spare batteries."
+  },
+  "code_sierra": {
+    "title": "Code word — SIERRA",
+    "body": "If a weak Condor voice challenges you, answer SIERRA."
+  },
+  "code_bravo": {
+    "title": "Code word — BRAVO",
+    "body": "The quiet net uses BRAVO. Army will not thank you for knowing it."
+  },
+  "search_village": {
+    "title": "Upstream village",
+    "body": "A shaman is asking for medicine, not politics. Map: Rio Negro fork — upstream village."
+  },
+  "map_negro_village": {
+    "title": "Village will talk",
+    "body": "Elders share a herb path if you keep their name off the military net. Call them on 94.8."
+  },
+  "map_bend_landing": {
+    "title": "Trader code",
+    "body": "Chalk on a post at Bend do Sapo. The river still watches the water."
+  },
+  "map_east_wharf": {
+    "title": "Quiet relay post",
+    "body": "Schedules scratched for boats that never log with HQ. A night window, unlisted."
+  },
+  "map_manaus_wharf": {
+    "title": "Unlisted night window",
+    "body": "Wharf chatter: a window near the Negro mouth. Army wants it logged. Someone else wants BRAVO."
+  },
+  "coded_window": {
+    "title": "Not the posted list",
+    "body": "A careful voice: after midnight, not the posted frequencies. Be careful who you serve."
+  },
+  "reassignment_story": {
+    "title": "Routine?",
+    "body": "HQ says Marcos was reassigned upriver. The dates and the empty chair disagree."
+  },
+  "bend_strangers": {
+    "title": "Strangers at the bend",
+    "body": "Not military — not river. Asking about old paths. The shaman wants herbs, not an audience."
+  },
+  "shaman_ask": {
+    "title": "Herbs and medicine",
+    "body": "The village needs fever bark and clean bandages. This is a supply ask, not a recruitment."
+  },
+  "clean_channel": {
+    "title": "Clean channel",
+    "body": "Net Control: routine traffic only. Unverified civilian bands are 'not your problem.'"
+  }
+}

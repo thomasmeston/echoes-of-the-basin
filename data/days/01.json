@@ -1,14 +1,66 @@
 {
   "day": 1,
   "meta": { "supplyEvent": "daily_supply_check" },
-  "requiredBeats": ["G1", "A_soft"],
+  "requiredBeats": ["HQ_d1", "G1", "A_soft", "G_cipher"],
   "transmissions": [
+    {
+      "id": "HQ_d1",
+      "frequency": 98.8,
+      "thread": "meta",
+      "sender": "HQ — Manaus relay",
+      "originator": "MANAUS HQ",
+      "addressee": "TANGO-SEVEN",
+      "precedence": "ROUTINE",
+      "message": "TUCUNARE CONFIRM RELIEF ON STATION PERIOD PRIOR OPERATOR VIERA REASSIGNED UPRIVER ROUTINE PERIOD BUSINESS AS USUAL PERIOD IF YOU CHASE RUMORS SEARCH THE NEGRO MOUTH ON THE SURVEY SHEET OVER",
+      "faction": "military",
+      "requires": [],
+      "choices": [
+        {
+          "id": "relay",
+          "text": "Confirm on station",
+          "on_success": [
+            "set_flag:HQ_d1_relayed",
+            "clue:search_negro",
+            "clue:reassignment_story",
+            "trust:military:3",
+            "resource:batteries:-3",
+            "log:You confirm. HQ sounds satisfied — and points at the Negro mouth."
+          ]
+        },
+        {
+          "id": "bury",
+          "text": "Confirm — note discrepancy privately",
+          "on_success": [
+            "set_flag:HQ_d1_buried",
+            "clue:search_negro",
+            "clue:reassignment_story",
+            "trust:river:1",
+            "resource:batteries:-3",
+            "log:You confirm, and write routine? in the margin. Negro mouth is circled."
+          ]
+        },
+        {
+          "id": "static",
+          "text": "Delay response",
+          "on_success": [
+            "set_flag:HQ_d1_static",
+            "clue:search_negro",
+            "trust:military:-3",
+            "resource:batteries:-1",
+            "log:You let the carrier hum. HQ repeats the Negro hint once, then stops."
+          ]
+        }
+      ]
+    },
     {
       "id": "G1",
       "frequency": 93.2,
       "thread": "G",
       "sender": "Outpost Log — prior shift",
-      "message": "Handwritten margin, not typed: \"Marcos — if you're reading this, don't trust the posted frequency list. Gap between 2200 and 0400. Someone else was listening.\" The rest of the page is torn out.",
+      "originator": "DESK / MARCOS",
+      "addressee": "RELIEF",
+      "precedence": "PRIORITY",
+      "message": "HANDWRITTEN MARGIN NOT TYPED COLON MARCOS IF YOU ARE READING THIS DO NOT TRUST THE POSTED LIST PERIOD GAP BETWEEN 2200 AND 0400 PERIOD SOMEONE ELSE WAS LISTENING PERIOD TRY THE NUMBERS ON 91.0 OVER",
       "faction": "desk",
       "requires": [],
       "choices": [
@@ -21,7 +73,7 @@
             "thread:G:1",
             "trust:military:5",
             "resource:batteries:-8",
-            "log:You relayed the margin note. HQ acknowledges — and asks why it wasn't logged sooner."
+            "log:You relayed the margin note. HQ asks why it was not logged sooner."
           ]
         },
         {
@@ -41,12 +93,18 @@
           "text": "Didn't copy — lost in static",
           "on_success": [
             "set_flag:G1_static",
+            "clue:log_gap",
             "thread:G:1",
             "trust:military:-2",
             "resource:batteries:-2",
-            "log:Static. If anyone asked, you didn't hear it."
+            "log:Static. If anyone asked, you did not hear it. The gap still sits in the book."
           ]
         }
+      ],
+      "on_fail": [
+        "set_flag:G1_failed",
+        "trust:military:-2",
+        "log:The desk note goes unread."
       ]
     },
     {
@@ -54,7 +112,10 @@
       "frequency": 90.3,
       "thread": "A",
       "sender": "Tango-Seven Net Control",
-      "message": "Relief operator, this is Net Control. Maintain a clean channel tonight. Routine traffic only. Do not relay unverified civilian bands. Acknowledge.",
+      "originator": "TANGO-SEVEN NC",
+      "addressee": "RELIEF",
+      "precedence": "ROUTINE",
+      "message": "RELIEF OPERATOR THIS IS NET CONTROL PERIOD MAINTAIN A CLEAN CHANNEL TONIGHT PERIOD ROUTINE TRAFFIC ONLY PERIOD DO NOT RELAY UNVERIFIED CIVILIAN BANDS PERIOD ACKNOWLEDGE OVER",
       "faction": "military",
       "requires": [],
       "choices": [
@@ -63,10 +124,11 @@
           "text": "Acknowledge and comply",
           "on_success": [
             "set_flag:A_soft_relayed",
+            "clue:clean_channel",
             "thread:A:1",
             "trust:military:8",
             "resource:batteries:-5",
-            "log:Acknowledged. Net Control signs off with \"good shift.\""
+            "log:Acknowledged. Net Control signs off with good shift."
           ]
         },
         {
@@ -74,6 +136,7 @@
           "text": "Acknowledge — log privately",
           "on_success": [
             "set_flag:A_soft_buried",
+            "clue:clean_channel",
             "thread:A:1",
             "trust:military:3",
             "trust:river:2",
@@ -95,45 +158,58 @@
       ]
     },
     {
-      "id": "HQ_open",
-      "frequency": 98.1,
-      "thread": "meta",
-      "sender": "HQ — Manaus relay",
-      "message": "Outpost Tucunaré, confirm relief operator on station. Prior operator reassigned upriver per routine rotation. Business as usual. Over.",
-      "faction": "military",
-      "requires": [],
+      "id": "G_cipher",
+      "frequency": 91.0,
+      "thread": "G",
+      "sender": "Unknown — leftover pad",
+      "originator": "UNKNOWN",
+      "addressee": "TANGO-SEVEN",
+      "precedence": "PRIORITY",
+      "message": "SEARCH THE NEGRO MOUTH PERIOD MARCOS LEFT A MARK AT THE ANCHORAGE OVER",
+      "cipher": "19 5 1 18 3 8 0 20 8 5 0 14 5 7 18 15",
+      "decoderDay": 1,
+      "faction": "desk",
+      "requires": ["clue:log_gap"],
       "choices": [
         {
           "id": "relay",
-          "text": "Confirm on station",
+          "text": "Log the decode — tell HQ later",
           "on_success": [
-            "set_flag:HQ_open_relayed",
-            "trust:military:3",
-            "resource:batteries:-3",
-            "log:You confirm. HQ sounds satisfied."
+            "set_flag:G_cipher_relayed",
+            "clue:search_negro",
+            "thread:G:1",
+            "trust:military:2",
+            "resource:batteries:-4",
+            "log:SEARCH THE NEGRO. The survey sheet suddenly matters."
           ]
         },
         {
           "id": "bury",
-          "text": "Confirm — note discrepancy privately",
+          "text": "Keep the decode in the book only",
           "on_success": [
-            "set_flag:HQ_open_buried",
-            "clue:reassignment_story",
-            "trust:river:1",
+            "set_flag:G_cipher_buried",
+            "clue:search_negro",
+            "thread:G:1",
+            "trust:river:2",
             "resource:batteries:-3",
-            "log:You confirm, but write \"routine?\" in the margin."
+            "log:You write NEGRO in the margin. No one else hears it."
           ]
         },
         {
           "id": "static",
-          "text": "Delay response",
+          "text": "Burn the slip",
           "on_success": [
-            "set_flag:HQ_open_static",
-            "trust:military:-3",
-            "resource:batteries:-1",
-            "log:You let the carrier hum. HQ repeats once, then stops."
+            "set_flag:G_cipher_static",
+            "trust:military:-2",
+            "resource:batteries:-2",
+            "log:Ash in the tin. The river still knows."
           ]
         }
+      ],
+      "on_fail": [
+        "set_flag:G_cipher_failed",
+        "trust:military:-4",
+        "log:The numbers stay numbers. Marcos's trail goes cold tonight."
       ]
     }
   ],

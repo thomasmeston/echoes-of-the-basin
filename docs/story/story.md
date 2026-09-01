@@ -2,9 +2,10 @@
 
 > Working narrative canon for design and implementation.
 > Soft-fictional late 1960s Amazon / Araguaia-analogue basin.
-> Last updated: 2026-08-08 (Campbell)
+> Last updated: 2026-08-31 (Campbell)
 >
-> Companion: [`radio-world.md`](./radio-world.md) — HF networks, sched/power/static texture, story + mechanic seeds.
+> Companion: [`radio-world.md`](./radio-world.md) — HF networks, sched/power/static texture.
+> Play loop: tune → (decode / call-sign) → ACP-lite log → reply. Map boats feed faction requests.
 
 ---
 
@@ -54,16 +55,44 @@ Occult / “ancient ones in the static” may appear as **seasoning** (pareidoli
 
 ---
 
-## Mini-storylines (locked)
+## Four narratives (player-facing)
 
-| ID | Name | Hook |
-|----|------|------|
-| **G** | Ghost of the Desk | Missing acquaintance-operator; logbook gaps; why the chair is empty |
-| **E** | Lost Expedition | A survey / research party gone quiet; frequencies still ghosting |
-| **R** | River Voices | Indigenous / river arcs — warnings, bargains, knowledge |
-| **A** | Two Armies of the Air | Military vs guerrilla traffic; player as reluctant switchboard |
+| ID | Name | Pitch |
+|----|------|--------|
+| **G** | Marcos mystery | Solve the disappearance of Marcos Viera (town acquaintance). Desk gaps, rumors, river caches. |
+| **E** | Lost expedition | **Day 2:** urgent cry for help from Survey Team Condor deep in the basin. Follow their fading sched. |
+| **A** | Army vs guerrillas | You sit an Army chair (Tango-Seven). Both nets will ask for the channel. Trust is the fork. |
+| **R** | Indigenous shaman | A nearby village shaman asks for **herbs and supplies** (medicine/food), not ideology. Distinct from guerrillas. |
 
-Threads are **optional and discoverable**. Completing all is not required. Ambient faction chatter every day; story beats fire when the player has unlocked a thread (logged a clue, answered an ask, held a frequency).
+Threads unlock through radio tasks, visible clues, and river-map landings. Completing all is not required.
+
+---
+
+## Radio tasks (current loop)
+
+Keep: power on → tune MHz → choose reply → sleep when `requiredBeats` are done.
+
+**Each day**
+
+1. **HQ check-in** (98.8 MHz) — confirm on station; debrief yesterday + today’s news (one rumor, one freq or code, one map hint).
+2. **3–4 transmission tasks** — mix of open traffic, **cipher** (daily decode book), and **call-sign** gates.
+
+**ACP-lite log** — every fully received message is copied into Field Notes as:
+
+- Precedence (ROUTINE / PRIORITY / IMMEDIATE / FLASH)
+- Originator (call sign)
+- Addressee (display only)
+- Text
+
+**Decode book** — some traffic is a number string. One decoder grid per night. Correct decode unlocks the body + choices. Skip/wrong-and-give-up = fail + faction trust ding.
+
+**Call-sign** — secret traffic stays locked until the player answers the code word (from HQ, a clue, or a boat landing). Wrong/refuse = fail + trust ding.
+
+**Clues (Strange Antiquities pages)** — each successful task awards a **visible** clue: world fact, Marcos lead, or a pointer (frequency, code, river square). Clues live on the Field Notes **Clues** tab.
+
+**Fail** — wrong decode, wrong call-sign, or static on a help cry dings the named faction.
+
+**River map** — boat landings are tied to faction requests. HQ/radio points at a square; the landing awards the clue that unlocks the radio side (herb cache, Condor grid, night-window code, Marcos anchorage). Battery cost limits how much river you clear in one night.
 
 ---
 
@@ -84,9 +113,9 @@ Threads are **optional and discoverable**. Completing all is not required. Ambie
 
 | Day | Meta (always on) | Thread beats | Purpose |
 |-----|------------------|--------------|---------|
-| 1 | Learn call signs; their things still here; HQ: business as usual | **G1** First gap in their log. Soft **A** — Army wants a clean channel | Teach loop; personal hook |
-| 2 | Battery discipline; who gets priority | **G2** Town rumor: “called upriver.” **E1** Expedition missed a check-in | Expand mystery without panic |
-| 3 | First real choice: relay or “didn’t copy” | **R1** River trader — strangers near a named bend. **A1** Careful coded civilian voice | Agency; keep River ≠ Guerrilla |
+| 1 | **HQ** on station + debrief | **G1** Marcos log gap. **A_soft** clean channel. **G_cipher** leftover numbers → Negro | Teach loop, decode, map hint |
+| 2 | **HQ** Condor overdue; code SIERRA | **E1** Urgent Condor cry. **G2** Town rumor. **E_cipher** grid pad | Expedition opens; map Eastern channel |
+| 3 | **HQ** shaman asking for medicine | **R1** Shaman herbs (after village landing). **A1** Quiet net (call-sign BRAVO). Optional Army pressure | River ≠ guerrilla; trust fork |
 | 4 | Wrong time-stamp style in their notes | **G3** Margin frequency not on the posted list. **E2** Weak beacon — expedition callsign, wrong words | Desk ghost + lost party rhyme |
 | 5 | HQ praises “reliability” | **R2** Community voice — outsiders asking wrong questions (cultural, not combat). **A2** Army: ignore a band “for security” | Soft pressure |
 | 6 | Personal note — they expected *someone* in this chair | **G4** They trusted you more than HQ. **E3** Medic fragment — fear/illness, not gore | Intimacy; humanize expedition |
@@ -131,4 +160,6 @@ Threads are **optional and discoverable**. Completing all is not required. Ambie
 3. Never collapse Indigenous voices into guerrilla ideology.
 4. When in doubt, cut graphic detail; keep dread in the gaps.
 5. Product title: **Echoes of the Basin**. Diegetic radio chrome may still say military set names (e.g. RX-150).
-6. Period radio texture (sched, tropical bands, batteries, QRN, CW vs voice) lives in [`radio-world.md`](./radio-world.md) — pull story hooks and mechanic seeds from there; keep real org names off-mic unless explicitly approved.
+6. Period radio texture lives in [`radio-world.md`](./radio-world.md) — keep real org names off-mic unless approved.
+7. Map landings must serve a faction request (see `data/map-regions.json` `faction` / `hintClue`).
+8. Do not simulate store-and-forward queues, sched clocks, or 16-line ACP.
